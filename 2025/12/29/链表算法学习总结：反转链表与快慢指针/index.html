@@ -4,16 +4,21 @@
   <meta charset="utf-8">
   
   
-  <title>廷风的技术博客</title>
+  <title>链表算法学习总结：反转链表与快慢指针 | 廷风的技术博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="记录 Java 后端学习与项目实践的技术博客">
-<meta property="og:type" content="website">
-<meta property="og:title" content="廷风的技术博客">
-<meta property="og:url" content="http://example.com/index.html">
+  <meta name="description" content="一、为什么链表题离不开指针技巧？链表和数组最大的区别在于：链表无法通过下标随机访问，只能通过指针逐个遍历节点。因此，大多数链表算法的核心并不是“复杂逻辑”，而是指针之间的关系变化。 本次主要总结两个最常见、也是最重要的技巧：  反转链表 快慢指针   二、反转链表：从指针关系入手1. 核心思想反转链表的本质是：改变节点之间 next 指针的指向关系。 经典做法是使用三个指针：  pre：当前处理节">
+<meta property="og:type" content="article">
+<meta property="og:title" content="链表算法学习总结：反转链表与快慢指针">
+<meta property="og:url" content="http://example.com/2025/12/29/%E9%93%BE%E8%A1%A8%E7%AE%97%E6%B3%95%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93%EF%BC%9A%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8%E4%B8%8E%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/index.html">
 <meta property="og:site_name" content="廷风的技术博客">
-<meta property="og:description" content="记录 Java 后端学习与项目实践的技术博客">
+<meta property="og:description" content="一、为什么链表题离不开指针技巧？链表和数组最大的区别在于：链表无法通过下标随机访问，只能通过指针逐个遍历节点。因此，大多数链表算法的核心并不是“复杂逻辑”，而是指针之间的关系变化。 本次主要总结两个最常见、也是最重要的技巧：  反转链表 快慢指针   二、反转链表：从指针关系入手1. 核心思想反转链表的本质是：改变节点之间 next 指针的指向关系。 经典做法是使用三个指针：  pre：当前处理节">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-12-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-12-29T02:42:27.867Z">
 <meta property="article:author" content="Tingfeng Li">
+<meta property="article:tag" content="链表">
+<meta property="article:tag" content="双指针">
+<meta property="article:tag" content="LeetCode">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternate" href="/atom.xml" title="廷风的技术博客" type="application/atom+xml">
@@ -79,9 +84,7 @@
 </header>
 
       <div class="outer">
-        <section id="main">
-  
-    <article id="post-链表算法学习总结：反转链表与快慢指针" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+        <section id="main"><article id="post-链表算法学习总结：反转链表与快慢指针" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2025/12/29/%E9%93%BE%E8%A1%A8%E7%AE%97%E6%B3%95%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93%EF%BC%9A%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8%E4%B8%8E%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" class="article-date">
   <time class="dt-published" datetime="2025-12-28T16:00:00.000Z" itemprop="datePublished">2025-12-29</time>
@@ -98,8 +101,8 @@
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2025/12/29/%E9%93%BE%E8%A1%A8%E7%AE%97%E6%B3%95%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93%EF%BC%9A%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8%E4%B8%8E%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/">链表算法学习总结：反转链表与快慢指针</a>
+    <h1 class="p-name article-title" itemprop="headline name">
+      链表算法学习总结：反转链表与快慢指针
     </h1>
   
 
@@ -181,68 +184,19 @@
     </footer>
   </div>
   
-</article>
-
-
-
+    
+<nav id="article-nav">
   
-    <article id="post-第一篇博客" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2025/12/28/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" class="article-date">
-  <time class="dt-published" datetime="2025-12-27T16:00:00.000Z" itemprop="datePublished">2025-12-28</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%97%A5%E5%BF%97/">日志</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2025/12/28/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/">博客初始化说明</a>
-    </h1>
+    <a href="/2025/12/28/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">博客初始化说明</div>
+    </a>
   
+</nav>
 
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="为什么搭建这个博客？"><a href="#为什么搭建这个博客？" class="headerlink" title="为什么搭建这个博客？"></a>为什么搭建这个博客？</h2><p>本博客用于记录我在准备 Java 后端开发实习与校招过程中的学习内容与项目实践，<br>现阶段主要包括 MySQL、Spring Boot、Redis 以及相关工程经验。</p>
-<h2 id="博客规划"><a href="#博客规划" class="headerlink" title="博客规划"></a>博客规划</h2><ul>
-<li>MySQL：数据库基础、索引、事务、性能优化</li>
-<li>Java：核心知识</li>
-<li>Spring：Spring Boot &#x2F; Spring MVC</li>
-<li>项目：完整后端项目实践</li>
-<li>面试：面试复盘</li>
-</ul>
-<h2 id="写作原则"><a href="#写作原则" class="headerlink" title="写作原则"></a>写作原则</h2><ul>
-<li>每天至少一篇学习记录或总结</li>
-<li>所有代码均同步维护在 GitHub</li>
-<li>博客内容以「面试可复述」为目标</li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/28/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" data-id="cmjqjzrxx0000ks8t780c68ol" data-title="博客初始化说明" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Hexo/" rel="tag">Hexo</a></li></ul>
-
-    </footer>
-  </div>
   
 </article>
-
-
-
-  
 
 
 </section>
