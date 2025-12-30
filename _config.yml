@@ -102,5 +102,5 @@ theme: landscape
 deploy:
   type: git
   repo: https://github.com/tingfeng-work/tingfeng-work.github.io.git
-  branch: main
+  branch: gh-pages
 
