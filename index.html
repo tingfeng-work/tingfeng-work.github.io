@@ -81,6 +81,199 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-backend/mysql/2025-12-30-mysql-day02-Advanced" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2025/12/30/backend/mysql/2025-12-30-mysql-day02-Advanced/" class="article-date">
+  <time class="dt-published" datetime="2025-12-30T14:30:00.000Z" itemprop="datePublished">2025-12-30</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>►<a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2025/12/30/backend/mysql/2025-12-30-mysql-day02-Advanced/">MySQL 索引与 SQL 优化全梳理：从 InnoDB 存储结构到执行计划</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="一、MySQL-存储引擎与体系结构"><a href="#一、MySQL-存储引擎与体系结构" class="headerlink" title="一、MySQL 存储引擎与体系结构"></a>一、MySQL 存储引擎与体系结构</h2><h3 id="1-MySQL-体系结构概览"><a href="#1-MySQL-体系结构概览" class="headerlink" title="1. MySQL 体系结构概览"></a>1. MySQL 体系结构概览</h3><p>MySQL 整体可以分为四层：</p>
+<ul>
+<li><strong>连接层</strong>：负责连接处理、权限认证和安全校验</li>
+<li><strong>服务层</strong>：SQL 解析、优化、缓存、执行等核心逻辑</li>
+<li><strong>引擎层</strong>：真正负责数据的存储和读取（通过统一 API）</li>
+<li><strong>存储层</strong>：将数据、索引、日志等持久化到文件系统</li>
+</ul>
+<p>MySQL 的核心优势在于 <strong>存储引擎插件化</strong>：</p>
+<blockquote>
+<p>查询处理与数据存储解耦，可以根据业务场景选择最合适的引擎。</p>
+</blockquote>
+<hr>
+<h3 id="2-InnoDB-存储引擎特性"><a href="#2-InnoDB-存储引擎特性" class="headerlink" title="2. InnoDB 存储引擎特性"></a>2. InnoDB 存储引擎特性</h3><p>InnoDB 是 MySQL 5.5 之后的默认存储引擎，兼顾高可靠性与高性能，主要特性包括：</p>
+<ul>
+<li>支持事务（ACID）</li>
+<li>行级锁，支持高并发</li>
+<li>支持外键约束</li>
+</ul>
+<p>每张 InnoDB 表都对应一个 <code>.ibd</code> 文件，用于存储 <strong>表结构 + 数据 + 索引</strong>。</p>
+<hr>
+<h3 id="3-InnoDB-逻辑存储结构"><a href="#3-InnoDB-逻辑存储结构" class="headerlink" title="3. InnoDB 逻辑存储结构"></a>3. InnoDB 逻辑存储结构</h3><p>从大到小依次为：</p>
+<ul>
+<li><strong>表空间（Tablespace）</strong>：<code>.ibd</code> 文件本身</li>
+<li><strong>段（Segment）</strong>：数据段、索引段、回滚段</li>
+<li><strong>区（Extent）</strong>：1MB，一个区 &#x3D; 64 个页</li>
+<li><strong>页（Page）</strong>：16KB，InnoDB 磁盘 I&#x2F;O 的最小单位</li>
+<li><strong>行（Row）</strong>：真实数据记录，包含隐藏字段（事务 ID、回滚指针）</li>
+</ul>
+<blockquote>
+<p>InnoDB 是<strong>按页而不是按行</strong>进行磁盘读写的。</p>
+</blockquote>
+<hr>
+<h2 id="二、索引原理与结构"><a href="#二、索引原理与结构" class="headerlink" title="二、索引原理与结构"></a>二、索引原理与结构</h2><h3 id="1-索引是什么"><a href="#1-索引是什么" class="headerlink" title="1. 索引是什么"></a>1. 索引是什么</h3><p>索引是一种 <strong>有序的数据结构</strong>，用于加速数据检索。</p>
+<p>无索引时：</p>
+<blockquote>
+<p>查询只能全表扫描，从第一行扫到最后一行，性能极低。</p>
+</blockquote>
+<p>索引的优缺点：</p>
+<p><strong>优点</strong></p>
+<ul>
+<li>降低 I&#x2F;O 成本</li>
+<li>减少排序开销（索引中的值是有序的），降低 CPU 消耗</li>
+</ul>
+<p><strong>缺点</strong></p>
+<ul>
+<li>占用额外空间</li>
+<li>增删改时需要维护索引结构</li>
+</ul>
+<hr>
+<h3 id="2-为什么-InnoDB-使用-B-Tree"><a href="#2-为什么-InnoDB-使用-B-Tree" class="headerlink" title="2. 为什么 InnoDB 使用 B+Tree"></a>2. 为什么 InnoDB 使用 B+Tree</h3><h4 id="B-Tree-相比其他结构的优势："><a href="#B-Tree-相比其他结构的优势：" class="headerlink" title="B+Tree 相比其他结构的优势："></a>B+Tree 相比其他结构的优势：</h4><ul>
+<li>相比二叉树：<strong>层级更低</strong></li>
+<li>相比 B-Tree：<ul>
+<li>非叶子节点不存数据，单页可存更多索引</li>
+<li>树高度更低</li>
+</ul>
+</li>
+<li>相比 Hash：<ul>
+<li>支持范围查询</li>
+<li>支持排序</li>
+</ul>
+</li>
+</ul>
+<p>InnoDB 在 B+Tree 基础上增加了 <strong>双向链表</strong>，极大提升了区间查询效率。</p>
+<hr>
+<h2 id="三、聚集索引与回表查询"><a href="#三、聚集索引与回表查询" class="headerlink" title="三、聚集索引与回表查询"></a>三、聚集索引与回表查询</h2><h3 id="1-聚集索引-二级索引"><a href="#1-聚集索引-二级索引" class="headerlink" title="1. 聚集索引 &amp; 二级索引"></a>1. 聚集索引 &amp; 二级索引</h3><ul>
+<li><strong>聚集索引</strong>：叶子节点存的是整行数据（主键）</li>
+<li><strong>二级索引</strong>：叶子节点存的是主键值</li>
+</ul>
+<blockquote>
+<p>通过二级索引查到主键，再回到聚集索引查整行数据，这个过程称为 <strong>回表查询</strong>。</p>
+</blockquote>
+<hr>
+<h3 id="2-B-Tree-高度估算（理解索引为什么快）"><a href="#2-B-Tree-高度估算（理解索引为什么快）" class="headerlink" title="2. B+Tree 高度估算（理解索引为什么快）"></a>2. B+Tree 高度估算（理解索引为什么快）</h3><p>假设：</p>
+<ul>
+<li>一行数据 ≈ 1KB</li>
+<li>一页 16KB ⇒ 16 行</li>
+<li>主键 bigint：8 字节</li>
+<li>指针：6 字节</li>
+</ul>
+<p>高度为 2 时：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">n * 8 + (n + 1) * 6 = 16 * 1024 // n 代表一节点中存储值的个数</span><br><span class="line">n ≈ 1170</span><br></pre></td></tr></table></figure>
+
+<p>可存储记录数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1170 * 16 ≈ 1.8 万</span><br></pre></td></tr></table></figure>
+
+<p>高度为 3：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1171 * 1171 * 16 ≈ 2200 万</span><br></pre></td></tr></table></figure>
+
+<p> <strong>现实中索引高度通常 ≤ 3</strong>。</p>
+<hr>
+<h2 id="四、索引使用与失效场景"><a href="#四、索引使用与失效场景" class="headerlink" title="四、索引使用与失效场景"></a>四、索引使用与失效场景</h2><h3 id="1-最左前缀法则"><a href="#1-最左前缀法则" class="headerlink" title="1. 最左前缀法则"></a>1. 最左前缀法则</h3><p>联合索引 <code>(a, b, c)</code>：</p>
+<ul>
+<li>✅ a</li>
+<li>✅ a, b</li>
+<li>❌ b, c</li>
+</ul>
+<blockquote>
+<p>查询条件顺序无关，优化器会自动调整。</p>
+</blockquote>
+<hr>
+<h3 id="2-范围查询导致右侧索引失效"><a href="#2-范围查询导致右侧索引失效" class="headerlink" title="2. 范围查询导致右侧索引失效"></a>2. 范围查询导致右侧索引失效</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">where a = 1 and b &gt;= 10 and c = 5</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>a、b 可用</li>
+<li>c 只能过滤，不能继续缩小扫描区间</li>
+</ul>
+<blockquote>
+<p><code>key_len</code> <strong>不能判断是否完全走索引</strong>，必须结合 <code>type = ref / range</code>。</p>
+</blockquote>
+<hr>
+<h3 id="3-常见索引失效原因"><a href="#3-常见索引失效原因" class="headerlink" title="3. 常见索引失效原因"></a>3. 常见索引失效原因</h3><ul>
+<li>左 &#x2F; 左右模糊匹配：<code>%xx</code></li>
+<li>对索引列使用函数或表达式</li>
+<li>隐式类型转换</li>
+<li>OR 条件中有非索引列</li>
+<li>数据分布导致优化器放弃索引</li>
+</ul>
+<hr>
+<h2 id="五、SQL-优化总结"><a href="#五、SQL-优化总结" class="headerlink" title="五、SQL 优化总结"></a>五、SQL 优化总结</h2><h3 id="1-插入优化"><a href="#1-插入优化" class="headerlink" title="1. 插入优化"></a>1. 插入优化</h3><ul>
+<li>批量插入(本质上是减少事务的数量)</li>
+<li>手动控制事务</li>
+<li>大数据量使用 <code>LOAD DATA</code></li>
+</ul>
+<hr>
+<h3 id="2-主键优化"><a href="#2-主键优化" class="headerlink" title="2. 主键优化"></a>2. 主键优化</h3><ul>
+<li>顺序插入 &gt; 乱序插入</li>
+<li>避免 UUID</li>
+<li>减少页分裂 &#x2F; 页合并（通过顺序插入）</li>
+</ul>
+<hr>
+<h3 id="3-排序、分组、分页优化"><a href="#3-排序、分组、分页优化" class="headerlink" title="3. 排序、分组、分页优化"></a>3. 排序、分组、分页优化</h3><ul>
+<li><code>ORDER BY</code> 优先 using index</li>
+<li>大分页使用子查询 + 覆盖索引</li>
+<li><code>GROUP BY</code> 遵循最左前缀</li>
+</ul>
+<hr>
+<h3 id="4-COUNT-优化"><a href="#4-COUNT-优化" class="headerlink" title="4. COUNT 优化"></a>4. COUNT 优化</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">效率排序：</span><br><span class="line">count(字段) &lt; count(主键) &lt; count(1) = count(*)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h2><blockquote>
+<p>今天主要系统学习了 <strong>InnoDB 存储结构、索引原理以及 SQL 优化方法</strong>，核心结论如下：</p>
+</blockquote>
+<ol>
+<li>InnoDB 是面向事务与高并发的存储引擎</li>
+<li>B+Tree 是最适合磁盘索引的数据结构</li>
+<li>SQL 优化本质是：<strong>减少全表扫描（索引查询）、减少回表查询（索引覆盖）、减少文件排序（索引排序）</strong></li>
+<li>explain 是定位性能问题的核心工具</li>
+<li>DML 优化要避免索引失效导致锁升级</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2025/12/30/backend/mysql/2025-12-30-mysql-day02-Advanced/" data-id="cmjsn85bu000mr48tbooc7al9" data-title="MySQL 索引与 SQL 优化全梳理：从 InnoDB 存储结构到执行计划" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-algorithms/linked-list/2025-12-30-delete-linked-list-nodes" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2025/12/30/algorithms/linked-list/2025-12-30-delete-linked-list-nodes/" class="article-date">
@@ -206,7 +399,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/30/algorithms/linked-list/2025-12-30-delete-linked-list-nodes/" data-id="cmjrzr5gy0004p48t5zln3m29" data-title="删除链表中的元素：从基础操作到 O(n) 优化思路（Java）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/30/algorithms/linked-list/2025-12-30-delete-linked-list-nodes/" data-id="cmjsn85bs000jr48t7dkweuv2" data-title="删除链表中的元素：从基础操作到 O(n) 优化思路（Java）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -311,7 +504,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/29/algorithms/linked-list/2025-12-29-linked-list-summary/" data-id="cmjrzr5gv0001p48t0y018f6l" data-title="链表算法学习总结：反转链表与快慢指针（Java）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/29/algorithms/linked-list/2025-12-29-linked-list-summary/" data-id="cmjsn85bl0001r48tc7ki3jrx" data-title="链表算法学习总结：反转链表与快慢指针（Java）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -491,7 +684,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/29/backend/mysql/2025-12-29-mysql-day01-basics/" data-id="cmjrzr5gz0005p48tds8rdpnk" data-title="MySQL 学习笔记 Day01：基础概念与常用命令" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/29/backend/mysql/2025-12-29-mysql-day01-basics/" data-id="cmjsn85bs000ir48t26w7c1hz" data-title="MySQL 学习笔记 Day01：基础概念与常用命令" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -548,7 +741,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/29/misc/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" data-id="cmjrzr5gr0000p48t9own0wra" data-title="第一篇博客" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/29/misc/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" data-id="cmjsn85bh0000r48tar7ebmm1" data-title="第一篇博客" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -582,7 +775,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li></ul>
     </div>
   </div>
 
@@ -592,7 +785,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 10px;">记录</a>
+      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 10px;">记录</a>
     </div>
   </div>
 
@@ -612,6 +805,10 @@
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2025/12/30/backend/mysql/2025-12-30-mysql-day02-Advanced/">MySQL 索引与 SQL 优化全梳理：从 InnoDB 存储结构到执行计划</a>
+          </li>
         
           <li>
             <a href="/2025/12/30/algorithms/linked-list/2025-12-30-delete-linked-list-nodes/">删除链表中的元素：从基础操作到 O(n) 优化思路（Java）</a>
