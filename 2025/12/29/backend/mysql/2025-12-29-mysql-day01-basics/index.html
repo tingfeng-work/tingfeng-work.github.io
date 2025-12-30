@@ -4,19 +4,21 @@
   <meta charset="utf-8">
   
   
-  <title>MySQL 学习笔记 Day01：MySQL 基础 | 廷风的技术博客</title>
+  <title>MySQL 学习笔记 Day01：基础概念与常用命令 | 廷风的技术博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="MySQL 学习笔记 Day01：MySQL 基础本文基于我在 MySQL 入门阶段的系统学习整理，主要记录数据库与 SQL 的核心概念、常用语法分类以及一些容易忽视的细节，为后续索引、事务与性能优化打基础。 一、数据库的基本认识1. 数据库与 DBMS 数据库（DB）：是有组织的存储数据的仓库 数据库管理系统（DBMS）：则是用来管理数据库的软件（MySQL、Oracle） SQL：操作关系型数">
+  <meta name="description" content="本文基于我在 MySQL 入门阶段的系统学习整理，主要记录数据库与 SQL 的核心概念、常用语法分类以及一些容易忽视的细节，为后续索引、事务与性能优化打基础。 一、数据库的基本认识1. 数据库与 DBMS 数据库（DB）：是有组织的存储数据的仓库 数据库管理系统（DBMS）：则是用来管理数据库的软件（MySQL、Oracle） SQL：操作关系型数据库的统一语言（类比机器码：计算机识别的统一语言）">
 <meta property="og:type" content="article">
-<meta property="og:title" content="MySQL 学习笔记 Day01：MySQL 基础">
-<meta property="og:url" content="http://example.com/2025/12/30/MySQL%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%20Day01%EF%BC%9AMySQL%20%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:title" content="MySQL 学习笔记 Day01：基础概念与常用命令">
+<meta property="og:url" content="http://example.com/2025/12/29/backend/mysql/2025-12-29-mysql-day01-basics/index.html">
 <meta property="og:site_name" content="廷风的技术博客">
-<meta property="og:description" content="MySQL 学习笔记 Day01：MySQL 基础本文基于我在 MySQL 入门阶段的系统学习整理，主要记录数据库与 SQL 的核心概念、常用语法分类以及一些容易忽视的细节，为后续索引、事务与性能优化打基础。 一、数据库的基本认识1. 数据库与 DBMS 数据库（DB）：是有组织的存储数据的仓库 数据库管理系统（DBMS）：则是用来管理数据库的软件（MySQL、Oracle） SQL：操作关系型数">
+<meta property="og:description" content="本文基于我在 MySQL 入门阶段的系统学习整理，主要记录数据库与 SQL 的核心概念、常用语法分类以及一些容易忽视的细节，为后续索引、事务与性能优化打基础。 一、数据库的基本认识1. 数据库与 DBMS 数据库（DB）：是有组织的存储数据的仓库 数据库管理系统（DBMS）：则是用来管理数据库的软件（MySQL、Oracle） SQL：操作关系型数据库的统一语言（类比机器码：计算机识别的统一语言）">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2025-12-29T16:00:00.000Z">
-<meta property="article:modified_time" content="2025-12-29T11:03:11.454Z">
+<meta property="article:published_time" content="2025-12-29T12:00:00.000Z">
+<meta property="article:modified_time" content="2025-12-30T02:24:04.875Z">
 <meta property="article:author" content="Tingfeng Li">
 <meta property="article:tag" content="MySQL">
+<meta property="article:tag" content="SQL">
+<meta property="article:tag" content="事务">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternate" href="/atom.xml" title="廷风的技术博客" type="application/atom+xml">
@@ -82,14 +84,14 @@
 </header>
 
       <div class="outer">
-        <section id="main"><article id="post-MySQL 学习笔记 Day01：MySQL 基础" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+        <section id="main"><article id="post-backend/mysql/2025-12-29-mysql-day01-basics" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2025/12/30/MySQL%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%20Day01%EF%BC%9AMySQL%20%E5%9F%BA%E7%A1%80/" class="article-date">
-  <time class="dt-published" datetime="2025-12-29T16:00:00.000Z" itemprop="datePublished">2025-12-30</time>
+    <a href="/2025/12/29/backend/mysql/2025-12-29-mysql-day01-basics/" class="article-date">
+  <time class="dt-published" datetime="2025-12-29T12:00:00.000Z" itemprop="datePublished">2025-12-29</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>►<a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a>
   </div>
 
   </div>
@@ -100,7 +102,7 @@
         
   
     <h1 class="p-name article-title" itemprop="headline name">
-      MySQL 学习笔记 Day01：MySQL 基础
+      MySQL 学习笔记 Day01：基础概念与常用命令
     </h1>
   
 
@@ -108,7 +110,7 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <h1 id="MySQL-学习笔记-Day01：MySQL-基础"><a href="#MySQL-学习笔记-Day01：MySQL-基础" class="headerlink" title="MySQL 学习笔记 Day01：MySQL 基础"></a>MySQL 学习笔记 Day01：MySQL 基础</h1><p>本文基于我在 MySQL 入门阶段的系统学习整理，主要记录数据库与 SQL 的核心概念、常用语法分类以及一些容易忽视的细节，为后续索引、事务与性能优化打基础。</p>
+        <p>本文基于我在 MySQL 入门阶段的系统学习整理，主要记录数据库与 SQL 的核心概念、常用语法分类以及一些容易忽视的细节，为后续索引、事务与性能优化打基础。</p>
 <h2 id="一、数据库的基本认识"><a href="#一、数据库的基本认识" class="headerlink" title="一、数据库的基本认识"></a>一、数据库的基本认识</h2><h3 id="1-数据库与-DBMS"><a href="#1-数据库与-DBMS" class="headerlink" title="1. 数据库与 DBMS"></a>1. 数据库与 DBMS</h3><ul>
 <li>数据库（DB）：是有组织的存储数据的仓库</li>
 <li>数据库管理系统（DBMS）：则是用来管理数据库的软件（MySQL、Oracle）</li>
@@ -248,11 +250,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/30/MySQL%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%20Day01%EF%BC%9AMySQL%20%E5%9F%BA%E7%A1%80/" data-id="cmjr1vpgj00011s8t04ithhmf" data-title="MySQL 学习笔记 Day01：MySQL 基础" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/29/backend/mysql/2025-12-29-mysql-day01-basics/" data-id="cmjrysix60005988t6tqa65rs" data-title="MySQL 学习笔记 Day01：基础概念与常用命令" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li></ul>
 
     </footer>
   </div>
@@ -260,10 +262,19 @@
     
 <nav id="article-nav">
   
+    <a href="/2025/12/29/algorithms/linked-list/2025-12-29-linked-list-summary/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          链表算法学习总结：反转链表与快慢指针（Java）
+        
+      </div>
+    </a>
   
-    <a href="/2025/12/29/%E9%93%BE%E8%A1%A8%E7%AE%97%E6%B3%95%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93%EF%BC%9A%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8%E4%B8%8E%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" id="article-nav-older" class="article-nav-link-wrap">
+  
+    <a href="/2025/12/29/misc/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">后一篇</strong>
-      <div class="article-nav-title">链表算法学习总结：反转链表与快慢指针</div>
+      <div class="article-nav-title">第一篇博客</div>
     </a>
   
 </nav>
@@ -280,7 +291,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%97%A5%E5%BF%97/">日志</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li></ul>
     </div>
   </div>
 
@@ -290,7 +301,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hexo/" rel="tag">Hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LeetCode/" rel="tag">LeetCode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%93%BE%E8%A1%A8/" rel="tag">链表</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li></ul>
     </div>
   </div>
 
@@ -300,7 +311,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/GitHub-Pages/" style="font-size: 10px;">GitHub Pages</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/LeetCode/" style="font-size: 10px;">LeetCode</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" style="font-size: 10px;">双指针</a> <a href="/tags/%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">链表</a>
+      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 10px;">记录</a>
     </div>
   </div>
 
@@ -322,15 +333,19 @@
       <ul>
         
           <li>
-            <a href="/2025/12/30/MySQL%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%20Day01%EF%BC%9AMySQL%20%E5%9F%BA%E7%A1%80/">MySQL 学习笔记 Day01：MySQL 基础</a>
+            <a href="/2025/12/30/algorithms/linked-list/2025-12-30-delete-linked-list-nodes/">删除链表中的元素：从基础操作到 O(n) 优化思路（Java）</a>
           </li>
         
           <li>
-            <a href="/2025/12/29/%E9%93%BE%E8%A1%A8%E7%AE%97%E6%B3%95%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93%EF%BC%9A%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8%E4%B8%8E%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/">链表算法学习总结：反转链表与快慢指针</a>
+            <a href="/2025/12/29/algorithms/linked-list/2025-12-29-linked-list-summary/">链表算法学习总结：反转链表与快慢指针（Java）</a>
           </li>
         
           <li>
-            <a href="/2025/12/28/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/">博客初始化说明</a>
+            <a href="/2025/12/29/backend/mysql/2025-12-29-mysql-day01-basics/">MySQL 学习笔记 Day01：基础概念与常用命令</a>
+          </li>
+        
+          <li>
+            <a href="/2025/12/29/misc/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/">第一篇博客</a>
           </li>
         
       </ul>
