@@ -81,6 +81,279 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-backend/mysql/2025-12-31-mysql-day02-Advanced" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2025/12/31/backend/mysql/2025-12-31-mysql-day02-Advanced/" class="article-date">
+  <time class="dt-published" datetime="2025-12-31T13:30:00.000Z" itemprop="datePublished">2025-12-31</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>►<a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2025/12/31/backend/mysql/2025-12-31-mysql-day02-Advanced/">MySQL 索引与 SQL 优化全梳理：从 InnoDB 存储结构到执行计划</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p><strong>一句话导读</strong><br> 本文系统梳理了 MySQL 中视图、触发器、锁机制以及 InnoDB 事务与 MVCC 的底层原理，重点理解数据库在并发与事务场景下“如何保证正确性与性能”。</p>
+</blockquote>
+<hr>
+<h2 id="一、视图-存储过程-触发器概览"><a href="#一、视图-存储过程-触发器概览" class="headerlink" title="一、视图 &#x2F; 存储过程 &#x2F; 触发器概览"></a>一、视图 &#x2F; 存储过程 &#x2F; 触发器概览</h2><h3 id="1-视图（View）"><a href="#1-视图（View）" class="headerlink" title="1. 视图（View）"></a>1. 视图（View）</h3><p><strong>视图本质是一张虚拟表</strong>：</p>
+<ul>
+<li>只保存 <strong>SQL 查询逻辑</strong></li>
+<li><strong>不保存真实数据</strong></li>
+<li>查询视图时，结果是动态生成的</li>
+</ul>
+<blockquote>
+<p>我的理解：可以把视图视为“可复用的 SQL 查询封装”。</p>
+</blockquote>
+<h4 id="视图的核心作用"><a href="#视图的核心作用" class="headerlink" title="视图的核心作用"></a>视图的核心作用</h4><ol>
+<li><strong>简化查询</strong>：常用复杂 SQL 封装成视图</li>
+<li><strong>权限控制</strong>：屏蔽敏感字段，只暴露需要的数据</li>
+<li><strong>数据独立性</strong>：表结构变化对上层影响更小（封装思想）</li>
+</ol>
+<h4 id="WITH-CHECK-OPTION"><a href="#WITH-CHECK-OPTION" class="headerlink" title="WITH CHECK OPTION"></a>WITH CHECK OPTION</h4><ul>
+<li>用于<strong>限制通过视图进行 DML 操作</strong></li>
+<li>确保插入 &#x2F; 更新后的数据仍满足视图定义条件</li>
+</ul>
+<p>两种检查范围：</p>
+<ul>
+<li><code>CASCADED</code>（默认）：级联检查当前视图及其依赖视图</li>
+<li><code>LOCAL</code>：只检查当前视图</li>
+</ul>
+<p><strong>注意</strong>：<br> 包含 <code>group by</code>、聚合函数、distinct、join 的视图，<strong>通常不可更新</strong>（视图与基础表中行一一对应才可以更新）</p>
+<hr>
+<h3 id="2-存储过程与存储函数（了解）"><a href="#2-存储过程与存储函数（了解）" class="headerlink" title="2. 存储过程与存储函数（了解）"></a>2. 存储过程与存储函数（了解）</h3><blockquote>
+<p>阿里开发手册明确<strong>不推荐在业务系统中使用存储过程</strong>。</p>
+</blockquote>
+<p>原因：</p>
+<ul>
+<li>可维护性差</li>
+<li>调试困难</li>
+<li>与业务代码耦合过深</li>
+</ul>
+<p>但从原理上：</p>
+<ul>
+<li>存储过程 ≈ SQL 层函数封装</li>
+<li>存储函数 &#x3D; 有返回值的存储过程</li>
+</ul>
+<hr>
+<h3 id="3-触发器（Trigger）"><a href="#3-触发器（Trigger）" class="headerlink" title="3. 触发器（Trigger）"></a>3. 触发器（Trigger）</h3><p>触发器是<strong>表级别的自动回调机制</strong>：</p>
+<ul>
+<li>在 <code>INSERT / UPDATE / DELETE</code></li>
+<li>的 <code>BEFORE</code> 或 <code>AFTER</code></li>
+<li>自动执行一段 SQL</li>
+</ul>
+<p>使用 <code>OLD</code> &#x2F; <code>NEW</code> 引用数据变化前后内容。</p>
+<p><strong>典型场景</strong>：</p>
+<ul>
+<li>数据校验</li>
+<li>日志记录</li>
+<li>约束补充</li>
+</ul>
+<hr>
+<h2 id="二、MySQL-锁机制全景理解"><a href="#二、MySQL-锁机制全景理解" class="headerlink" title="二、MySQL 锁机制全景理解"></a>二、MySQL 锁机制全景理解</h2><h3 id="1-锁的分类（按粒度）"><a href="#1-锁的分类（按粒度）" class="headerlink" title="1. 锁的分类（按粒度）"></a>1. 锁的分类（按粒度）</h3><table>
+<thead>
+<tr>
+<th>锁类型</th>
+<th>作用范围</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>全局锁</td>
+<td>整个数据库</td>
+</tr>
+<tr>
+<td>表级锁</td>
+<td>整张表</td>
+</tr>
+<tr>
+<td>行级锁</td>
+<td>行（本质是索引项）</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="2-全局锁"><a href="#2-全局锁" class="headerlink" title="2. 全局锁"></a>2. 全局锁</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flush tables with read lock;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>整个数据库只读</li>
+<li>常用于<strong>全库逻辑备份</strong></li>
+</ul>
+<p>InnoDB 推荐使用：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqldump --single-transaction</span><br></pre></td></tr></table></figure>
+
+<p>在不加锁的情况下获得一致性快照。</p>
+<hr>
+<h3 id="3-表级锁"><a href="#3-表级锁" class="headerlink" title="3. 表级锁"></a>3. 表级锁</h3><h4 id="表锁（手动）"><a href="#表锁（手动）" class="headerlink" title="表锁（手动）"></a>表锁（手动）</h4><ul>
+<li><code>read lock</code>：可读不可写</li>
+<li><code>write lock</code>：读写都阻塞</li>
+</ul>
+<h4 id="元数据锁（MDL）"><a href="#元数据锁（MDL）" class="headerlink" title="元数据锁（MDL）"></a>元数据锁（MDL）</h4><ul>
+<li><strong>系统自动加锁</strong></li>
+<li>防止 DML 与 DDL 并发冲突：表有未提交事务时，无法修改表结构</li>
+</ul>
+<h4 id="意向锁（InnoDB）"><a href="#意向锁（InnoDB）" class="headerlink" title="意向锁（InnoDB）"></a>意向锁（InnoDB）</h4><blockquote>
+<p><strong>用来“告诉表锁：我表里有行锁”</strong></p>
+</blockquote>
+<ul>
+<li>IS（意向共享锁）</li>
+<li>IX（意向排他锁）</li>
+</ul>
+<p>目的：<br> <strong>避免表锁逐行检查是否存在行锁，提高效率</strong></p>
+<hr>
+<h3 id="4-行级锁（InnoDB-核心）"><a href="#4-行级锁（InnoDB-核心）" class="headerlink" title="4. 行级锁（InnoDB 核心）"></a>4. 行级锁（InnoDB 核心）</h3><p>重点理解一句话：</p>
+<blockquote>
+<p><strong>InnoDB 的行锁，本质是加在索引上的，而不是记录本身</strong></p>
+</blockquote>
+<h4 id="三种行级锁"><a href="#三种行级锁" class="headerlink" title="三种行级锁"></a>三种行级锁</h4><ul>
+<li><strong>Record Lock</strong>：锁定单条索引记录</li>
+<li><strong>Gap Lock</strong>：锁定索引间隙（防幻读）</li>
+<li><strong>Next-Key Lock</strong>：Record + Gap</li>
+</ul>
+<p> <strong>索引失效 &#x3D; 行锁退化为表锁</strong></p>
+<hr>
+<h2 id="三、InnoDB-存储引擎架构"><a href="#三、InnoDB-存储引擎架构" class="headerlink" title="三、InnoDB 存储引擎架构"></a>三、InnoDB 存储引擎架构</h2><h3 id="1-核心内存结构"><a href="#1-核心内存结构" class="headerlink" title="1. 核心内存结构"></a>1. 核心内存结构</h3><h4 id="Buffer-Pool"><a href="#Buffer-Pool" class="headerlink" title="Buffer Pool"></a>Buffer Pool</h4><ul>
+<li>缓存数据页与索引页</li>
+<li>Page 级别管理</li>
+<li>脏页异步刷盘</li>
+</ul>
+<h4 id="Change-Buffer"><a href="#Change-Buffer" class="headerlink" title="Change Buffer"></a>Change Buffer</h4><ul>
+<li>针对 <strong>非唯一二级索引</strong></li>
+<li>先缓存修改，后合并</li>
+<li>减少随机 IO</li>
+</ul>
+<h4 id="Adaptive-Hash-Index"><a href="#Adaptive-Hash-Index" class="headerlink" title="Adaptive Hash Index"></a>Adaptive Hash Index</h4><ul>
+<li>InnoDB 自动生成</li>
+<li>优化等值查询</li>
+<li>无需人工维护</li>
+</ul>
+<h4 id="Log-Buffer"><a href="#Log-Buffer" class="headerlink" title="Log Buffer"></a>Log Buffer</h4><ul>
+<li>redo &#x2F; undo 日志缓冲区</li>
+<li>提高日志写入效率</li>
+</ul>
+<hr>
+<h3 id="2-磁盘结构要点"><a href="#2-磁盘结构要点" class="headerlink" title="2. 磁盘结构要点"></a>2. 磁盘结构要点</h3><ul>
+<li>Redo Log：保证事务<strong>持久性</strong></li>
+<li>Undo Tablespace：存放 undo log</li>
+<li>Doublewrite Buffer：防止部分写失败</li>
+</ul>
+<hr>
+<h2 id="四、事务原理：ACID-是如何实现的？"><a href="#四、事务原理：ACID-是如何实现的？" class="headerlink" title="四、事务原理：ACID 是如何实现的？"></a>四、事务原理：ACID 是如何实现的？</h2><h3 id="1-ACID-对应关系"><a href="#1-ACID-对应关系" class="headerlink" title="1. ACID 对应关系"></a>1. ACID 对应关系</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>实现机制</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>原子性</td>
+<td>undo log</td>
+</tr>
+<tr>
+<td>一致性</td>
+<td>redo + undo</td>
+</tr>
+<tr>
+<td>隔离性</td>
+<td>锁 + MVCC</td>
+</tr>
+<tr>
+<td>持久性</td>
+<td>redo log</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="2-redo-log：保证“提交不丢”"><a href="#2-redo-log：保证“提交不丢”" class="headerlink" title="2. redo log：保证“提交不丢”"></a>2. redo log：保证“提交不丢”</h3><ul>
+<li><strong>物理日志</strong></li>
+<li>事务提交时先写 redo log，即 WAL（Write-Ahead Logging）</li>
+</ul>
+<blockquote>
+<p>redo 解决的是：<br> <strong>事务成功了，但数据页还没刷盘就宕机的问题</strong></p>
+</blockquote>
+<hr>
+<h3 id="3-undo-log：保证“失败可撤销”"><a href="#3-undo-log：保证“失败可撤销”" class="headerlink" title="3. undo log：保证“失败可撤销”"></a>3. undo log：保证“失败可撤销”</h3><ul>
+<li><strong>逻辑日志</strong></li>
+<li>记录“相反操作”<ul>
+<li>delete ↔ insert</li>
+<li>update ↔ old value</li>
+</ul>
+</li>
+<li>用于：<ul>
+<li>rollback</li>
+<li>MVCC 快照读</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>我的理解： <strong>物理日志是照搬，逻辑日志需要理解其语义</strong></p>
+</blockquote>
+<hr>
+<h2 id="五、MVCC：并发读写的核心机制"><a href="#五、MVCC：并发读写的核心机制" class="headerlink" title="五、MVCC：并发读写的核心机制"></a>五、MVCC：并发读写的核心机制</h2><h3 id="1-当前读-vs-快照读"><a href="#1-当前读-vs-快照读" class="headerlink" title="1. 当前读 vs 快照读"></a>1. 当前读 vs 快照读</h3><ul>
+<li>当前读：加锁，读最新数据</li>
+<li>快照读：不加锁，读的版本由 readview 匹配规则决定</li>
+</ul>
+<hr>
+<h3 id="2-隐藏字段"><a href="#2-隐藏字段" class="headerlink" title="2. 隐藏字段"></a>2. 隐藏字段</h3><p>InnoDB 每行都有：</p>
+<ul>
+<li><code>DB_TRX_ID</code>：最近修改事务 ID</li>
+<li><code>DB_ROLL_PTR</code>：指向 undo log 旧版本</li>
+<li><code>DB_ROW_ID</code>（无主键时）</li>
+</ul>
+<hr>
+<h3 id="3-版本链-ReadView"><a href="#3-版本链-ReadView" class="headerlink" title="3. 版本链 + ReadView"></a>3. 版本链 + ReadView</h3><ul>
+<li>多次修改 → 形成 <strong>undo log 版本链</strong></li>
+<li>ReadView 决定：<ul>
+<li>哪个版本对当前事务可见</li>
+</ul>
+</li>
+</ul>
+<p>不同隔离级别：</p>
+<ul>
+<li><strong>RC</strong>：每次 select 生成 ReadView</li>
+<li><strong>RR</strong>：事务第一次 select 生成一次</li>
+</ul>
+<hr>
+<h2 id="六、学习总结（个人理解）"><a href="#六、学习总结（个人理解）" class="headerlink" title="六、学习总结（个人理解）"></a>六、学习总结（个人理解）</h2><p>今天的学习让我对 MySQL 的理解从“会用 SQL”提升到“知道数据库在底层如何保障正确性”：</p>
+<ol>
+<li>视图本质是 SQL 封装 + 权限控制</li>
+<li>锁机制复杂但核心是 <strong>粒度与索引</strong></li>
+<li>InnoDB 的行锁是加在索引上的</li>
+<li>redo log 保证“已提交一定成功”</li>
+<li>undo log 保证“失败一定能回滚”</li>
+<li>MVCC &#x3D; 隐藏字段 + undo log + ReadView</li>
+<li>ACID 不是概念，而是一整套工程实现</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2025/12/31/backend/mysql/2025-12-31-mysql-day02-Advanced/" data-id="cmju079sz0004xg8tbyek7m0x" data-title="MySQL 索引与 SQL 优化全梳理：从 InnoDB 存储结构到执行计划" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-algorithms/binary-tree/2025-12-31-binary-tree-dfs" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2025/12/31/algorithms/binary-tree/2025-12-31-binary-tree-dfs/" class="article-date">
@@ -229,7 +502,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/31/algorithms/binary-tree/2025-12-31-binary-tree-dfs/" data-id="cmjtnjkr40001vw8t8a88g9gf" data-title="二叉树递归解题方法论整理（学习笔记）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/31/algorithms/binary-tree/2025-12-31-binary-tree-dfs/" data-id="cmju079t00006xg8th5gj1vbp" data-title="二叉树递归解题方法论整理（学习笔记）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -422,7 +695,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/30/backend/mysql/2025-12-30-mysql-day02-Advanced/" data-id="cmjtnjkrb000avw8th3015z1t" data-title="MySQL 索引与 SQL 优化全梳理：从 InnoDB 存储结构到执行计划" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/30/backend/mysql/2025-12-30-mysql-day02-Advanced/" data-id="cmju079sz0005xg8t7ubl8ycw" data-title="MySQL 索引与 SQL 优化全梳理：从 InnoDB 存储结构到执行计划" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -561,7 +834,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/30/algorithms/linked-list/2025-12-30-delete-linked-list-nodes/" data-id="cmjtnjkr90005vw8tangh7cts" data-title="删除链表中的元素：从基础操作到 O(n) 优化思路（Java）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/30/algorithms/linked-list/2025-12-30-delete-linked-list-nodes/" data-id="cmju079t2000axg8t18l30h3a" data-title="删除链表中的元素：从基础操作到 O(n) 优化思路（Java）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -666,7 +939,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/29/algorithms/linked-list/2025-12-29-linked-list-summary/" data-id="cmjtnjkr80004vw8t1kam201v" data-title="链表算法学习总结：反转链表与快慢指针（Java）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/29/algorithms/linked-list/2025-12-29-linked-list-summary/" data-id="cmju079t10009xg8t2dfba9p4" data-title="链表算法学习总结：反转链表与快慢指针（Java）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -846,7 +1119,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/29/backend/mysql/2025-12-29-mysql-day01-basics/" data-id="cmjtnjkr90006vw8t7zvq2e8e" data-title="MySQL 学习笔记 Day01：基础概念与常用命令" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/29/backend/mysql/2025-12-29-mysql-day01-basics/" data-id="cmju079ss0000xg8tfu601j6c" data-title="MySQL 学习笔记 Day01：基础概念与常用命令" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -903,7 +1176,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/29/misc/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" data-id="cmjtnjkqz0000vw8tbwgy10nl" data-title="第一篇博客" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/29/misc/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" data-id="cmju079sw0001xg8tfx5v0fug" data-title="第一篇博客" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -937,7 +1210,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
     </div>
   </div>
 
@@ -947,7 +1220,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">二叉树</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 10px;">深度优先遍历</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 10px;">记录</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 10px;">递归</a>
+      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">二叉树</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 10px;">深度优先遍历</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 10px;">记录</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 10px;">递归</a>
     </div>
   </div>
 
@@ -969,6 +1242,10 @@
       <ul>
         
           <li>
+            <a href="/2025/12/31/backend/mysql/2025-12-31-mysql-day02-Advanced/">MySQL 索引与 SQL 优化全梳理：从 InnoDB 存储结构到执行计划</a>
+          </li>
+        
+          <li>
             <a href="/2025/12/31/algorithms/binary-tree/2025-12-31-binary-tree-dfs/">二叉树递归解题方法论整理（学习笔记）</a>
           </li>
         
@@ -982,10 +1259,6 @@
         
           <li>
             <a href="/2025/12/29/algorithms/linked-list/2025-12-29-linked-list-summary/">链表算法学习总结：反转链表与快慢指针（Java）</a>
-          </li>
-        
-          <li>
-            <a href="/2025/12/29/backend/mysql/2025-12-29-mysql-day01-basics/">MySQL 学习笔记 Day01：基础概念与常用命令</a>
           </li>
         
       </ul>
