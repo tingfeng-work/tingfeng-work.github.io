@@ -81,6 +81,239 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-backend/mysql/2026-1-1-mysql-day04-jdbc-maven" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/01/backend/mysql/2026-1-1-mysql-day04-jdbc-maven/" class="article-date">
+  <time class="dt-published" datetime="2026-01-01T12:30:00.000Z" itemprop="datePublished">2026-01-01</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>►<a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2026/01/01/backend/mysql/2026-1-1-mysql-day04-jdbc-maven/">Maven 与 JDBC 学习笔记：从依赖管理到数据库访问实践</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p><strong>一句话导读</strong><br> 本文系统梳理了 Maven 的核心机制（依赖、生命周期、冲突解决）以及 JDBC 的完整使用流程（连接、CRUD、事务、批处理、连接池），重点理解 Java 程序是如何通过 JDBC 与数据库交互的。</p>
+</blockquote>
+<hr>
+<h2 id="一、Maven"><a href="#一、Maven" class="headerlink" title="一、Maven"></a>一、Maven</h2><h3 id="1-Maven-是什么？"><a href="#1-Maven-是什么？" class="headerlink" title="1. Maven 是什么？"></a>1. Maven 是什么？</h3><p>   Maven 是一个 <strong>项目构建与依赖管理工具</strong>。<br>    当项目需要使用第三方库时，不再手动下载 <code>.jar</code> 放进 <code>lib</code> 目录，而是通过 Maven <strong>声明依赖 → 自动下载 → 统一管理</strong>。</p>
+<hr>
+<h3 id="2-Maven-坐标（Dependency-Coordinates）"><a href="#2-Maven-坐标（Dependency-Coordinates）" class="headerlink" title="2. Maven 坐标（Dependency Coordinates）"></a>2. Maven 坐标（Dependency Coordinates）</h3><p>   每一个依赖在 Maven 中都由一组<strong>唯一坐标</strong>标识：</p>
+<ul>
+<li><strong>groupId</strong>：组织或公司名（通常反域名）</li>
+<li><strong>artifactId</strong>：项目&#x2F;模块名</li>
+<li><strong>version</strong>：版本号</li>
+</ul>
+<p>   示例（EasyExcel）：</p>
+   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;com.alibaba&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;easyexcel&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;3.1.1&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<p>   常用坐标查询网站：<br>	 <a target="_blank" rel="noopener" href="https://mvnrepository.com/">https://mvnrepository.com/</a></p>
+<hr>
+<h3 id="3-Maven-依赖配置与-scope"><a href="#3-Maven-依赖配置与-scope" class="headerlink" title="3. Maven 依赖配置与 scope"></a>3. Maven 依赖配置与 scope</h3><h4 id="依赖的基本结构"><a href="#依赖的基本结构" class="headerlink" title="依赖的基本结构"></a>依赖的基本结构</h4>   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependencies&gt;</span><br><span class="line">    &lt;dependency&gt;</span><br><span class="line">        &lt;groupId&gt;...&lt;/groupId&gt;</span><br><span class="line">        &lt;artifactId&gt;...&lt;/artifactId&gt;</span><br><span class="line">        &lt;version&gt;...&lt;/version&gt;</span><br><span class="line">        &lt;scope&gt;...&lt;/scope&gt;</span><br><span class="line">        &lt;exclusions&gt;...&lt;/exclusions&gt;</span><br><span class="line">    &lt;/dependency&gt;</span><br><span class="line">&lt;/dependencies&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="常见依赖范围（scope）"><a href="#常见依赖范围（scope）" class="headerlink" title="常见依赖范围（scope）"></a>常见依赖范围（scope）</h4><table>
+<thead>
+<tr>
+<th>scope</th>
+<th>作用说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>compile</td>
+<td>默认值，编译 &#x2F; 测试 &#x2F; 运行都生效</td>
+</tr>
+<tr>
+<td>test</td>
+<td>仅测试阶段使用（如 JUnit）</td>
+</tr>
+<tr>
+<td>provided</td>
+<td>编译和测试有效，运行时由容器提供</td>
+</tr>
+<tr>
+<td>runtime</td>
+<td>编译不需要，运行时需要（<strong>JDBC 驱动</strong>）</td>
+</tr>
+<tr>
+<td>system</td>
+<td>手动指定 jar 路径（不推荐）</td>
+</tr>
+</tbody></table>
+<p>​    <strong>实践建议</strong><br>​    MySQL JDBC 驱动应使用 <code>runtime</code>，避免与 Java 标准 JDBC 接口混淆。</p>
+<hr>
+<h3 id="4-依赖传递性与依赖冲突"><a href="#4-依赖传递性与依赖冲突" class="headerlink" title="4. 依赖传递性与依赖冲突"></a>4. 依赖传递性与依赖冲突</h3><h4 id="4-1-同一-pom-中声明多个版本"><a href="#4-1-同一-pom-中声明多个版本" class="headerlink" title="4.1 同一 pom 中声明多个版本"></a>4.1 同一 pom 中声明多个版本</h4><ul>
+<li><strong>后声明的版本生效</strong></li>
+</ul>
+<h4 id="4-2-传递依赖冲突的解决规则（Maven-依赖调解）"><a href="#4-2-传递依赖冲突的解决规则（Maven-依赖调解）" class="headerlink" title="4.2 传递依赖冲突的解决规则（Maven 依赖调解）"></a>4.2 传递依赖冲突的解决规则（Maven 依赖调解）</h4><ol>
+<li><strong>路径最短优先</strong></li>
+<li><strong>声明顺序优先</strong></li>
+</ol>
+<p>   如果自动调解不满足需求，需要使用 <code>&lt;exclusions&gt;</code> 手动排除依赖。</p>
+<ul>
+<li>通常优先保留<strong>较高版本</strong></li>
+<li>若高版本不兼容，考虑升级<strong>上层依赖</strong></li>
+</ul>
+<hr>
+<h3 id="5-Maven-仓库机制"><a href="#5-Maven-仓库机制" class="headerlink" title="5. Maven 仓库机制"></a>5. Maven 仓库机制</h3><p>   Maven 仓库类型：</p>
+<ul>
+<li><strong>本地仓库</strong>：缓存已下载依赖</li>
+<li><strong>远程仓库</strong><ul>
+<li>中央仓库</li>
+<li>私服</li>
+<li>镜像仓库（如阿里云）</li>
+</ul>
+</li>
+</ul>
+<p>   依赖查找顺序：</p>
+<ol>
+<li>本地仓库</li>
+<li>远程仓库</li>
+<li>找不到则报错</li>
+</ol>
+<hr>
+<h3 id="6-Maven-生命周期与插件"><a href="#6-Maven-生命周期与插件" class="headerlink" title="6. Maven 生命周期与插件"></a>6. Maven 生命周期与插件</h3><h4 id="生命周期"><a href="#生命周期" class="headerlink" title="生命周期"></a>生命周期</h4><ul>
+<li><code>clean</code></li>
+<li><code>default</code></li>
+<li><code>site</code></li>
+</ul>
+<p>   常用阶段：</p>
+<ul>
+<li><code>compile</code></li>
+<li><code>install</code></li>
+<li><code>deploy</code></li>
+</ul>
+   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn clean install</span><br></pre></td></tr></table></figure>
+
+<h4 id="插件机制"><a href="#插件机制" class="headerlink" title="插件机制"></a>插件机制</h4><p>   Maven 本质是 <strong>插件执行框架</strong>，如：</p>
+<ul>
+<li>编译插件</li>
+<li>测试插件</li>
+<li>Jacoco、Checkstyle、Sonar 等</li>
+</ul>
+<hr>
+<h3 id="7-Maven-多模块与最佳实践"><a href="#7-Maven-多模块与最佳实践" class="headerlink" title="7. Maven 多模块与最佳实践"></a>7. Maven 多模块与最佳实践</h3><ul>
+<li>父模块：统一管理版本、插件</li>
+<li>子模块：只引入实际需要的依赖</li>
+<li>使用 <code>dependencyManagement</code> 统一版本</li>
+<li>将版本号集中在 <code>&lt;properties&gt;</code> 中</li>
+</ul>
+<hr>
+<h2 id="二、JDBC"><a href="#二、JDBC" class="headerlink" title="二、JDBC"></a>二、JDBC</h2><h3 id="1-JDBC-是什么？"><a href="#1-JDBC-是什么？" class="headerlink" title="1. JDBC 是什么？"></a>1. JDBC 是什么？</h3><p>JDBC（Java Database Connectivity）是 <strong>Java 访问数据库的标准接口</strong>：</p>
+<ul>
+<li>接口定义在 Java 标准库中</li>
+<li>具体实现由数据库厂商提供（JDBC Driver）</li>
+<li>Java 程序通过 JDBC 驱动与数据库通信</li>
+</ul>
+<hr>
+<h3 id="2-JDBC-连接数据库"><a href="#2-JDBC-连接数据库" class="headerlink" title="2. JDBC 连接数据库"></a>2. JDBC 连接数据库</h3><h4 id="JDBC-URL-格式（MySQL）"><a href="#JDBC-URL-格式（MySQL）" class="headerlink" title="JDBC URL 格式（MySQL）"></a>JDBC URL 格式（MySQL）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jdbc:mysql://host:port/db?param=value</span><br></pre></td></tr></table></figure>
+
+<p>示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jdbc:mysql://localhost:3306/db01?useSSL=false&amp;characterEncoding=utf8</span><br></pre></td></tr></table></figure>
+
+<h4 id="建立连接示例"><a href="#建立连接示例" class="headerlink" title="建立连接示例"></a>建立连接示例</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Connection conn = DriverManager.getConnection(url, user, password);</span><br></pre></td></tr></table></figure>
+
+<p> JDBC 连接是昂贵资源，必须及时释放，推荐使用 <code>try-with-resources</code>。</p>
+<hr>
+<h3 id="3-JDBC-查询流程（核心）"><a href="#3-JDBC-查询流程（核心）" class="headerlink" title="3. JDBC 查询流程（核心）"></a>3. JDBC 查询流程（核心）</h3><p><strong>标准 4 步：</strong></p>
+<ol>
+<li>加载驱动</li>
+<li>获取连接</li>
+<li>使用 <code>PreparedStatement</code></li>
+<li>使用 <code>ResultSet</code> 读取结果</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Class.forName(&quot;com.mysql.cj.jdbc.Driver&quot;);</span><br><span class="line"></span><br><span class="line">try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);</span><br><span class="line">     PreparedStatement ps = conn.prepareStatement(&quot;select name, age from tb_user where id &lt;= ?&quot;)) &#123;</span><br><span class="line"></span><br><span class="line">    ps.setObject(1, 20);</span><br><span class="line">    try (ResultSet rs = ps.executeQuery()) &#123;</span><br><span class="line">        while (rs.next()) &#123;</span><br><span class="line">            System.out.println(rs.getString(&quot;name&quot;) + &quot; 年龄：&quot; + rs.getInt(&quot;age&quot;));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="4-PreparedStatement-与-SQL-注入"><a href="#4-PreparedStatement-与-SQL-注入" class="headerlink" title="4. PreparedStatement 与 SQL 注入"></a>4. PreparedStatement 与 SQL 注入</h3><p> 错误示例（存在 SQL 注入风险）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&quot;SELECT * FROM user WHERE name=&#x27;&quot; + name + &quot;&#x27;&quot;</span><br></pre></td></tr></table></figure>
+
+<p> 正确方式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PreparedStatement ps = conn.prepareStatement(</span><br><span class="line">    &quot;SELECT * FROM user WHERE name = ?&quot;</span><br><span class="line">);</span><br><span class="line">ps.setString(1, name);</span><br></pre></td></tr></table></figure>
+
+<p><strong>优势：</strong></p>
+<ul>
+<li>防止 SQL 注入</li>
+<li>可复用 SQL 执行计划</li>
+<li>性能更好</li>
+</ul>
+<hr>
+<h3 id="5-JDBC-更新操作"><a href="#5-JDBC-更新操作" class="headerlink" title="5. JDBC 更新操作"></a>5. JDBC 更新操作</h3><ul>
+<li>INSERT &#x2F; UPDATE &#x2F; DELETE</li>
+<li>使用 <code>executeUpdate()</code></li>
+<li>返回影响行数</li>
+</ul>
+<h4 id="插入并获取自增主键"><a href="#插入并获取自增主键" class="headerlink" title="插入并获取自增主键"></a>插入并获取自增主键</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PreparedStatement ps = conn.prepareStatement(</span><br><span class="line">    sql, Statement.RETURN_GENERATED_KEYS</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">try (ResultSet rs = ps.getGeneratedKeys()) &#123;</span><br><span class="line">    if (rs.next()) &#123;</span><br><span class="line">        long id = rs.getLong(1);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="6-JDBC-事务"><a href="#6-JDBC-事务" class="headerlink" title="6. JDBC 事务"></a>6. JDBC 事务</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">conn.setAutoCommit(false);</span><br><span class="line">try &#123;</span><br><span class="line">    // 多条 SQL</span><br><span class="line">    conn.commit();</span><br><span class="line">&#125; catch (SQLException e) &#123;</span><br><span class="line">    conn.rollback();</span><br><span class="line">&#125; finally &#123;</span><br><span class="line">    conn.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我的理解 JDBC 事务的本质：</p>
+<blockquote>
+<p><strong>让多条 SQL 在同一个数据库事务中执行</strong></p>
+</blockquote>
+<hr>
+<h3 id="7-JDBC-批处理（Batch）"><a href="#7-JDBC-批处理（Batch）" class="headerlink" title="7. JDBC 批处理（Batch）"></a>7. JDBC 批处理（Batch）</h3><p>适用于 <strong>同一 SQL，多组参数</strong> 的场景：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ps.addBatch();</span><br><span class="line">ps.executeBatch();</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>比循环执行效率高</li>
+<li>返回 <code>int[]</code> 表示每条语句影响行数</li>
+</ul>
+<hr>
+<h3 id="8-JDBC-连接池"><a href="#8-JDBC-连接池" class="headerlink" title="8. JDBC 连接池"></a>8. JDBC 连接池</h3><p>频繁创建&#x2F;关闭连接成本高 → 使用连接池复用连接。</p>
+<h4 id="常见连接池实现"><a href="#常见连接池实现" class="headerlink" title="常见连接池实现"></a>常见连接池实现</h4><ul>
+<li>HikariCP</li>
+<li>Druid</li>
+<li>C3P0</li>
+</ul>
+<h4 id="HikariCP-示例"><a href="#HikariCP-示例" class="headerlink" title="HikariCP 示例"></a>HikariCP 示例</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">HikariConfig config = new HikariConfig();</span><br><span class="line">config.setJdbcUrl(&quot;jdbc:mysql://localhost:3306/db01&quot;);</span><br><span class="line">config.setUsername(&quot;root&quot;);</span><br><span class="line">config.setPassword(&quot;password&quot;);</span><br><span class="line"></span><br><span class="line">DataSource ds = new HikariDataSource(config);</span><br><span class="line"></span><br><span class="line">try (Connection conn = ds.getConnection()) &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> 注意：</p>
+<ul>
+<li><code>DataSource</code> 应全局唯一</li>
+<li><code>conn.close()</code> 并不是真正关闭，而是归还连接池</li>
+</ul>
+<hr>
+<h2 id="三、总结与个人理解"><a href="#三、总结与个人理解" class="headerlink" title="三、总结与个人理解"></a>三、总结与个人理解</h2><p>通过今天的学习，我对 <strong>Java + 数据库 + Maven</strong> 的理解更加清晰：</p>
+<ol>
+<li>体会到了 Maven 的便捷，解决了 <strong>依赖与构建的工程问题</strong></li>
+<li>JDBC 是 Java 与数据库之间的 <strong>标准桥梁</strong>（java 核心思想：一次编译到处运行的体现）</li>
+<li>事务、批处理、连接池是性能与一致性的关键</li>
+<li>而后续要学习的框架（MyBatis &#x2F; Spring）本质都是在 <strong>JDBC 之上做封装</strong></li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/01/backend/mysql/2026-1-1-mysql-day04-jdbc-maven/" data-id="cmjvdrso6000g488t86tk4ocj" data-title="Maven 与 JDBC 学习笔记：从依赖管理到数据库访问实践" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/maven/" rel="tag">maven</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-algorithms/binary-tree/2026-1-1-binary-tree-recursion" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2026/01/01/algorithms/binary-tree/2026-1-1-binary-tree-recursion/" class="article-date">
@@ -280,7 +513,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/01/algorithms/binary-tree/2026-1-1-binary-tree-recursion/" data-id="cmjv138o70004l88tewfg0s9v" data-title="leetcode 解题总结：二叉树：相同、对称、平衡、右视图" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/01/algorithms/binary-tree/2026-1-1-binary-tree-recursion/" data-id="cmjvdrso10004488t6m2g0xeb" data-title="leetcode 解题总结：二叉树：相同、对称、平衡、右视图" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -553,7 +786,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/31/backend/mysql/2025-12-31-mysql-day03-Advanced/" data-id="cmjv138od000fl88tgpc1e788" data-title="MySQL 索引与 SQL 优化全梳理：从 InnoDB 存储结构到执行计划" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/31/backend/mysql/2025-12-31-mysql-day03-Advanced/" data-id="cmjvdrso6000f488tcth4hquv" data-title="MySQL 索引与 SQL 优化全梳理：从 InnoDB 存储结构到执行计划" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -715,7 +948,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/31/algorithms/binary-tree/2025-12-31-binary-tree-dfs/" data-id="cmjv138o40001l88t6jb864m4" data-title="二叉树递归解题方法论整理（学习笔记）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/31/algorithms/binary-tree/2025-12-31-binary-tree-dfs/" data-id="cmjvdrsnx0001488t4absfvp5" data-title="二叉树递归解题方法论整理（学习笔记）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -908,7 +1141,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/30/backend/mysql/2025-12-30-mysql-day02-Advanced/" data-id="cmjv138ob000bl88tf378ahjj" data-title="MySQL 索引与 SQL 优化全梳理：从 InnoDB 存储结构到执行计划" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/30/backend/mysql/2025-12-30-mysql-day02-Advanced/" data-id="cmjvdrso4000b488tcw70g8bs" data-title="MySQL 索引与 SQL 优化全梳理：从 InnoDB 存储结构到执行计划" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1047,7 +1280,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/30/algorithms/linked-list/2025-12-30-delete-linked-list-nodes/" data-id="cmjv138o90006l88t48bucqd3" data-title="删除链表中的元素：从基础操作到 O(n) 优化思路（Java）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/30/algorithms/linked-list/2025-12-30-delete-linked-list-nodes/" data-id="cmjvdrso10005488t6lqpgkxi" data-title="删除链表中的元素：从基础操作到 O(n) 优化思路（Java）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1152,7 +1385,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/29/algorithms/linked-list/2025-12-29-linked-list-summary/" data-id="cmjv138o80005l88thqyv2r9h" data-title="链表算法学习总结：反转链表与快慢指针（Java）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/29/algorithms/linked-list/2025-12-29-linked-list-summary/" data-id="cmjvdrso3000a488th0uv9xl1" data-title="链表算法学习总结：反转链表与快慢指针（Java）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1332,7 +1565,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/29/backend/mysql/2025-12-29-mysql-day01-basics/" data-id="cmjv138oa000al88t4b17dx9o" data-title="MySQL 学习笔记 Day01：基础概念与常用命令" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/29/backend/mysql/2025-12-29-mysql-day01-basics/" data-id="cmjvdrso20006488t9ueb2z5x" data-title="MySQL 学习笔记 Day01：基础概念与常用命令" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1389,7 +1622,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/29/misc/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" data-id="cmjv138o00000l88t6r6rey5e" data-title="第一篇博客" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/29/misc/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" data-id="cmjvdrsnt0000488t9tln8hru" data-title="第一篇博客" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1423,7 +1656,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
     </div>
   </div>
 
@@ -1433,7 +1666,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 20px;">深度优先遍历</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 10px;">记录</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 20px;">递归</a>
+      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/jdbc/" style="font-size: 10px;">jdbc</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 20px;">深度优先遍历</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 10px;">记录</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 20px;">递归</a>
     </div>
   </div>
 
@@ -1455,6 +1688,10 @@
       <ul>
         
           <li>
+            <a href="/2026/01/01/backend/mysql/2026-1-1-mysql-day04-jdbc-maven/">Maven 与 JDBC 学习笔记：从依赖管理到数据库访问实践</a>
+          </li>
+        
+          <li>
             <a href="/2026/01/01/algorithms/binary-tree/2026-1-1-binary-tree-recursion/">leetcode 解题总结：二叉树：相同、对称、平衡、右视图</a>
           </li>
         
@@ -1468,10 +1705,6 @@
         
           <li>
             <a href="/2025/12/30/backend/mysql/2025-12-30-mysql-day02-Advanced/">MySQL 索引与 SQL 优化全梳理：从 InnoDB 存储结构到执行计划</a>
-          </li>
-        
-          <li>
-            <a href="/2025/12/30/algorithms/linked-list/2025-12-30-delete-linked-list-nodes/">删除链表中的元素：从基础操作到 O(n) 优化思路（Java）</a>
           </li>
         
       </ul>
