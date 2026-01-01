@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>leetcode 解题总结：二叉树：相同、对称、平衡、右视图 | 廷风的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="刷题范围  基础题  相同的树    对称二叉树    平衡二叉树    二叉树的右视图     扩展题 965、954、226、617、2331、508、1026、1372、1080     一、核心认知：二叉树递归的本质1. 递归遍历 ≈ 访问每一个节点二叉树的递归遍历，本质上就是：  对每一个节点做一次访问，并在访问过程中完成题目要求的逻辑  我对「递归拆分子问题」的理解：  把对当前节点的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="leetcode 解题总结：二叉树：相同、对称、平衡、右视图">
+<meta property="og:url" content="http://example.com/2026/01/01/algorithms/binary-tree/2026-1-1-binary-tree-recursion/index.html">
+<meta property="og:site_name" content="廷风的技术博客">
+<meta property="og:description" content="刷题范围  基础题  相同的树    对称二叉树    平衡二叉树    二叉树的右视图     扩展题 965、954、226、617、2331、508、1026、1372、1080     一、核心认知：二叉树递归的本质1. 递归遍历 ≈ 访问每一个节点二叉树的递归遍历，本质上就是：  对每一个节点做一次访问，并在访问过程中完成题目要求的逻辑  我对「递归拆分子问题」的理解：  把对当前节点的">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-01-01T06:30:00.000Z">
+<meta property="article:modified_time" content="2026-01-01T05:52:18.013Z">
+<meta property="article:author" content="Tingfeng Li">
+<meta property="article:tag" content="递归">
+<meta property="article:tag" content="二叉树">
+<meta property="article:tag" content="深度优先遍历">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="廷风的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">廷风的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Java 后端开发</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-algorithms/binary-tree/2026-1-1-binary-tree-recursion" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/01/algorithms/binary-tree/2026-1-1-binary-tree-recursion/" class="article-date">
+  <time class="dt-published" datetime="2026-01-01T06:30:00.000Z" itemprop="datePublished">2026-01-01</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      leetcode 解题总结：二叉树：相同、对称、平衡、右视图
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><strong>刷题范围</strong></p>
+<ul>
+<li><strong>基础题</strong><ul>
+<li><ol start="100">
+<li>相同的树</li>
+</ol>
+</li>
+<li><ol>
+<li>对称二叉树</li>
+</ol>
+</li>
+<li><ol>
+<li>平衡二叉树</li>
+</ol>
+</li>
+<li><ol>
+<li>二叉树的右视图</li>
+</ol>
+</li>
+</ul>
+</li>
+<li><strong>扩展题</strong><ul>
+<li>965、954、226、617、2331、508、1026、1372、1080</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="一、核心认知：二叉树递归的本质"><a href="#一、核心认知：二叉树递归的本质" class="headerlink" title="一、核心认知：二叉树递归的本质"></a>一、核心认知：二叉树递归的本质</h2><h3 id="1-递归遍历-≈-访问每一个节点"><a href="#1-递归遍历-≈-访问每一个节点" class="headerlink" title="1. 递归遍历 ≈ 访问每一个节点"></a>1. 递归遍历 ≈ 访问每一个节点</h3><p>二叉树的递归遍历，本质上就是：</p>
+<blockquote>
+<p><strong>对每一个节点做一次访问，并在访问过程中完成题目要求的逻辑</strong></p>
+</blockquote>
+<p>我对「递归拆分子问题」的理解：</p>
+<ul>
+<li>把<strong>对当前节点的处理逻辑</strong>抽出来</li>
+<li>把<strong>对子树的处理</strong>交给“规模更小的同一问题”</li>
+</ul>
+<hr>
+<h3 id="2-递归的核心模板"><a href="#2-递归的核心模板" class="headerlink" title="2. 递归的核心模板"></a>2. 递归的核心模板</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">dfs(node):</span><br><span class="line">    if node == null:</span><br><span class="line">        return base</span><br><span class="line"></span><br><span class="line">    // 1. 处理当前节点（可选）</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    // 2. 递归访问左右子树</span><br><span class="line">    left = dfs(node.left)</span><br><span class="line">    right = dfs(node.right)</span><br><span class="line"></span><br><span class="line">    // 3. 归并左右子树结果</span><br><span class="line">    return combine(left, right)</span><br></pre></td></tr></table></figure>
+
+<p><strong>是否“处理当前节点”在前还是在后，决定了是自顶向下还是自底向上</strong></p>
+<hr>
+<h2 id="二、“递”-与-“归”的清晰区分（今天最大的收获）"><a href="#二、“递”-与-“归”的清晰区分（今天最大的收获）" class="headerlink" title="二、“递” 与 “归”的清晰区分（今天最大的收获）"></a>二、“递” 与 “归”的清晰区分（今天最大的收获）</h2><h3 id="1-什么是「递」？"><a href="#1-什么是「递」？" class="headerlink" title="1. 什么是「递」？"></a>1. 什么是「递」？</h3><blockquote>
+<p><strong>递 &#x3D; 分解问题、向下传递信息</strong></p>
+</blockquote>
+<ul>
+<li>从根节点向下</li>
+<li>信息是<strong>已知的、确定的</strong></li>
+<li>常见传递内容：<ul>
+<li>路径和</li>
+<li>最大值 &#x2F; 最小值</li>
+<li>深度、层数</li>
+<li>父节点信息</li>
+</ul>
+</li>
+</ul>
+<p>典型特征： <strong>函数参数在变，状态向下传</strong></p>
+<hr>
+<h3 id="2-什么是「归」？"><a href="#2-什么是「归」？" class="headerlink" title="2 什么是「归」？"></a>2 什么是「归」？</h3><blockquote>
+<p><strong>归 &#x3D; 汇总结果、向上返回信息</strong></p>
+</blockquote>
+<ul>
+<li>从叶子节点向上</li>
+<li>信息是<strong>子树计算后的结果</strong></li>
+<li>常见返回内容：<ul>
+<li>高度</li>
+<li>是否平衡</li>
+<li>最大&#x2F;最小路径</li>
+<li>子树统计信息</li>
+</ul>
+</li>
+</ul>
+<p>典型特征：<strong>返回值在变，状态向上合并</strong></p>
+<hr>
+<h3 id="3-自顶向下-vs-自底向上"><a href="#3-自顶向下-vs-自底向上" class="headerlink" title="3. 自顶向下 vs 自底向上"></a>3. 自顶向下 vs 自底向上</h3><table>
+<thead>
+<tr>
+<th>方式</th>
+<th>特点</th>
+<th>类比遍历</th>
+<th>适合场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>自顶向下</td>
+<td>先处理当前节点，再递</td>
+<td>先序</td>
+<td>路径和、区间限制</td>
+</tr>
+<tr>
+<td>自底向上</td>
+<td>先递归子树，再归</td>
+<td>后序</td>
+<td>高度、平衡性</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>自顶向下更符合直觉，自底向上是动态规划的基础</strong></p>
+</blockquote>
+<hr>
+<h2 id="三、做复杂题时的通用策略"><a href="#三、做复杂题时的通用策略" class="headerlink" title="三、做复杂题时的通用策略"></a>三、做复杂题时的通用策略</h2><h3 id="1-简化递归逻辑"><a href="#1-简化递归逻辑" class="headerlink" title="1. 简化递归逻辑"></a>1. 简化递归逻辑</h3><p>当题目逻辑变复杂时：</p>
+<ul>
+<li>不要把所有判断写在一层</li>
+<li>可以：利用 <strong>返回值</strong> 或 **全局变量 **或 <strong>多返回信息（包装类 &#x2F; 数组）</strong></li>
+</ul>
+<p> <strong>递归只负责“计算”，答案在递归结束后统一处理</strong></p>
+<hr>
+<h3 id="2-map-merge-的实战体会"><a href="#2-map-merge-的实战体会" class="headerlink" title="2. map.merge 的实战体会"></a>2. map.merge 的实战体会</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">map.merge(key, 1, Integer::sum);</span><br></pre></td></tr></table></figure>
+
+<p>含义总结：</p>
+<ul>
+<li>key 不存在 → 新建 <code>(key, newValue)</code></li>
+<li>key 存在 → <code>(oldValue, newValue)</code> 传入函数，返回新值</li>
+</ul>
+<p>在：</p>
+<ul>
+<li><ol start="508">
+<li>出现次数最多的子树元素和</li>
+</ol>
+<p> 这类「统计 + DFS」题中非常合适</p>
+</li>
+</ul>
+<hr>
+<h2 id="四、典型题目的方法论总结"><a href="#四、典型题目的方法论总结" class="headerlink" title="四、典型题目的方法论总结"></a>四、典型题目的方法论总结</h2><h3 id="1-1026-节点与其祖先之间的最大差值"><a href="#1-1026-节点与其祖先之间的最大差值" class="headerlink" title="1. 1026. 节点与其祖先之间的最大差值"></a>1. 1026. 节点与其祖先之间的最大差值</h3><p><strong>核心体会：</strong></p>
+<ul>
+<li>分开体现了 <strong>递（向下传 max &#x2F; min）</strong> 与 **归（返回结果）**两种方法都可行</li>
+<li>是理解「递归双向信息流」的经典题</li>
+</ul>
+<hr>
+<h3 id="2-1372-二叉树中的最长交错路径"><a href="#2-1372-二叉树中的最长交错路径" class="headerlink" title="2. 1372. 二叉树中的最长交错路径"></a>2. 1372. 二叉树中的最长交错路径</h3><p><strong>关键点：</strong></p>
+<ul>
+<li>递归过程中需要<strong>重置变量</strong></li>
+<li>每个节点都可能作为新的起点</li>
+<li>状态不是简单继承，而是<strong>条件性重置</strong></li>
+</ul>
+<hr>
+<h3 id="3-1080-根到叶路径上的不足节点（重要）"><a href="#3-1080-根到叶路径上的不足节点（重要）" class="headerlink" title="3. 1080. 根到叶路径上的不足节点（重要）"></a>3. 1080. 根到叶路径上的不足节点（重要）</h3><p>这是今天**“递 + 归”**结合体会最深的一题。</p>
+<ul>
+<li>**递（向下）**传递：从根到当前节点的路径和</li>
+<li>**归（向上）**汇总：包含该节点的所有根到叶路径</li>
+<li><strong>中间逻辑</strong><ul>
+<li>判断当前节点是否是「不足节点」</li>
+</ul>
+</li>
+</ul>
+<p> 真正体会到：</p>
+<blockquote>
+<p><strong>递负责携带历史信息，归负责判断整体价值</strong></p>
+</blockquote>
+<hr>
+<h2 id="五、关于递归与迭代的一个重要认知"><a href="#五、关于递归与迭代的一个重要认知" class="headerlink" title="五、关于递归与迭代的一个重要认知"></a>五、关于递归与迭代的一个重要认知</h2><blockquote>
+<p><strong>只有“递下去”的过程，才可能转成迭代</strong><br> <strong>“归上来”的过程，本质依赖系统栈，无法直接用迭代模拟</strong></p>
+</blockquote>
+<ul>
+<li>BFS &#x2F; DFS（只向下）→ 可迭代</li>
+<li>后序遍历 &#x2F; 动态规划式递归 → 难以完全转迭代</li>
+</ul>
+<p>这是理解「为什么有些递归不能改成 while」的关键。</p>
+<hr>
+<h2 id="六、今日整体收获总结"><a href="#六、今日整体收获总结" class="headerlink" title="六、今日整体收获总结"></a>六、今日整体收获总结</h2><ul>
+<li>二叉树问题的本质是：<strong>节点访问 + 信息流动</strong></li>
+<li>真正重要的不是“会不会写递归”，而是：<ul>
+<li>信息是 <strong>向下传</strong> 还是 <strong>向上收</strong></li>
+<li>答案是在 <strong>途中产生</strong> 还是 <strong>最终汇总</strong></li>
+</ul>
+</li>
+<li>自顶向下更直观，自底向上是进阶算法（DP、树 DP）的必经之路</li>
+</ul>
+<hr>
+<h2 id="七、相关代码"><a href="#七、相关代码" class="headerlink" title="七、相关代码"></a>七、相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/01/algorithms/binary-tree/2026-1-1-binary-tree-recursion/" data-id="cmjv138o70004l88tewfg0s9v" data-title="leetcode 解题总结：二叉树：相同、对称、平衡、右视图" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2025/12/31/backend/mysql/2025-12-31-mysql-day03-Advanced/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">MySQL 索引与 SQL 优化全梳理：从 InnoDB 存储结构到执行计划</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 20px;">深度优先遍历</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 10px;">记录</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 20px;">递归</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">一月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/12/">十二月 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/01/01/algorithms/binary-tree/2026-1-1-binary-tree-recursion/">leetcode 解题总结：二叉树：相同、对称、平衡、右视图</a>
+          </li>
+        
+          <li>
+            <a href="/2025/12/31/backend/mysql/2025-12-31-mysql-day03-Advanced/">MySQL 索引与 SQL 优化全梳理：从 InnoDB 存储结构到执行计划</a>
+          </li>
+        
+          <li>
+            <a href="/2025/12/31/algorithms/binary-tree/2025-12-31-binary-tree-dfs/">二叉树递归解题方法论整理（学习笔记）</a>
+          </li>
+        
+          <li>
+            <a href="/2025/12/30/backend/mysql/2025-12-30-mysql-day02-Advanced/">MySQL 索引与 SQL 优化全梳理：从 InnoDB 存储结构到执行计划</a>
+          </li>
+        
+          <li>
+            <a href="/2025/12/30/algorithms/linked-list/2025-12-30-delete-linked-list-nodes/">删除链表中的元素：从基础操作到 O(n) 优化思路（Java）</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Tingfeng Li<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
