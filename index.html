@@ -81,6 +81,165 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-algorithms/binary-tree/2026-1-2-binary-tree-traversals" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/02/algorithms/binary-tree/2026-1-2-binary-tree-traversals/" class="article-date">
+  <time class="dt-published" datetime="2026-01-02T11:30:00.000Z" itemprop="datePublished">2026-01-02</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2026/01/02/algorithms/binary-tree/2026-1-2-binary-tree-traversals/">leetcode 二叉树的先序 / 中序 / 后序遍历：在二叉搜索树中的选择与应用</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><strong>刷题范围</strong></p>
+<p><strong>基础题目</strong></p>
+<p>98.验证二叉搜索树</p>
+<p><strong>扩展题目</strong></p>
+<p>700.二叉搜索树中的搜索</p>
+<p>938.二叉搜索树的范围和</p>
+<p>530.二叉搜索树的最小绝对差</p>
+<p>2476.二叉搜索树最近节点查询</p>
+<hr>
+<h2 id="三种遍历方式的本质差异"><a href="#三种遍历方式的本质差异" class="headerlink" title="三种遍历方式的本质差异"></a>三种遍历方式的本质差异</h2><p>在验证二叉搜索树（98 题）时，我分别用 <strong>先序 &#x2F; 中序 &#x2F; 后序</strong> 都实现了一遍，从而对三者有了更直观的理解。</p>
+<h3 id="先序遍历（Root-→-Left-→-Right）"><a href="#先序遍历（Root-→-Left-→-Right）" class="headerlink" title="先序遍历（Root → Left → Right）"></a>先序遍历（Root → Left → Right）</h3><p><strong>特点</strong>：</p>
+<ul>
+<li>在“访问当前节点”时，就已经掌握了关键信息</li>
+<li>有机会<strong>提前返回</strong>，不一定遍历完整棵树</li>
+</ul>
+<p><strong>直观理解</strong>：</p>
+<blockquote>
+<p>“我先看看当前节点行不行，再决定要不要往下走”</p>
+</blockquote>
+<p>在某些 BST 题目中，这意味着<strong>剪枝能力强、效率高</strong>。</p>
+<hr>
+<h3 id="中序遍历（Left-→-Root-→-Right）"><a href="#中序遍历（Left-→-Root-→-Right）" class="headerlink" title="中序遍历（Left → Root → Right）"></a>中序遍历（Left → Root → Right）</h3><p><strong>特点（BST 专属）</strong>：</p>
+<ul>
+<li>中序遍历结果是一个<strong>严格递增的有序序列</strong></li>
+</ul>
+<p><strong>直观理解</strong>：</p>
+<blockquote>
+<p>“我不急着处理当前节点，先把左边都看完，保证顺序”</p>
+</blockquote>
+<p>只要题目<strong>和“有序性 &#x2F; 相邻关系 &#x2F; 二分”有关</strong>，中序遍历往往是第一选择。</p>
+<hr>
+<h3 id="后序遍历（Left-→-Right-→-Root）"><a href="#后序遍历（Left-→-Right-→-Root）" class="headerlink" title="后序遍历（Left → Right → Root）"></a>后序遍历（Left → Right → Root）</h3><p><strong>特点</strong>：</p>
+<ul>
+<li>一定会遍历完整棵树</li>
+<li>信息在<strong>子树返回时</strong>才产生</li>
+<li>适合“自底向上”的问题</li>
+</ul>
+<p><strong>直观理解</strong>：</p>
+<blockquote>
+<p>“我要先拿到左右子树的结果，才能决定当前节点的结果”</p>
+</blockquote>
+<p>后序遍历是<strong>最通用、有返回值</strong>的一种方式。</p>
+<hr>
+<h2 id="不同题目中遍历方式的选择"><a href="#不同题目中遍历方式的选择" class="headerlink" title="不同题目中遍历方式的选择"></a>不同题目中遍历方式的选择</h2><p>理解三种遍历的本质后，再回头看具体题目，会发现“顺序选择”并不是随意的。</p>
+<hr>
+<h3 id="700-二叉搜索树中的搜索-——-先序遍历更优"><a href="#700-二叉搜索树中的搜索-——-先序遍历更优" class="headerlink" title="700. 二叉搜索树中的搜索 —— 先序遍历更优"></a>700. 二叉搜索树中的搜索 —— 先序遍历更优</h3><p><strong>核心原因</strong>：</p>
+<ul>
+<li>一旦 <code>root.val == target</code>，可以立刻返回</li>
+<li>完全没必要遍历无关子树</li>
+</ul>
+<p>先序遍历在这里的优势是： <strong>“能提前命中并终止递归”</strong></p>
+<hr>
+<h3 id="2️⃣-938-二叉搜索树的范围和-——-先序-剪枝思想"><a href="#2️⃣-938-二叉搜索树的范围和-——-先序-剪枝思想" class="headerlink" title="2️⃣ 938. 二叉搜索树的范围和 —— 先序 + 剪枝思想"></a>2️⃣ 938. 二叉搜索树的范围和 —— 先序 + 剪枝思想</h3><p>题目要求：</p>
+<blockquote>
+<p>计算所有值在 <code>[low, high]</code> 范围内节点的和</p>
+</blockquote>
+<p><strong>关键观察（BST 性质）</strong>：</p>
+<ul>
+<li>当前值 <code>&lt; low</code> → 只可能在右子树</li>
+<li>当前值 <code>&gt; high</code> → 只可能在左子树</li>
+<li>当前值在区间内 → 左右子树都可能有贡献</li>
+</ul>
+<p>这使得解法可以在“访问当前节点”时直接<strong>决定递归方向</strong>，非常适合 <strong>先序遍历 + 提前返回</strong>。本质是： <strong>在“递”的阶段就完成剪枝决策</strong></p>
+<hr>
+<h3 id="530-二叉搜索树的最小绝对差-——-中序遍历"><a href="#530-二叉搜索树的最小绝对差-——-中序遍历" class="headerlink" title="530. 二叉搜索树的最小绝对差 —— 中序遍历"></a>530. 二叉搜索树的最小绝对差 —— 中序遍历</h3><p>BST 中序遍历是<strong>严格递增序列</strong>，那么：</p>
+<ul>
+<li>最小绝对差</li>
+<li>一定只会出现在<strong>相邻两个节点之间</strong></li>
+</ul>
+<p>因此只需要：</p>
+<ol>
+<li>中序遍历</li>
+<li>记录前一个节点</li>
+<li>比较当前值与前一个值的差</li>
+</ol>
+<p>这是一个<strong>典型“利用 BST 有序性”的题目</strong></p>
+<hr>
+<h3 id="2476-二叉搜索树最近节点查询-——-中序-二分"><a href="#2476-二叉搜索树最近节点查询-——-中序-二分" class="headerlink" title="2476. 二叉搜索树最近节点查询 —— 中序 + 二分"></a>2476. 二叉搜索树最近节点查询 —— 中序 + 二分</h3><p>这道题让我收获最大的不是遍历本身，而是<strong>复杂度分析的思维</strong>。</p>
+<h4 id="两种思路对比"><a href="#两种思路对比" class="headerlink" title="两种思路对比"></a>两种思路对比</h4><p><strong>思路一：</strong></p>
+<ul>
+<li>每次查询都遍历整棵树</li>
+<li>时间复杂度：<code>O(n × q)</code></li>
+</ul>
+<p><strong>思路二：</strong></p>
+<ol>
+<li>中序遍历 BST → 得到有序数组</li>
+<li>对每个 query 在数组中二分查找</li>
+</ol>
+<ul>
+<li>时间复杂度：<code>O(n + q log n)</code></li>
+</ul>
+<h4 id="为什么必须选思路二？"><a href="#为什么必须选思路二？" class="headerlink" title="为什么必须选思路二？"></a>为什么必须选思路二？</h4><p>根据题目提示：</p>
+<ul>
+<li><code>queries.length</code> 和 <code>节点数 n</code> <strong>是同一个数量级</strong></li>
+</ul>
+<p>所以：</p>
+<ul>
+<li>思路一 ≈ <code>O(n²)</code>（直接超时）</li>
+<li>思路二 ≈ <code>O(n log n)</code>（可接受）</li>
+</ul>
+<p><strong>结论</strong>：</p>
+<blockquote>
+<p>当 BST 查询规模大、查询次数多时，一定要先转成有序数组（这种方式逻辑也很清晰，把逻辑都揉在树的遍历过程中十分复杂）</p>
+</blockquote>
+<hr>
+<h2 id="今天的核心学习总结"><a href="#今天的核心学习总结" class="headerlink" title="今天的核心学习总结"></a>今天的核心学习总结</h2><p>通过今天这组题目，我对二叉树遍历有了一个更“工程化”的理解：</p>
+<ol>
+<li><strong>遍历顺序的本质是“信息产生的时机”</strong></li>
+<li>先序遍历适合：提前判断、剪枝、搜索类问题</li>
+<li>中序遍历在 BST 中有特性：有序性、相邻关系、二分优化</li>
+<li>后序遍历最通用：自底向上、依赖子树返回值（今天体会不明显）</li>
+<li>在数据规模较大时，<strong>复杂度分析往往比写法本身更重要</strong></li>
+</ol>
+<hr>
+<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/02/algorithms/binary-tree/2026-1-2-binary-tree-traversals/" data-id="cmjwqp37n0005yk8t6w29cqjw" data-title="leetcode 二叉树的先序 / 中序 / 后序遍历：在二叉搜索树中的选择与应用" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-backend/mysql/2026-1-1-mysql-day04-jdbc-maven" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2026/01/01/backend/mysql/2026-1-1-mysql-day04-jdbc-maven/" class="article-date">
@@ -300,7 +459,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/01/backend/mysql/2026-1-1-mysql-day04-jdbc-maven/" data-id="cmjvdrso6000g488t86tk4ocj" data-title="Maven 与 JDBC 学习笔记：从依赖管理到数据库访问实践" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/01/backend/mysql/2026-1-1-mysql-day04-jdbc-maven/" data-id="cmjwqp37t000jyk8th13he3se" data-title="Maven 与 JDBC 学习笔记：从依赖管理到数据库访问实践" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -513,7 +672,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/01/algorithms/binary-tree/2026-1-1-binary-tree-recursion/" data-id="cmjvdrso10004488t6m2g0xeb" data-title="leetcode 解题总结：二叉树：相同、对称、平衡、右视图" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/01/algorithms/binary-tree/2026-1-1-binary-tree-recursion/" data-id="cmjwqp37m0004yk8tf83c3447" data-title="leetcode 解题总结：二叉树：相同、对称、平衡、右视图" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -786,7 +945,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/31/backend/mysql/2025-12-31-mysql-day03-Advanced/" data-id="cmjvdrso6000f488tcth4hquv" data-title="MySQL 索引与 SQL 优化全梳理：从 InnoDB 存储结构到执行计划" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/31/backend/mysql/2025-12-31-mysql-day03-Advanced/" data-id="cmjwqp37s000gyk8t8v0z5qvp" data-title="MySQL 索引与 SQL 优化全梳理：从 InnoDB 存储结构到执行计划" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -948,7 +1107,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/31/algorithms/binary-tree/2025-12-31-binary-tree-dfs/" data-id="cmjvdrsnx0001488t4absfvp5" data-title="二叉树递归解题方法论整理（学习笔记）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/31/algorithms/binary-tree/2025-12-31-binary-tree-dfs/" data-id="cmjwqp37j0001yk8t5c01btha" data-title="二叉树递归解题方法论整理（学习笔记）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1141,7 +1300,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/30/backend/mysql/2025-12-30-mysql-day02-Advanced/" data-id="cmjvdrso4000b488tcw70g8bs" data-title="MySQL 索引与 SQL 优化全梳理：从 InnoDB 存储结构到执行计划" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/30/backend/mysql/2025-12-30-mysql-day02-Advanced/" data-id="cmjwqp37s000fyk8t8zf12y39" data-title="MySQL 索引与 SQL 优化全梳理：从 InnoDB 存储结构到执行计划" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1280,7 +1439,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/30/algorithms/linked-list/2025-12-30-delete-linked-list-nodes/" data-id="cmjvdrso10005488t6lqpgkxi" data-title="删除链表中的元素：从基础操作到 O(n) 优化思路（Java）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/30/algorithms/linked-list/2025-12-30-delete-linked-list-nodes/" data-id="cmjwqp37p000ayk8t4724hcro" data-title="删除链表中的元素：从基础操作到 O(n) 优化思路（Java）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1385,7 +1544,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/29/algorithms/linked-list/2025-12-29-linked-list-summary/" data-id="cmjvdrso3000a488th0uv9xl1" data-title="链表算法学习总结：反转链表与快慢指针（Java）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/29/algorithms/linked-list/2025-12-29-linked-list-summary/" data-id="cmjwqp37o0006yk8th70p0dab" data-title="链表算法学习总结：反转链表与快慢指针（Java）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1565,7 +1724,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/29/backend/mysql/2025-12-29-mysql-day01-basics/" data-id="cmjvdrso20006488t9ueb2z5x" data-title="MySQL 学习笔记 Day01：基础概念与常用命令" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/29/backend/mysql/2025-12-29-mysql-day01-basics/" data-id="cmjwqp37q000byk8tdxaw5kvi" data-title="MySQL 学习笔记 Day01：基础概念与常用命令" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1622,7 +1781,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/29/misc/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" data-id="cmjvdrsnt0000488t9tln8hru" data-title="第一篇博客" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2025/12/29/misc/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" data-id="cmjwqp37f0000yk8t87vu93pa" data-title="第一篇博客" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1656,7 +1815,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
     </div>
   </div>
 
@@ -1666,7 +1825,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/jdbc/" style="font-size: 10px;">jdbc</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 20px;">深度优先遍历</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 10px;">记录</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 20px;">递归</a>
+      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/jdbc/" style="font-size: 10px;">jdbc</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 10px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 15px;">深度优先遍历</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 10px;">记录</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 20px;">递归</a>
     </div>
   </div>
 
@@ -1688,6 +1847,10 @@
       <ul>
         
           <li>
+            <a href="/2026/01/02/algorithms/binary-tree/2026-1-2-binary-tree-traversals/">leetcode 二叉树的先序 / 中序 / 后序遍历：在二叉搜索树中的选择与应用</a>
+          </li>
+        
+          <li>
             <a href="/2026/01/01/backend/mysql/2026-1-1-mysql-day04-jdbc-maven/">Maven 与 JDBC 学习笔记：从依赖管理到数据库访问实践</a>
           </li>
         
@@ -1701,10 +1864,6 @@
         
           <li>
             <a href="/2025/12/31/algorithms/binary-tree/2025-12-31-binary-tree-dfs/">二叉树递归解题方法论整理（学习笔记）</a>
-          </li>
-        
-          <li>
-            <a href="/2025/12/30/backend/mysql/2025-12-30-mysql-day02-Advanced/">MySQL 索引与 SQL 优化全梳理：从 InnoDB 存储结构到执行计划</a>
           </li>
         
       </ul>
