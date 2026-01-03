@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>MyBatis 入门学习笔记：从 JDBC 到 Mapper 映射 | 廷风的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="一句话导读  MyBatis 的核心价值不在于“帮你写 SQL”，而在于 消除 JDBC 中大量的硬编码问题，让 SQL 与 Java 解耦，同时保持对 SQL 的完全掌控。   一、为什么需要 MyBatis？—— 从 JDBC 的痛点说起在直接使用 JDBC 操作数据库时，很快会遇到以下问题： SQL 硬编码问题严重 SQL 直接写在 Java 代码中 一旦 SQL 发生变化，必须修改并重新">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MyBatis 入门学习笔记：从 JDBC 到 Mapper 映射">
+<meta property="og:url" content="http://example.com/2026/01/02/backend/mysql/2026-1-2-mybatis-day05/index.html">
+<meta property="og:site_name" content="廷风的技术博客">
+<meta property="og:description" content="一句话导读  MyBatis 的核心价值不在于“帮你写 SQL”，而在于 消除 JDBC 中大量的硬编码问题，让 SQL 与 Java 解耦，同时保持对 SQL 的完全掌控。   一、为什么需要 MyBatis？—— 从 JDBC 的痛点说起在直接使用 JDBC 操作数据库时，很快会遇到以下问题： SQL 硬编码问题严重 SQL 直接写在 Java 代码中 一旦 SQL 发生变化，必须修改并重新">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-01-01T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-01-03T08:17:09.093Z">
+<meta property="article:author" content="Tingfeng Li">
+<meta property="article:tag" content="jdbc">
+<meta property="article:tag" content="mybatis">
+<meta property="article:tag" content="mysql">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="廷风的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">廷风的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Java 后端开发</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-backend/mysql/2026-1-2-mybatis-day05" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/02/backend/mysql/2026-1-2-mybatis-day05/" class="article-date">
+  <time class="dt-published" datetime="2026-01-01T16:00:00.000Z" itemprop="datePublished">2026-01-02</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>►<a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      MyBatis 入门学习笔记：从 JDBC 到 Mapper 映射
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p><strong>一句话导读</strong><br>  MyBatis 的核心价值不在于“帮你写 SQL”，而在于 <strong>消除 JDBC 中大量的硬编码问题，让 SQL 与 Java 解耦，同时保持对 SQL 的完全掌控</strong>。</p>
+</blockquote>
+<hr>
+<h2 id="一、为什么需要-MyBatis？——-从-JDBC-的痛点说起"><a href="#一、为什么需要-MyBatis？——-从-JDBC-的痛点说起" class="headerlink" title="一、为什么需要 MyBatis？—— 从 JDBC 的痛点说起"></a>一、为什么需要 MyBatis？—— 从 JDBC 的痛点说起</h2><p>在直接使用 JDBC 操作数据库时，很快会遇到以下问题：</p>
+<h3 id="SQL-硬编码问题严重"><a href="#SQL-硬编码问题严重" class="headerlink" title="SQL 硬编码问题严重"></a>SQL 硬编码问题严重</h3><ul>
+<li>SQL 直接写在 Java 代码中</li>
+<li>一旦 SQL 发生变化，必须修改并重新编译 Java 代码</li>
+<li>实际项目中，SQL 变化非常频繁，维护成本高</li>
+</ul>
+<hr>
+<h3 id="参数绑定不灵活"><a href="#参数绑定不灵活" class="headerlink" title="参数绑定不灵活"></a>参数绑定不灵活</h3><ul>
+<li>使用 <code>PreparedStatement</code> 需要手动设置占位符</li>
+<li><code>where</code> 条件的数量和顺序变化时：<ul>
+<li>SQL 要改</li>
+<li>Java 代码也要跟着改</li>
+</ul>
+</li>
+<li>可维护性较差</li>
+</ul>
+<hr>
+<h3 id="结果集解析硬编码"><a href="#结果集解析硬编码" class="headerlink" title="结果集解析硬编码"></a>结果集解析硬编码</h3><ul>
+<li>查询结果需要手动从 <code>ResultSet</code> 中取值</li>
+<li>强依赖数据库字段名</li>
+<li>一旦 SQL 查询字段变化，解析逻辑也要修改</li>
+</ul>
+<hr>
+<h3 id="总结一句话"><a href="#总结一句话" class="headerlink" title="总结一句话"></a>总结一句话</h3><blockquote>
+<p><strong>JDBC 的问题本质是：硬编码太多、关注点不分离、维护成本高。</strong></p>
+</blockquote>
+<p>因此，引入 <strong>MyBatis</strong> 来解决这些问题。</p>
+<hr>
+<h2 id="二、MyBatis-是什么？"><a href="#二、MyBatis-是什么？" class="headerlink" title="二、MyBatis 是什么？"></a>二、MyBatis 是什么？</h2><p><strong>MyBatis 是一个持久层（DAO 层）框架</strong>，对 JDBC 操作过程进行了封装，使开发者：</p>
+<ul>
+<li>只需要关注 <strong>SQL 本身</strong></li>
+<li>不再关心：<ul>
+<li>驱动注册</li>
+<li>Connection 创建</li>
+<li>Statement &#x2F; PreparedStatement 创建</li>
+<li>参数设置</li>
+<li>结果集解析</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="MyBatis-的核心思想"><a href="#MyBatis-的核心思想" class="headerlink" title="MyBatis 的核心思想"></a>MyBatis 的核心思想</h3><ul>
+<li>使用 <strong>XML 或注解</strong> 描述 SQL</li>
+<li>将 SQL 与 Java 对象进行映射</li>
+<li>框架负责：<ul>
+<li>执行 SQL</li>
+<li>参数映射</li>
+<li>结果集映射</li>
+<li>返回 Java 对象</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="三、MyBatis-整体架构与工作流程"><a href="#三、MyBatis-整体架构与工作流程" class="headerlink" title="三、MyBatis 整体架构与工作流程"></a>三、MyBatis 整体架构与工作流程</h2><h3 id="核心配置文件与映射文件"><a href="#核心配置文件与映射文件" class="headerlink" title="核心配置文件与映射文件"></a>核心配置文件与映射文件</h3><ul>
+<li><p><strong><code>mybatis-config.xml</code></strong></p>
+<p>全局配置文件，配置：</p>
+<ul>
+<li>数据源</li>
+<li>事务管理器</li>
+<li>Mapper 映射文件位置</li>
+</ul>
+</li>
+<li><p><strong><code>mapper.xml</code></strong></p>
+<ul>
+<li>SQL 映射文件</li>
+<li>一个 SQL 对应一个 <code>MappedStatement</code></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="SqlSessionFactory-与-SqlSession"><a href="#SqlSessionFactory-与-SqlSession" class="headerlink" title="SqlSessionFactory 与 SqlSession"></a>SqlSessionFactory 与 SqlSession</h3><ul>
+<li><code>SqlSessionFactoryBuilder</code><br> → 构建 <code>SqlSessionFactory</code></li>
+<li><code>SqlSessionFactory</code><br> → 创建 <code>SqlSession</code></li>
+<li><strong>所有数据库操作都通过 <code>SqlSession</code> 完成</strong></li>
+</ul>
+<hr>
+<h3 id="Executor（执行器）"><a href="#Executor（执行器）" class="headerlink" title="Executor（执行器）"></a>Executor（执行器）</h3><p>MyBatis 底层通过 <code>Executor</code> 接口执行 SQL：</p>
+<ul>
+<li><strong>SimpleExecutor</strong>：基本执行器</li>
+<li><strong>CachingExecutor</strong>：带缓存的执行器</li>
+</ul>
+<hr>
+<h3 id="MappedStatement（核心抽象）"><a href="#MappedStatement（核心抽象）" class="headerlink" title="MappedStatement（核心抽象）"></a>MappedStatement（核心抽象）</h3><ul>
+<li>每一条 SQL 都会被封装成一个 <code>MappedStatement</code></li>
+<li>包含：<ul>
+<li>SQL 本身</li>
+<li>输入参数映射规则</li>
+<li>输出结果映射规则</li>
+</ul>
+</li>
+</ul>
+<p> 本质类比 JDBC：</p>
+<ul>
+<li>参数映射 ≈ <code>PreparedStatement.setXxx</code></li>
+<li>结果映射 ≈ <code>ResultSet</code> 解析</li>
+</ul>
+<hr>
+<h3 id="MyBatis-工作流程总结"><a href="#MyBatis-工作流程总结" class="headerlink" title="MyBatis 工作流程总结"></a>MyBatis 工作流程总结</h3><ol>
+<li>构建 <code>SqlSessionFactory</code></li>
+<li>获取 <code>SqlSession</code></li>
+<li>获取 Mapper 接口代理对象</li>
+<li>调用接口方法执行 SQL</li>
+<li>提交事务并关闭 Session</li>
+</ol>
+<hr>
+<h2 id="四、MyBatis-的核心特性"><a href="#四、MyBatis-的核心特性" class="headerlink" title="四、MyBatis 的核心特性"></a>四、MyBatis 的核心特性</h2><ul>
+<li><strong>SQL 与 Java 解耦</strong></li>
+<li><strong>自动结果映射</strong></li>
+<li><strong>强大的动态 SQL 能力</strong></li>
+<li><strong>内置缓存机制（一级 &#x2F; 二级）</strong></li>
+</ul>
+<hr>
+<h2 id="五、MyBatis-缓存机制"><a href="#五、MyBatis-缓存机制" class="headerlink" title="五、MyBatis 缓存机制"></a>五、MyBatis 缓存机制</h2><h3 id="一级缓存（SqlSession-级别）"><a href="#一级缓存（SqlSession-级别）" class="headerlink" title="一级缓存（SqlSession 级别）"></a>一级缓存（SqlSession 级别）</h3><ul>
+<li>默认开启、不可关闭</li>
+<li>同一个 <code>SqlSession</code> 中，相同查询只执行一次 SQL</li>
+</ul>
+<p><strong>触发清空的情况：</strong></p>
+<ul>
+<li>执行 <code>INSERT / UPDATE / DELETE</code></li>
+<li>调用 <code>clearCache()</code></li>
+<li>事务回滚</li>
+<li>不同的 <code>StatementId</code></li>
+</ul>
+<hr>
+<h3 id="二级缓存（Mapper-级别）"><a href="#二级缓存（Mapper-级别）" class="headerlink" title="二级缓存（Mapper 级别）"></a>二级缓存（Mapper 级别）</h3><ul>
+<li>多个 <code>SqlSession</code> 共享</li>
+<li>需要显式开启</li>
+</ul>
+<h4 id="全局配置"><a href="#全局配置" class="headerlink" title="全局配置"></a>全局配置</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;settings&gt;</span><br><span class="line">    &lt;setting name=&quot;cacheEnabled&quot; value=&quot;true&quot;/&gt;</span><br><span class="line">&lt;/settings&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="Mapper-配置"><a href="#Mapper-配置" class="headerlink" title="Mapper 配置"></a>Mapper 配置</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;cache</span><br><span class="line">  eviction=&quot;LRU&quot;</span><br><span class="line">  flushInterval=&quot;60000&quot;</span><br><span class="line">  size=&quot;512&quot;</span><br><span class="line">  readOnly=&quot;true&quot;/&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="常见缓存策略"><a href="#常见缓存策略" class="headerlink" title="常见缓存策略"></a>常见缓存策略</h4><table>
+<thead>
+<tr>
+<th>策略</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LRU</td>
+<td>最近最少使用（默认）</td>
+</tr>
+<tr>
+<td>FIFO</td>
+<td>先进先出</td>
+</tr>
+<tr>
+<td>SOFT</td>
+<td>软引用</td>
+</tr>
+<tr>
+<td>WEAK</td>
+<td>弱引用</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="六、MyBatis-入门实践"><a href="#六、MyBatis-入门实践" class="headerlink" title="六、MyBatis 入门实践"></a>六、MyBatis 入门实践</h2><h3 id="引入依赖"><a href="#引入依赖" class="headerlink" title="引入依赖"></a>引入依赖</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">  &lt;groupId&gt;org.mybatis&lt;/groupId&gt;</span><br><span class="line">  &lt;artifactId&gt;mybatis&lt;/artifactId&gt;</span><br><span class="line">  &lt;version&gt;x.x.x&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="构建-SqlSessionFactory（XML）"><a href="#构建-SqlSessionFactory（XML）" class="headerlink" title="构建 SqlSessionFactory（XML）"></a>构建 SqlSessionFactory（XML）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">InputStream is = Resources.getResourceAsStream(&quot;mybatis-config.xml&quot;);</span><br><span class="line">SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(is);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Mapper-XML-示例"><a href="#Mapper-XML-示例" class="headerlink" title="Mapper XML 示例"></a>Mapper XML 示例</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;mapper namespace=&quot;UserMapper&quot;&gt;</span><br><span class="line">    &lt;select id=&quot;getUser&quot; resultType=&quot;User&quot;&gt;</span><br><span class="line">        SELECT * FROM tb_user WHERE id = #&#123;id&#125;</span><br><span class="line">    &lt;/select&gt;</span><br><span class="line">&lt;/mapper&gt;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="使用-SqlSession-执行-SQL（旧方式）"><a href="#使用-SqlSession-执行-SQL（旧方式）" class="headerlink" title="使用 SqlSession 执行 SQL（旧方式）"></a>使用 SqlSession 执行 SQL（旧方式）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">List&lt;User&gt; list = session.selectList(&quot;UserMapper.getUser&quot;, 10);</span><br></pre></td></tr></table></figure>
+
+<p>问题：</p>
+<ul>
+<li>namespace, select ID 硬编码</li>
+<li>参数类型不安全</li>
+</ul>
+<hr>
+<h3 id="Mapper-接口（推荐方式）"><a href="#Mapper-接口（推荐方式）" class="headerlink" title="Mapper 接口（推荐方式）"></a>Mapper 接口（推荐方式）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public interface UserMapper &#123;</span><br><span class="line">    List&lt;User&gt; getUser(int id);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">UserMapper mapper = session.getMapper(UserMapper.class);</span><br><span class="line">mapper.getUser(10);</span><br></pre></td></tr></table></figure>
+
+<p><strong>底层通过动态代理生成实现类</strong>，接口方法 ↔ SQL 映射一一对应。</p>
+<hr>
+<h3 id="Mapper-接口与-XML-的目录约定（重要）"><a href="#Mapper-接口与-XML-的目录约定（重要）" class="headerlink" title="Mapper 接口与 XML 的目录约定（重要）"></a>Mapper 接口与 XML 的目录约定（重要）</h3><ul>
+<li>Mapper 接口在 <code>java</code> 目录</li>
+<li>Mapper XML 在 <code>resources</code> 目录</li>
+<li><strong>包路径保持一致</strong></li>
+</ul>
+<p>这是 MyBatis 正确定位 SQL 的关键。</p>
+<hr>
+<h2 id="七、注解开发方式"><a href="#七、注解开发方式" class="headerlink" title="七、注解开发方式"></a>七、注解开发方式</h2><h3 id="基本示例"><a href="#基本示例" class="headerlink" title="基本示例"></a>基本示例</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@Select(&quot;SELECT * FROM tb_user WHERE id = #&#123;id&#125;&quot;)</span><br><span class="line">User getUser(int id);</span><br></pre></td></tr></table></figure>
+
+<h3 id="常用注解"><a href="#常用注解" class="headerlink" title="常用注解"></a>常用注解</h3><ul>
+<li><code>@Select / @Insert / @Update / @Delete</code></li>
+<li><code>@Param</code>：多参数映射</li>
+<li><code>@Results / @Result</code>：字段映射</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@Results(&#123;</span><br><span class="line">    @Result(property = &quot;id&quot;, column = &quot;user_id&quot;),</span><br><span class="line">    @Result(property = &quot;name&quot;, column = &quot;user_name&quot;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p><strong>官方建议</strong>：</p>
+<ul>
+<li>简单 SQL → 注解</li>
+<li>复杂 SQL → XML</li>
+</ul>
+<hr>
+<h2 id="八、工具类封装-SqlSessionFactory"><a href="#八、工具类封装-SqlSessionFactory" class="headerlink" title="八、工具类封装 SqlSessionFactory"></a>八、工具类封装 SqlSessionFactory</h2><p>由于获取连接流程固定，可以封装工具类：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">InputStream is = Resources.getResourceAsStream(&quot;mybatis-config.xml&quot;);</span><br><span class="line">SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(is);</span><br><span class="line">SqlSession session = factory.openSession();</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="九、总结与个人理解"><a href="#九、总结与个人理解" class="headerlink" title="九、总结与个人理解"></a>九、总结与个人理解</h2><p>通过 MyBatis 的学习，我对 Java 数据访问层有了更清晰的认识：</p>
+<ol>
+<li>MyBatis 的核心价值是 <strong>解耦，而不是隐藏 SQL</strong></li>
+<li>它通过配置与映射，消除了 JDBC 的大量硬编码</li>
+<li>Mapper 接口 + 动态代理，是非常优雅的设计</li>
+<li>XML 与注解并不是对立关系，而是各司其职</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/02/backend/mysql/2026-1-2-mybatis-day05/" data-id="cmjyfr0gt002aqk8t40zbbg1d" data-title="MyBatis 入门学习笔记：从 JDBC 到 Mapper 映射" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2026/01/02/algorithms/binary-tree/2026-1-2-binary-tree-traversals/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          leetcode 二叉树的先序 / 中序 / 后序遍历：在二叉搜索树中的选择与应用
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2026/01/01/backend/mysql/2026-1-1-mysql-day04-jdbc-maven/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">Maven 与 JDBC 学习笔记：从依赖管理到数据库访问实践</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/ssm/">ssm</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/jdbc/" style="font-size: 15px;">jdbc</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mybatis/" style="font-size: 15px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 15px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 15px;">深度优先遍历</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 10px;">记录</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 20px;">递归</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">一月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/12/">十二月 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/01/03/algorithms/binary-tree/2026-1-3-binary-tree-traversals%20/">leetcode 通过先序 / 中序 / 后序遍历构造二叉树（</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/03/backend/ssm/MyBatis/2026-1-3-mybatis-day06/">MyBatis 动态 SQL 五个 Level 实战复盘：从语法理解到踩坑总结</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/02/algorithms/binary-tree/2026-1-2-binary-tree-traversals/">leetcode 二叉树的先序 / 中序 / 后序遍历：在二叉搜索树中的选择与应用</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/02/backend/mysql/2026-1-2-mybatis-day05/">MyBatis 入门学习笔记：从 JDBC 到 Mapper 映射</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/01/backend/mysql/2026-1-1-mysql-day04-jdbc-maven/">Maven 与 JDBC 学习笔记：从依赖管理到数据库访问实践</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Tingfeng Li<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

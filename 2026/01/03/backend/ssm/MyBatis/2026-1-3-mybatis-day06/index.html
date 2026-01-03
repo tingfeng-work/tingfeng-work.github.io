@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>MyBatis 动态 SQL 五个 Level 实战复盘：从语法理解到踩坑总结 | 廷风的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="在学习 MyBatis 动态 SQL 的过程中，我没有只停留在“看文档 + 记语法”，而是通过 5 个循序渐进的练习 Level，把 if &#x2F; where &#x2F; trim &#x2F; choose &#x2F; foreach 等标签真正用到了代码中。 这篇文章不是对官方文档的复述，而是对 实际编写动态 SQL 时遇到的问题、报错和解决方案的系统复盘。   一、为什么要写这篇文章？MyBatis 动态 SQL 看起">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MyBatis 动态 SQL 五个 Level 实战复盘：从语法理解到踩坑总结">
+<meta property="og:url" content="http://example.com/2026/01/03/backend/ssm/MyBatis/2026-1-3-mybatis-day06/index.html">
+<meta property="og:site_name" content="廷风的技术博客">
+<meta property="og:description" content="在学习 MyBatis 动态 SQL 的过程中，我没有只停留在“看文档 + 记语法”，而是通过 5 个循序渐进的练习 Level，把 if &#x2F; where &#x2F; trim &#x2F; choose &#x2F; foreach 等标签真正用到了代码中。 这篇文章不是对官方文档的复述，而是对 实际编写动态 SQL 时遇到的问题、报错和解决方案的系统复盘。   一、为什么要写这篇文章？MyBatis 动态 SQL 看起">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-01-02T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-01-03T15:05:54.872Z">
+<meta property="article:author" content="Tingfeng Li">
+<meta property="article:tag" content="mybatis">
+<meta property="article:tag" content="动态mysql">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="廷风的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">廷风的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Java 后端开发</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-backend/ssm/MyBatis/2026-1-3-mybatis-day06" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/03/backend/ssm/MyBatis/2026-1-3-mybatis-day06/" class="article-date">
+  <time class="dt-published" datetime="2026-01-02T16:00:00.000Z" itemprop="datePublished">2026-01-03</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>►<a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a>►<a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/ssm/">ssm</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      MyBatis 动态 SQL 五个 Level 实战复盘：从语法理解到踩坑总结
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>在学习 MyBatis 动态 SQL 的过程中，我没有只停留在“看文档 + 记语法”，而是通过 <strong>5 个循序渐进的练习 Level</strong>，把 <code>if / where / trim / choose / foreach</code> 等标签真正用到了代码中。</p>
+<p>这篇文章不是对官方文档的复述，而是对 <strong>实际编写动态 SQL 时遇到的问题、报错和解决方案的系统复盘</strong>。</p>
+</blockquote>
+<hr>
+<h2 id="一、为什么要写这篇文章？"><a href="#一、为什么要写这篇文章？" class="headerlink" title="一、为什么要写这篇文章？"></a>一、为什么要写这篇文章？</h2><p>MyBatis 动态 SQL 看起来很简单：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;if&gt;、&lt;where&gt;、&lt;trim&gt;、&lt;foreach&gt;</span><br></pre></td></tr></table></figure>
+
+<p>但真正写起来，会频繁遇到：</p>
+<ul>
+<li>SQL 语法错误</li>
+<li>查不到数据但不报错</li>
+<li>参数传了却没生效</li>
+<li><code>AND / WHERE / ,</code> 到底谁该写谁不该写</li>
+<li><code>&lt;foreach&gt;</code> 里 <code>collection</code> 到底写什么</li>
+</ul>
+<p><strong>这些问题，光看文档是很难意识到的，必须通过实战踩坑。</strong></p>
+<hr>
+<h2 id="二、动态-SQL-常用标签速览（不展开）"><a href="#二、动态-SQL-常用标签速览（不展开）" class="headerlink" title="二、动态 SQL 常用标签速览（不展开）"></a>二、动态 SQL 常用标签速览（不展开）</h2><p>本文默认你已经了解以下标签的基本用法：</p>
+<ul>
+<li><code>&lt;if&gt;</code></li>
+<li><code>&lt;where&gt;</code></li>
+<li><code>&lt;trim&gt;</code></li>
+<li><code>&lt;choose / when / otherwise&gt;</code></li>
+<li><code>&lt;foreach&gt;</code></li>
+<li><code>&lt;set&gt;</code></li>
+</ul>
+<p><strong>完整的理论学习笔记 + 示例代码我已整理在 GitHub 仓库中</strong>，本文重点放在「实践中遇到的问题」。</p>
+<hr>
+<h2 id="Exercise-1：-WHERE-——-SQL-语法错误的第一个坑"><a href="#Exercise-1：-WHERE-——-SQL-语法错误的第一个坑" class="headerlink" title="Exercise 1：&lt;if&gt; + WHERE —— SQL 语法错误的第一个坑"></a>Exercise 1：<code>&lt;if&gt;</code> + <code>WHERE</code> —— SQL 语法错误的第一个坑</h2><h3 id="问题现象"><a href="#问题现象" class="headerlink" title="问题现象"></a>问题现象</h3><p>执行查询时报错：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">You have an error in your SQL syntax</span><br></pre></td></tr></table></figure>
+
+<p>日志中看到实际 SQL：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">select * from tb_user</span><br><span class="line">WHERE name = ?, </span><br><span class="line">      and gender = ?, </span><br><span class="line">      and status = ?</span><br></pre></td></tr></table></figure>
+
+<h3 id="错误原因"><a href="#错误原因" class="headerlink" title="错误原因"></a>错误原因</h3><ul>
+<li>把 <code>,</code> 当成条件连接符（这是 INSERT &#x2F; UPDATE 才用的）</li>
+<li>手写 <code>WHERE</code>，又在 <code>&lt;if&gt;</code> 中手写 <code>AND</code></li>
+<li>导致 SQL 结构非法</li>
+</ul>
+<h3 id="正确写法"><a href="#正确写法" class="headerlink" title="正确写法"></a>正确写法</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;select id=&quot;queryUser&quot; resultType=&quot;User&quot;&gt;</span><br><span class="line">  select * from tb_user</span><br><span class="line">  &lt;where&gt;</span><br><span class="line">    &lt;if test=&quot;name != null and name != &#x27;&#x27;&quot;&gt;</span><br><span class="line">      name = #&#123;name&#125;</span><br><span class="line">    &lt;/if&gt;</span><br><span class="line">    &lt;if test=&quot;gender != null&quot;&gt;</span><br><span class="line">      and gender = #&#123;gender&#125;</span><br><span class="line">    &lt;/if&gt;</span><br><span class="line">    &lt;if test=&quot;status != null&quot;&gt;</span><br><span class="line">      and status = #&#123;status&#125;</span><br><span class="line">    &lt;/if&gt;</span><br><span class="line">  &lt;/where&gt;</span><br><span class="line">&lt;/select&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="经验总结"><a href="#经验总结" class="headerlink" title="经验总结"></a>经验总结</h3><blockquote>
+<p><strong>条件查询不要手写 WHERE，让 <code>&lt;where&gt;</code> 帮你管理 AND</strong></p>
+<p>可以先写一条正常的 sql，那这道题举例：</p>
+<p>​	select * from tb_user where name &#x3D; ? and gender &#x3D; ? and status &#x3D; ?;</p>
+<p>这样对照这条 sql 去写动态 sql 会比较不容易出错一点</p>
+</blockquote>
+<hr>
+<h2 id="Exercise-2：-vs-——-前缀修剪机制"><a href="#Exercise-2：-vs-——-前缀修剪机制" class="headerlink" title="Exercise 2：&lt;where&gt; vs &lt;trim&gt; —— 前缀修剪机制"></a>Exercise 2：<code>&lt;where&gt;</code> vs <code>&lt;trim&gt;</code> —— 前缀修剪机制</h2><h3 id="疑问"><a href="#疑问" class="headerlink" title="疑问"></a>疑问</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;trim prefix=&quot;WHERE&quot; prefixOverrides=&quot;AND |OR &quot;&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>prefixOverrides</code> 是干什么的？</li>
+<li>为什么后面有空格？</li>
+</ul>
+<h3 id="正确理解"><a href="#正确理解" class="headerlink" title="正确理解"></a>正确理解</h3><p>MyBatis 是<strong>字符串拼接 SQL</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;trim prefix=&quot;WHERE&quot; prefixOverrides=&quot;AND |OR &quot;&gt;</span><br><span class="line">  &lt;if test=&quot;name != null&quot;&gt;</span><br><span class="line">    AND name = #&#123;name&#125;</span><br><span class="line">  &lt;/if&gt;</span><br><span class="line">&lt;/trim&gt;</span><br></pre></td></tr></table></figure>
+
+<p>执行逻辑是：</p>
+<ol>
+<li>先拼出：<code>AND name = ?</code></li>
+<li>删除前缀 <code>AND </code></li>
+<li>再加上 <code>WHERE</code></li>
+</ol>
+<h3 id="经验总结-1"><a href="#经验总结-1" class="headerlink" title="经验总结"></a>经验总结</h3><blockquote>
+<p><strong><code>&lt;where&gt;</code> 本质是 MyBatis 封装好的 <code>&lt;trim&gt;</code></strong></p>
+</blockquote>
+<hr>
+<h2 id="Exercise-3：数据库-char-1-×-Java-char-——-查不到数据但不报错"><a href="#Exercise-3：数据库-char-1-×-Java-char-——-查不到数据但不报错" class="headerlink" title="Exercise 3：数据库 char(1) × Java char —— 查不到数据但不报错"></a>Exercise 3：数据库 <code>char(1)</code> × Java <code>char</code> —— 查不到数据但不报错</h2><h3 id="问题现象-1"><a href="#问题现象-1" class="headerlink" title="问题现象"></a>问题现象</h3><ul>
+<li>SQL 正常执行</li>
+<li><code>Total: 0</code></li>
+<li>数据库中明明存在数据却查不到</li>
+</ul>
+<p>日志中曾出现：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">and gender = &#x27;\0&#x27;</span><br></pre></td></tr></table></figure>
+
+<h3 id="根因分析（关键坑）"><a href="#根因分析（关键坑）" class="headerlink" title="根因分析（关键坑）"></a>根因分析（关键坑）</h3><p>数据库字段：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gender char(1)</span><br></pre></td></tr></table></figure>
+
+<p>Java 实体类写成了：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private char gender;</span><br></pre></td></tr></table></figure>
+
+<p>但：</p>
+<ul>
+<li>Java <code>char</code> 默认值是 <code>&#39;\0&#39;</code></li>
+<li>JDBC 会绑定成空字符</li>
+<li>数据库中不存在这种值</li>
+</ul>
+<h3 id="正确映射方式"><a href="#正确映射方式" class="headerlink" title="正确映射方式"></a>正确映射方式</h3><blockquote>
+<p><strong>数据库 char &#x2F; varchar → Java 用 String，不要用 char</strong></p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">private String gender;</span><br><span class="line">private String status;</span><br><span class="line">user.setGender(&quot;1&quot;);</span><br><span class="line">user.setStatus(&quot;0&quot;);</span><br></pre></td></tr></table></figure>
+
+<h3 id="经验总结（非常重要）"><a href="#经验总结（非常重要）" class="headerlink" title="经验总结（非常重要）"></a>经验总结（非常重要）</h3><blockquote>
+<p><strong>数据库 char ≠ Java char</strong><br> Java <code>char</code> 是 Unicode 字符，不是字符串</p>
+</blockquote>
+<hr>
+<h2 id="Exercise-4：-——-只会执行一个分支"><a href="#Exercise-4：-——-只会执行一个分支" class="headerlink" title="Exercise 4：&lt;choose&gt; —— 只会执行一个分支"></a>Exercise 4：<code>&lt;choose&gt;</code> —— 只会执行一个分支</h2><h3 id="疑问-1"><a href="#疑问-1" class="headerlink" title="疑问"></a>疑问</h3><blockquote>
+<p>如果多个条件同时满足，会不会都执行？</p>
+</blockquote>
+<h3 id="实际行为"><a href="#实际行为" class="headerlink" title="实际行为"></a>实际行为</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;choose&gt;</span><br><span class="line">  &lt;when test=&quot;title != null&quot;&gt;</span><br><span class="line">    AND title like #&#123;title&#125;</span><br><span class="line">  &lt;/when&gt;</span><br><span class="line">  &lt;when test=&quot;author != null&quot;&gt;</span><br><span class="line">    AND author = #&#123;author&#125;</span><br><span class="line">  &lt;/when&gt;</span><br><span class="line">  &lt;otherwise&gt;</span><br><span class="line">    AND featured = 1</span><br><span class="line">  &lt;/otherwise&gt;</span><br><span class="line">&lt;/choose&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>只执行第一个满足条件的 <code>when</code></strong></li>
+<li>后面的直接忽略</li>
+</ul>
+<h3 id="经验总结-2"><a href="#经验总结-2" class="headerlink" title="经验总结"></a>经验总结</h3><blockquote>
+<p><strong><code>&lt;choose&gt;</code> &#x3D; SQL 版 switch-case</strong></p>
+</blockquote>
+<hr>
+<h2 id="Exercise-5：-——-collection-到底写什么？"><a href="#Exercise-5：-——-collection-到底写什么？" class="headerlink" title="Exercise 5：&lt;foreach&gt; —— collection 到底写什么？"></a>Exercise 5：<code>&lt;foreach&gt;</code> —— collection 到底写什么？</h2><h3 id="疑问-2"><a href="#疑问-2" class="headerlink" title="疑问"></a>疑问</h3><blockquote>
+<p><code>collection</code> 不是 Java 形参名吗？</p>
+</blockquote>
+<h3 id="❌-易错点"><a href="#❌-易错点" class="headerlink" title="❌ 易错点"></a>❌ 易错点</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int batchInsert(List&lt;User&gt; users);</span><br></pre></td></tr></table></figure>
+
+<p>如果不加 <code>@Param</code>：</p>
+<ul>
+<li><p>XML 中 <strong>不能写 <code>users</code></strong></p>
+</li>
+<li><p>MyBatis 默认参数名是 <code>list</code></p>
+</li>
+</ul>
+<blockquote>
+<p>MyBatis 运行时默认拿不到方法形参名（比如 <code>users</code>），所以它只能用自己生成的默认名字（<code>list</code> &#x2F; <code>collection</code> &#x2F; <code>param1</code>…）</p>
+<p>因为 Java 编译后的 <code>.class</code> 文件里，<strong>默认不会保留形参名</strong>（会变成 <code>arg0/arg1</code>）</p>
+<p>加了 @Param 后，因为 <code>@Param</code> 是你主动给 MyBatis 一个<strong>稳定的参数名</strong>，它不需要依赖反射去猜</p>
+</blockquote>
+<h3 id="推荐写法（最清晰）"><a href="#推荐写法（最清晰）" class="headerlink" title="推荐写法（最清晰）"></a>推荐写法（最清晰）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">int batchInsert(@Param(&quot;users&quot;) List&lt;User&gt; users);</span><br><span class="line">&lt;foreach collection=&quot;users&quot; item=&quot;user&quot; separator=&quot;,&quot;&gt;</span><br><span class="line">  (#&#123;user.name&#125;, #&#123;user.phone&#125;)</span><br><span class="line">&lt;/foreach&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="经验总结-3"><a href="#经验总结-3" class="headerlink" title="经验总结"></a>经验总结</h3><blockquote>
+<p><strong>collection &#x3D; 集合参数名</strong><br> <strong>item &#x3D; 集合中的单个元素</strong></p>
+</blockquote>
+<hr>
+<h2 id="六、五个-Level-练习后的工程级总结"><a href="#六、五个-Level-练习后的工程级总结" class="headerlink" title="六、五个 Level 练习后的工程级总结"></a>六、五个 Level 练习后的工程级总结</h2><h3 id="动态-SQL-编写原则"><a href="#动态-SQL-编写原则" class="headerlink" title="动态 SQL 编写原则"></a>动态 SQL 编写原则</h3><ol>
+<li>条件查询永远用 <code>&lt;where&gt;</code> &#x2F; <code>&lt;trim&gt;</code></li>
+<li>更新语句永远用 <code>&lt;set&gt;</code></li>
+<li>条件连接符只有 and&#x2F;or，没有 <code>,</code></li>
+<li>数据库 char &#x2F; varchar → Java 用 String</li>
+<li><code>&lt;choose&gt;</code> 只会命中一个分支</li>
+<li><code>&lt;foreach&gt;</code> 建议配合 <code>@Param</code></li>
+</ol>
+<hr>
+<h2 id="七、学习资料与完整代码"><a href="#七、学习资料与完整代码" class="headerlink" title="七、学习资料与完整代码"></a>七、学习资料与完整代码</h2><ul>
+<li>动态 SQL 理论学习笔记</li>
+<li>五个 Level 的完整练习代码</li>
+<li>可运行的 MyBatis Demo</li>
+</ul>
+<p>👉 <strong>已整理并上传至 GitHub 仓库（含 README 说明）</strong></p>
+<hr>
+<h2 id="八、写在最后"><a href="#八、写在最后" class="headerlink" title="八、写在最后"></a>八、写在最后</h2><p>通过这五个 Level 的练习，我最大的收获不是“记住了多少标签”，而是：</p>
+<blockquote>
+<p><strong>学会了如何通过 SQL 日志反推 XML 和 Java 代码的问题</strong>，然后根据问题动态完善自己的 sql 语句编写</p>
+</blockquote>
+<p>这也是我认为学习 MyBatis 动态 SQL <strong>最重要的能力</strong>。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/03/backend/ssm/MyBatis/2026-1-3-mybatis-day06/" data-id="cmjyfr0gt002eqk8t09n22tof" data-title="MyBatis 动态 SQL 五个 Level 实战复盘：从语法理解到踩坑总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2026/01/03/algorithms/binary-tree/2026-1-3-binary-tree-traversals%20/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          leetcode 通过先序 / 中序 / 后序遍历构造二叉树（
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2026/01/02/algorithms/binary-tree/2026-1-2-binary-tree-traversals/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">leetcode 二叉树的先序 / 中序 / 后序遍历：在二叉搜索树中的选择与应用</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/ssm/">ssm</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/jdbc/" style="font-size: 15px;">jdbc</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mybatis/" style="font-size: 15px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 15px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 15px;">深度优先遍历</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 10px;">记录</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 20px;">递归</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">一月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/12/">十二月 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/01/03/algorithms/binary-tree/2026-1-3-binary-tree-traversals%20/">leetcode 通过先序 / 中序 / 后序遍历构造二叉树（</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/03/backend/ssm/MyBatis/2026-1-3-mybatis-day06/">MyBatis 动态 SQL 五个 Level 实战复盘：从语法理解到踩坑总结</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/02/algorithms/binary-tree/2026-1-2-binary-tree-traversals/">leetcode 二叉树的先序 / 中序 / 后序遍历：在二叉搜索树中的选择与应用</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/02/backend/mysql/2026-1-2-mybatis-day05/">MyBatis 入门学习笔记：从 JDBC 到 Mapper 映射</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/01/backend/mysql/2026-1-1-mysql-day04-jdbc-maven/">Maven 与 JDBC 学习笔记：从依赖管理到数据库访问实践</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Tingfeng Li<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
