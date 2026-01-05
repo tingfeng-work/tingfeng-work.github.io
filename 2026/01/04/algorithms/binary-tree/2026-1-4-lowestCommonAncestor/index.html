@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>二叉树的最近公共祖先（LCA）问题总结 | 廷风的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="本文围绕三道经典 LCA 题目：236. 二叉树的最近公共祖先、235. 二叉搜索树的最近公共祖先、1123. 所有最深叶节点的最近公共祖先系统总结最近公共祖先解题思路  一、什么是最近公共祖先（LCA）最近公共祖先（Lowest Common Ancestor） 指的是：  在一棵树中，两个节点 p 和 q 的所有公共祖先中，离它们最近的那个节点。  直观做题时，我们通常是：  找到 p 和 q">
+<meta property="og:type" content="article">
+<meta property="og:title" content="二叉树的最近公共祖先（LCA）问题总结">
+<meta property="og:url" content="http://example.com/2026/01/04/algorithms/binary-tree/2026-1-4-lowestCommonAncestor/index.html">
+<meta property="og:site_name" content="廷风的技术博客">
+<meta property="og:description" content="本文围绕三道经典 LCA 题目：236. 二叉树的最近公共祖先、235. 二叉搜索树的最近公共祖先、1123. 所有最深叶节点的最近公共祖先系统总结最近公共祖先解题思路  一、什么是最近公共祖先（LCA）最近公共祖先（Lowest Common Ancestor） 指的是：  在一棵树中，两个节点 p 和 q 的所有公共祖先中，离它们最近的那个节点。  直观做题时，我们通常是：  找到 p 和 q">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-01-04T04:00:00.000Z">
+<meta property="article:modified_time" content="2026-01-04T03:08:16.139Z">
+<meta property="article:author" content="Tingfeng Li">
+<meta property="article:tag" content="递归">
+<meta property="article:tag" content="二叉树">
+<meta property="article:tag" content="最近公共祖先">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="廷风的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">廷风的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Java 后端开发</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-algorithms/binary-tree/2026-1-4-lowestCommonAncestor" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/04/algorithms/binary-tree/2026-1-4-lowestCommonAncestor/" class="article-date">
+  <time class="dt-published" datetime="2026-01-04T04:00:00.000Z" itemprop="datePublished">2026-01-04</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      二叉树的最近公共祖先（LCA）问题总结
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>本文围绕三道经典 LCA 题目：<br><strong>236. 二叉树的最近公共祖先</strong>、<br><strong>235. 二叉搜索树的最近公共祖先</strong>、<br><strong>1123. 所有最深叶节点的最近公共祖先</strong><br>系统总结最近公共祖先解题思路</p>
+<hr>
+<h2 id="一、什么是最近公共祖先（LCA）"><a href="#一、什么是最近公共祖先（LCA）" class="headerlink" title="一、什么是最近公共祖先（LCA）"></a>一、什么是最近公共祖先（LCA）</h2><p><strong>最近公共祖先（Lowest Common Ancestor）</strong> 指的是：</p>
+<blockquote>
+<p>在一棵树中，两个节点 <code>p</code> 和 <code>q</code> 的所有公共祖先中，<strong>离它们最近的那个节点</strong>。</p>
+</blockquote>
+<p>直观做题时，我们通常是：</p>
+<ol>
+<li>找到 <code>p</code> 和 <code>q</code></li>
+<li>从它们向上回溯</li>
+<li>第一个相交的节点就是答案</li>
+</ol>
+<p>而在代码中，这个“向上回溯”的过程，天然适合用 <strong>递归</strong> 来表达。</p>
+<hr>
+<h2 id="二、236-二叉树的最近公共祖先（母模板）"><a href="#二、236-二叉树的最近公共祖先（母模板）" class="headerlink" title="二、236. 二叉树的最近公共祖先（母模板）"></a>二、236. 二叉树的最近公共祖先（母模板）</h2><h3 id="一句话思路"><a href="#一句话思路" class="headerlink" title="一句话思路"></a>一句话思路</h3><blockquote>
+<p>在左右子树中分别查找 <code>p</code> 和 <code>q</code>，<br> <strong>如果左右都找到了，当前节点就是最近公共祖先</strong>。</p>
+</blockquote>
+<hr>
+<h3 id="递归分类讨论"><a href="#递归分类讨论" class="headerlink" title="递归分类讨论"></a>递归分类讨论</h3><p>对于当前节点 <code>root</code>：</p>
+<ol>
+<li><p><strong><code>root == null</code></strong></p>
+<ul>
+<li>返回 <code>null</code>（没找到）</li>
+</ul>
+</li>
+<li><p><strong><code>root == p</code> 或 <code>root == q</code></strong></p>
+<ul>
+<li>直接返回当前节点</li>
+<li>因为最近公共祖先不可能在它的子树下面</li>
+</ul>
+</li>
+<li><p><strong>递归左右子树</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">left = LCA(root.left)</span><br><span class="line">right = LCA(root.right)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>left != null &amp;&amp; right != null</code><br>  <code>p</code>、<code>q</code> 分别在左右子树中，<code>root</code> 就是 LCA</li>
+<li>只有一边非空：表示 q、p 都在非空边，直接返回非空节点，即是答案</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="本质理解"><a href="#本质理解" class="headerlink" title="本质理解"></a>本质理解</h3><ul>
+<li><strong>递（向下）</strong>：定位 <code>p</code>、<code>q</code></li>
+<li><strong>归（向上）</strong>：判断当前节点是否“第一次同时覆盖目标”</li>
+</ul>
+<p> 这是后面所有 LCA 题目的<strong>核心模板</strong></p>
+<hr>
+<h2 id="三、235-二叉搜索树的最近公共祖先（BST-优化）"><a href="#三、235-二叉搜索树的最近公共祖先（BST-优化）" class="headerlink" title="三、235. 二叉搜索树的最近公共祖先（BST 优化）"></a>三、235. 二叉搜索树的最近公共祖先（BST 优化）</h2><h3 id="与-236-的关键区别"><a href="#与-236-的关键区别" class="headerlink" title="与 236 的关键区别"></a>与 236 的关键区别</h3><p>235 给的是 <strong>二叉搜索树（BST）</strong>，多了一个重要信息：</p>
+<blockquote>
+<p>左子树所有值 &lt; 根节点 &lt; 右子树所有值</p>
+</blockquote>
+<hr>
+<h3 id="利用-BST-性质剪枝"><a href="#利用-BST-性质剪枝" class="headerlink" title="利用 BST 性质剪枝"></a>利用 BST 性质剪枝</h3><p>设当前节点为 <code>root</code>：</p>
+<ol>
+<li><code>root.val &gt; p.val &amp;&amp; root.val &gt; q.val</code><br> 两个节点一定在 <strong>左子树</strong></li>
+<li><code>root.val &lt; p.val &amp;&amp; root.val &lt; q.val</code><br> 两个节点一定在 <strong>右子树</strong></li>
+<li>否则<br> 一个在左，一个在右（或 root 本身）<br> 当前节点就是最近公共祖先</li>
+</ol>
+<hr>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><table>
+<thead>
+<tr>
+<th>题目</th>
+<th>是否需要遍历整棵树</th>
+<th>关键依据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>236</td>
+<td>是</td>
+<td>普通二叉树</td>
+</tr>
+<tr>
+<td>235</td>
+<td>否</td>
+<td>BST 有序性</td>
+</tr>
+</tbody></table>
+<p> <strong>235 是 236 在 BST 场景下的剪枝优化版</strong></p>
+<hr>
+<h2 id="四、1123-所有最深叶节点的最近公共祖先（难点）"><a href="#四、1123-所有最深叶节点的最近公共祖先（难点）" class="headerlink" title="四、1123. 所有最深叶节点的最近公共祖先（难点）"></a>四、1123. 所有最深叶节点的最近公共祖先（难点）</h2><h3 id="初始直觉（两次遍历）"><a href="#初始直觉（两次遍历）" class="headerlink" title="初始直觉（两次遍历）"></a>初始直觉（两次遍历）</h3><p>我的第一反应是：</p>
+<ol>
+<li>先遍历整棵树，找到所有最深的叶子节点</li>
+<li>再利用 236 的思路，求这些节点的最近公共祖先</li>
+</ol>
+<p>这个思路<strong>完全正确</strong>，但本质是 <strong>两次遍历</strong>，并不优雅。</p>
+<hr>
+<h3 id="思路优化"><a href="#思路优化" class="headerlink" title="思路优化"></a>思路优化</h3><p>在查看参考答案后，我意识到：</p>
+<ul>
+<li>如果最深叶节点只存在于左子树：最近公共祖先一定在左子树</li>
+<li>如果左右子树都存在最深叶节点，且深度相同：当前节点才可能成为答案</li>
+</ul>
+<p>这说明：</p>
+<blockquote>
+<p><strong>答案一在递归过程中就可以产生的</strong></p>
+</blockquote>
+<hr>
+<h2 id="五、两种递归设计思路"><a href="#五、两种递归设计思路" class="headerlink" title="五、两种递归设计思路"></a>五、两种递归设计思路</h2><h3 id="思路一：自顶向下（参数传递）"><a href="#思路一：自顶向下（参数传递）" class="headerlink" title="思路一：自顶向下（参数传递）"></a>思路一：自顶向下（参数传递）</h3><ul>
+<li>向下递归时传递当前深度</li>
+<li>使用全局变量维护最大深度</li>
+<li>当左右子树深度相等，且等于全局最大深度时，更新答案（这里的答案会变，因为随着遍历最大深度会变）</li>
+</ul>
+<hr>
+<h3 id="思路二（推荐）：自底向上（返回值回溯）"><a href="#思路二（推荐）：自底向上（返回值回溯）" class="headerlink" title="思路二（推荐）：自底向上（返回值回溯）"></a>思路二（推荐）：自底向上（返回值回溯）</h3><p>进一步抽象问题后，可以把 1123 完全转化为一个<strong>分治问题</strong>：</p>
+<blockquote>
+<p>每棵子树只需要向父节点返回两件事：</p>
+<ol>
+<li>子树的最大深度</li>
+<li>子树中最深叶节点的最近公共祖先</li>
+</ol>
+</blockquote>
+<hr>
+<h2 id="六、自底向上的核心合并逻辑（重点）"><a href="#六、自底向上的核心合并逻辑（重点）" class="headerlink" title="六、自底向上的核心合并逻辑（重点）"></a>六、自底向上的核心合并逻辑（重点）</h2><p>设当前节点 <code>root</code>：</p>
+<ul>
+<li>左子树返回 <code>(depthL, lcaL)</code></li>
+<li>右子树返回 <code>(depthR, lcaR)</code></li>
+</ul>
+<blockquote>
+<p>返回值表示当前节点为根的树的深度与最深叶子节点的最近公共祖先节点</p>
+</blockquote>
+<h3 id="情况-1：左子树更深"><a href="#情况-1：左子树更深" class="headerlink" title="情况 1：左子树更深"></a>情况 1：左子树更深</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">depthL &gt; depthR</span><br></pre></td></tr></table></figure>
+
+<p>所有最深叶节点都在左子树</p>
+<p>最近公共祖先也一定在左子树</p>
+<p>返回 <code>(depthL + 1, lcaL)</code></p>
+<hr>
+<h3 id="情况-2：左右子树深度相等"><a href="#情况-2：左右子树深度相等" class="headerlink" title="情况 2：左右子树深度相等"></a>情况 2：左右子树深度相等</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">depthL == depthR</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>最深叶节点分布在左右子树</li>
+<li>当前节点是第一次“同时覆盖”它们的节点</li>
+<li>当前节点就是最近公共祖先</li>
+<li>返回 <code>(depthL + 1, root)</code></li>
+</ul>
+<hr>
+<h2 id="七、为什么要用-Pair-二元组，而不是-Map？"><a href="#七、为什么要用-Pair-二元组，而不是-Map？" class="headerlink" title="七、为什么要用 Pair &#x2F; 二元组，而不是 Map？"></a>七、为什么要用 Pair &#x2F; 二元组，而不是 Map？</h2><p>在 1123 的自底向上实现中，递归函数需要返回：</p>
+<ul>
+<li>一个 <strong>int（深度）</strong></li>
+<li>一个 <strong>TreeNode（最近公共祖先）</strong></li>
+</ul>
+<p>这两个值：</p>
+<ul>
+<li>没有 key → value 的映射关系</li>
+<li>但 <strong>有固定顺序和明确语义</strong></li>
+</ul>
+<p>因此它们本质上是一个 <strong>有位置关系的二元组</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(depth, lca)</span><br></pre></td></tr></table></figure>
+
+<p>使用 <code>Pair</code>（或自定义类）比 <code>Map</code> 更贴合问题本质，也更清晰、简洁。</p>
+<hr>
+<h2 id="八、从-236-到-1123：思路的统一"><a href="#八、从-236-到-1123：思路的统一" class="headerlink" title="八、从 236 到 1123：思路的统一"></a>八、从 236 到 1123：思路的统一</h2><p>可以这样理解：</p>
+<ul>
+<li><strong>236</strong>：判断左右子树是否分别找到了 <code>p</code> 和 <code>q</code></li>
+<li><strong>1123</strong>：判断左右子树是否分别包含“最深叶节点”</li>
+</ul>
+<p>本质上，1123 是对 236 思路的<strong>自然推广</strong>：</p>
+<blockquote>
+<p>把“是否找到目标节点”升级成了“子树是否达到最深深度”</p>
+</blockquote>
+<hr>
+<h2 id="九、递归设计的两大核心原则（重要总结）"><a href="#九、递归设计的两大核心原则（重要总结）" class="headerlink" title="九、递归设计的两大核心原则（重要总结）"></a>九、递归设计的两大核心原则（重要总结）</h2><h3 id="向下传递-——-参数传递法（递）"><a href="#向下传递-——-参数传递法（递）" class="headerlink" title="向下传递 —— 参数传递法（递）"></a>向下传递 —— 参数传递法（递）</h3><p><strong>适用场景</strong></p>
+<ul>
+<li>深度</li>
+<li>路径状态</li>
+<li>累计信息</li>
+</ul>
+<p><strong>特点</strong></p>
+<ul>
+<li>信息从父节点流向子节点</li>
+<li>子节点无法反向影响父节点</li>
+</ul>
+<hr>
+<h3 id="向上返回-——-返回值回溯法（归）"><a href="#向上返回-——-返回值回溯法（归）" class="headerlink" title="向上返回 —— 返回值回溯法（归）"></a>向上返回 —— 返回值回溯法（归）</h3><p><strong>适用场景</strong></p>
+<ul>
+<li>子树高度</li>
+<li>子树统计信息</li>
+<li>最近公共祖先</li>
+</ul>
+<p><strong>特点</strong></p>
+<ul>
+<li>信息从子节点汇总到父节点</li>
+<li>父节点基于左右子树返回值做决策</li>
+</ul>
+<hr>
+<h2 id="十、总结"><a href="#十、总结" class="headerlink" title="十、总结"></a>十、总结</h2><ul>
+<li><strong>236</strong>：最近公共祖先的母模板，理解递归回溯的经典题</li>
+<li><strong>235</strong>：利用 BST 性质进行剪枝优化</li>
+<li><strong>1123</strong>：递归设计能力的分水岭，考验信息如何在递归中流动</li>
+</ul>
+<blockquote>
+<p><strong>二叉树问题的核心，不是“怎么写递归”，<br> 而是“你希望子树返回什么信息”</strong></p>
+</blockquote>
+<p>一旦子问题定义清晰，答案就会在回溯过程中自然浮现。</p>
+<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/04/algorithms/binary-tree/2026-1-4-lowestCommonAncestor/" data-id="cmk0n6uon000a3w8t23n72yul" data-title="二叉树的最近公共祖先（LCA）问题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2026/01/04/backend/ssm/MyBatis/2026-1-4-mybatis-day07/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          (no title)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2026/01/03/algorithms/binary-tree/2026-1-3-binary-tree-traversals%20/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">leetcode 通过先序 / 中序 / 后序遍历构造二叉树（</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/ssm/">ssm</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/jdbc/" style="font-size: 13.33px;">jdbc</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mybatis/" style="font-size: 13.33px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 13.33px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 13.33px;">深度优先遍历</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 10px;">记录</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 16.67px;">递归</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">一月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/12/">十二月 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/01/05/algorithms/binary-tree/2026-1-5-binary-tree-level-order-traversal/">二叉树的层序遍历总结（2026-01-05）</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/04/backend/ssm/MyBatis/2026-1-4-mybatis-day07/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/04/algorithms/binary-tree/2026-1-4-lowestCommonAncestor/">二叉树的最近公共祖先（LCA）问题总结</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/03/algorithms/binary-tree/2026-1-3-binary-tree-traversals%20/">leetcode 通过先序 / 中序 / 后序遍历构造二叉树（</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/03/backend/ssm/MyBatis/2026-1-3-mybatis-day06/">MyBatis 动态 SQL 五个 Level 实战复盘：从语法理解到踩坑总结</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Tingfeng Li<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

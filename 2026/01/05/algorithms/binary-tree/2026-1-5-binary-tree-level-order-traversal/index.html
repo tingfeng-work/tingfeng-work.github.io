@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>二叉树的层序遍历总结（2026-01-05） | 廷风的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="在二叉树相关算法中，层序遍历（Level Order Traversal） 是 BFS 的典型应用，在涉及「按层处理」「同一层节点关系」「层级统计」等问题时，几乎是第一选择。同时，通过层序遍历序列构造一颗树很好实现。 本文对我在 2026-01-05 完成的一批层序遍历题目进行一次系统总结，并结合做题过程中补充的 Java 集合知识点，形成一份可复盘的学习笔记。  基础题目 二叉树的层序遍历 二">
+<meta property="og:type" content="article">
+<meta property="og:title" content="二叉树的层序遍历总结（2026-01-05）">
+<meta property="og:url" content="http://example.com/2026/01/05/algorithms/binary-tree/2026-1-5-binary-tree-level-order-traversal/index.html">
+<meta property="og:site_name" content="廷风的技术博客">
+<meta property="og:description" content="在二叉树相关算法中，层序遍历（Level Order Traversal） 是 BFS 的典型应用，在涉及「按层处理」「同一层节点关系」「层级统计」等问题时，几乎是第一选择。同时，通过层序遍历序列构造一颗树很好实现。 本文对我在 2026-01-05 完成的一批层序遍历题目进行一次系统总结，并结合做题过程中补充的 Java 集合知识点，形成一份可复盘的学习笔记。  基础题目 二叉树的层序遍历 二">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-01-05T05:00:00.000Z">
+<meta property="article:modified_time" content="2026-01-05T04:09:51.779Z">
+<meta property="article:author" content="Tingfeng Li">
+<meta property="article:tag" content="二叉树">
+<meta property="article:tag" content="层序遍历">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="廷风的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">廷风的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Java 后端开发</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-algorithms/binary-tree/2026-1-5-binary-tree-level-order-traversal" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/05/algorithms/binary-tree/2026-1-5-binary-tree-level-order-traversal/" class="article-date">
+  <time class="dt-published" datetime="2026-01-05T05:00:00.000Z" itemprop="datePublished">2026-01-05</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      二叉树的层序遍历总结（2026-01-05）
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>在二叉树相关算法中，<strong>层序遍历（Level Order Traversal）</strong> 是 BFS 的典型应用，在涉及「按层处理」「同一层节点关系」「层级统计」等问题时，几乎是第一选择。同时，通过层序遍历序列构造一颗树很好实现。</p>
+<p>本文对我在 2026-01-05 完成的一批层序遍历题目进行一次系统总结，并结合做题过程中补充的 <strong>Java 集合知识点</strong>，形成一份可复盘的学习笔记。</p>
+</blockquote>
+<h3 id="基础题目"><a href="#基础题目" class="headerlink" title="基础题目"></a>基础题目</h3><ul>
+<li>二叉树的层序遍历</li>
+<li>二叉树的锯齿形层序遍历</li>
+<li>找树左下角的值</li>
+</ul>
+<h3 id="扩展题目"><a href="#扩展题目" class="headerlink" title="扩展题目"></a>扩展题目</h3><ul>
+<li>二叉树的层序遍历 II</li>
+<li>二叉树的最大深度</li>
+<li>二叉树的最小深度</li>
+<li>二叉树中的第 K 大层和</li>
+<li>二叉树的右视图</li>
+<li>填充每个节点的下一个右侧节点指针</li>
+<li>层数最深叶子节点的和</li>
+<li>奇偶树</li>
+<li>反转二叉树的奇数层</li>
+<li>二叉树的堂兄弟节点 II</li>
+</ul>
+<hr>
+<h2 id="层序遍历的核心识别信号"><a href="#层序遍历的核心识别信号" class="headerlink" title="层序遍历的核心识别信号"></a>层序遍历的核心识别信号</h2><p>在读题时，只要出现以下关键词，就要高度警惕「层序遍历」：</p>
+<ul>
+<li>“一层一层”</li>
+<li>“同一层节点”</li>
+<li>“第 k 层 &#x2F; 第 k 大层”</li>
+<li>“左视图 &#x2F; 右视图”</li>
+<li>“最深一层 &#x2F; 最浅一层”</li>
+</ul>
+<p><strong>本质：题目要求你按层组织节点，而不是单纯的前序 &#x2F; 中序 &#x2F; 后序。</strong></p>
+<hr>
+<h2 id="层序遍历的两种经典实现方式"><a href="#层序遍历的两种经典实现方式" class="headerlink" title="层序遍历的两种经典实现方式"></a>层序遍历的两种经典实现方式</h2><h3 id="1-双数组（当前层-下一层）写法（最直观）"><a href="#1-双数组（当前层-下一层）写法（最直观）" class="headerlink" title="1. 双数组（当前层 &#x2F; 下一层）写法（最直观）"></a>1. 双数组（当前层 &#x2F; 下一层）写法（最直观）</h3><p>思路非常清晰：</p>
+<ol>
+<li>用一个数组保存当前层节点</li>
+<li>遍历当前层时，把子节点加入“下一层数组”</li>
+<li>当前层处理完后，令 <code>cur = next</code></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">cur = [root]</span><br><span class="line">while cur 非空:</span><br><span class="line">    处理 cur</span><br><span class="line">    next = []</span><br><span class="line">    for node in cur:</span><br><span class="line">        next.add(node.left)</span><br><span class="line">        next.add(node.right)</span><br><span class="line">    cur = next</span><br></pre></td></tr></table></figure>
+
+<p>优点：</p>
+<ul>
+<li>思路清楚，适合初学</li>
+<li>非常适合“同层对称处理”的题目（如 2415）</li>
+</ul>
+<hr>
+<h3 id="队列写法（更通用、面试更常见）"><a href="#队列写法（更通用、面试更常见）" class="headerlink" title="队列写法（更通用、面试更常见）"></a>队列写法（更通用、面试更常见）</h3><p><strong>常用</strong>的写法：</p>
+<p>核心技巧：<br><strong>在每一轮循环开始时，记录当前队列长度 <code>size</code>，它就代表当前层的节点个数</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">queue.offer(root)</span><br><span class="line">while queue 非空:</span><br><span class="line">    size = queue.size()</span><br><span class="line">    for i in range(size):</span><br><span class="line">        node = queue.poll()</span><br><span class="line">        处理 node</span><br><span class="line">        queue.offer(node.left)</span><br><span class="line">        queue.offer(node.right)</span><br></pre></td></tr></table></figure>
+
+<p>优点：</p>
+<ul>
+<li>不需要额外的“当前层数组”</li>
+<li>非常适合统计、聚合、视图类问题</li>
+</ul>
+<hr>
+<h2 id="一道典型-Trick：2415-反转二叉树的奇数层"><a href="#一道典型-Trick：2415-反转二叉树的奇数层" class="headerlink" title="一道典型 Trick：2415. 反转二叉树的奇数层"></a>一道典型 Trick：2415. 反转二叉树的奇数层</h2><p>这道题有一个非常重要但容易忽略的点：</p>
+<blockquote>
+<p><strong>题目要求反转的是“奇数层节点的值”，而不是节点本身。</strong></p>
+</blockquote>
+<h3 id="关键-insight"><a href="#关键-insight" class="headerlink" title="关键 insight"></a>关键 insight</h3><ul>
+<li>二叉树结构 <strong>不能乱改</strong></li>
+<li>但交换 <code>node.val</code> 是完全合法的</li>
+<li>对称位置的节点只需要交换值即可</li>
+</ul>
+<p>这是一个**“值操作”替代“结构操作”**的经典思路，后续很多树题都会用到。</p>
+<hr>
+<h2 id="做题过程中补充的-Java-集合知识"><a href="#做题过程中补充的-Java-集合知识" class="headerlink" title="做题过程中补充的 Java 集合知识"></a>做题过程中补充的 Java 集合知识</h2><p>在实现层序遍历的过程中，我顺带系统补齐了一些 <strong>Java 集合的易混点</strong>。</p>
+<h3 id="1-List-of-vs-new-ArrayList"><a href="#1-List-of-vs-new-ArrayList" class="headerlink" title="1. List.of(...) vs new ArrayList&lt;&gt;()"></a>1. <code>List.of(...)</code> vs <code>new ArrayList&lt;&gt;()</code></h3><ul>
+<li><code>List.of(...)</code><ul>
+<li>创建 <strong>不可变 List</strong></li>
+<li>不能增删改</li>
+<li>不允许 <code>null</code></li>
+<li>引用本身可以重新指向其他 List</li>
+</ul>
+</li>
+<li><code>new ArrayList&lt;&gt;()</code><ul>
+<li>可变集合</li>
+<li>支持增删改</li>
+</ul>
+</li>
+</ul>
+<p>常见用法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Integer&gt; a = new ArrayList&lt;&gt;(List.of(1, 2, 3));</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="2-Collections-reverse-list-vs-list-reversed"><a href="#2-Collections-reverse-list-vs-list-reversed" class="headerlink" title="2. Collections.reverse(list) vs list.reversed()"></a>2. <code>Collections.reverse(list)</code> vs <code>list.reversed()</code></h3><ul>
+<li><code>Collections.reverse(list)</code><ul>
+<li><strong>就地反转</strong></li>
+<li>会修改原 list</li>
+<li>list 必须是可变的</li>
+</ul>
+</li>
+<li><code>list.reversed()</code>（Java 21+）<ul>
+<li>返回一个 <strong>倒序视图（view）</strong></li>
+<li>不修改原 list</li>
+<li>O(1) 创建视图</li>
+<li>原 list 改变，视图会联动变化</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="3-Queue-offer-poll-vs-add-remove"><a href="#3-Queue-offer-poll-vs-add-remove" class="headerlink" title="3. Queue.offer / poll vs add / remove"></a>3. <code>Queue.offer / poll</code> vs <code>add / remove</code></h3><p>这是 Queue 接口里非常重要的一组 API 设计差异：</p>
+<ul>
+<li><code>offer(e)</code>：失败返回 <code>false</code></li>
+<li><code>poll()</code>：空队列返回 <code>null</code></li>
+<li><code>add(e)</code>：失败抛异常</li>
+<li><code>remove()</code>：空队列抛异常</li>
+</ul>
+<p>实际写算法时，<strong><code>offer + poll</code> 更常用</strong>，避免异常作为控制流。</p>
+<hr>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总体来看，<strong>层序遍历的思想并不复杂</strong>，但由于它需要我们<strong>显式维护一个队列</strong>，通过不断入队、出队来模拟递归过程，因此：</p>
+<ul>
+<li>代码相对 DFS 更冗长</li>
+<li>但在“同层处理”“层级统计”“视图类问题”中几乎不可替代</li>
+</ul>
+<p>当题目强调“层”的概念时，应优先考虑层序遍历；而在实现过程中，<strong>对 Java 集合 API 的理解是否扎实，往往直接决定代码是否简洁、健壮</strong>。</p>
+<h2 id="构造本地测试用例：用层序数组构造二叉树"><a href="#构造本地测试用例：用层序数组构造二叉树" class="headerlink" title="构造本地测试用例：用层序数组构造二叉树"></a>构造本地测试用例：用层序数组构造二叉树</h2><p>在刷 LeetCode&#x2F;写本地 <code>main</code> 测试时，经常会遇到题目给出的输入形式是：</p>
+<ul>
+<li><code>root = [5,8,9,2,1,3,7,4,6]</code></li>
+<li>或包含缺失节点：<code>root = [1,2,3,null,4]</code></li>
+</ul>
+<p>这种数组表示其实就是<strong>层序遍历（level order）的序列化结果</strong>：<br> 数组从左到右依次给出每一层的节点，<code>null</code> 表示该位置没有节点。</p>
+<p>为了让本地调试更高效，我补齐了一个通用的建树方法：<br><strong>输入 <code>Integer[] levelOrder</code>，输出 <code>TreeNode root</code>（支持 null）</strong></p>
+<h3 id="核心思路"><a href="#核心思路" class="headerlink" title="核心思路"></a>核心思路</h3><ul>
+<li>用队列保存“等待挂孩子的父节点”</li>
+<li>指针 <code>i</code> 从 1 开始扫描数组</li>
+<li>每次从队列弹出一个父节点，尝试读取两个位置作为它的 left&#x2F;right</li>
+<li>读到 <code>null</code> 就跳过，不创建节点</li>
+</ul>
+<h3 id="Java-建树模板（支持-null）"><a href="#Java-建树模板（支持-null）" class="headerlink" title="Java 建树模板（支持 null）"></a>Java 建树模板（支持 null）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">public static TreeNode buildTree(Integer[] levelOrder) &#123;</span><br><span class="line">    if (levelOrder == null || levelOrder.length == 0 || levelOrder[0] == null) return null;</span><br><span class="line">    </span><br><span class="line">    TreeNode root = new TreeNode(levelOrder[0]);</span><br><span class="line">    Queue&lt;TreeNode&gt; q = new ArrayDeque&lt;&gt;();</span><br><span class="line">    q.offer(root);</span><br><span class="line"></span><br><span class="line">    int i = 1;</span><br><span class="line">    while (i &lt; levelOrder.length &amp;&amp; !q.isEmpty()) &#123;</span><br><span class="line">        TreeNode cur = q.poll();</span><br><span class="line"></span><br><span class="line">        // left</span><br><span class="line">        if (i &lt; levelOrder.length &amp;&amp; levelOrder[i] != null) &#123;</span><br><span class="line">            cur.left = new TreeNode(levelOrder[i]);</span><br><span class="line">            q.offer(cur.left);</span><br><span class="line">        &#125;</span><br><span class="line">        i++;</span><br><span class="line"></span><br><span class="line">        // right</span><br><span class="line">        if (i &lt; levelOrder.length &amp;&amp; levelOrder[i] != null) &#123;</span><br><span class="line">            cur.right = new TreeNode(levelOrder[i]);</span><br><span class="line">            q.offer(cur.right);</span><br><span class="line">        &#125;</span><br><span class="line">        i++;</span><br><span class="line">    &#125;</span><br><span class="line">    return root;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/05/algorithms/binary-tree/2026-1-5-binary-tree-level-order-traversal/" data-id="cmk0n6uoo000b3w8te8e7beyb" data-title="二叉树的层序遍历总结（2026-01-05）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2026/01/04/backend/ssm/MyBatis/2026-1-4-mybatis-day07/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title"></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/ssm/">ssm</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/jdbc/" style="font-size: 13.33px;">jdbc</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mybatis/" style="font-size: 13.33px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 13.33px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 13.33px;">深度优先遍历</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 10px;">记录</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 16.67px;">递归</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">一月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/12/">十二月 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/01/05/algorithms/binary-tree/2026-1-5-binary-tree-level-order-traversal/">二叉树的层序遍历总结（2026-01-05）</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/04/backend/ssm/MyBatis/2026-1-4-mybatis-day07/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/04/algorithms/binary-tree/2026-1-4-lowestCommonAncestor/">二叉树的最近公共祖先（LCA）问题总结</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/03/algorithms/binary-tree/2026-1-3-binary-tree-traversals%20/">leetcode 通过先序 / 中序 / 后序遍历构造二叉树（</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/03/backend/ssm/MyBatis/2026-1-3-mybatis-day06/">MyBatis 动态 SQL 五个 Level 实战复盘：从语法理解到踩坑总结</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Tingfeng Li<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
