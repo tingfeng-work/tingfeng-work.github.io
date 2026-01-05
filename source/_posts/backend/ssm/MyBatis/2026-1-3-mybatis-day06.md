@@ -233,7 +233,7 @@ user.setStatus("0");
 
 > `collection` 不是 Java 形参名吗？
 
-### ❌ 易错点
+### 易错点
 
 ```
 int batchInsert(List<User> users);
