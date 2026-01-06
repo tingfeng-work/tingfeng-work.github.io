@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>子集型回溯（2026-01-06） | 廷风的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="子集型回溯应用范围：子集&#x2F;组合&#x2F;切分字符串&#x2F;按位选择等“枚举所有可能”的题。  基础题目 子集 电话号码字母组合 分割回文串  扩展题目 二叉树的所有路径 路径总和 II  字母大小写全排列   1. 什么是回溯？以集合 (1,2,3) 的子集为例：我们可以选择 1，也可以“退回去”不选 1 改选 2，再选 3。 这种在构造答案的过程中回退到上一步、去探索其它分支的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="子集型回溯（2026-01-06）">
+<meta property="og:url" content="http://example.com/2026/01/06/algorithms/backtracking/2026-1-6-backtracking-subset/index.html">
+<meta property="og:site_name" content="廷风的技术博客">
+<meta property="og:description" content="子集型回溯应用范围：子集&#x2F;组合&#x2F;切分字符串&#x2F;按位选择等“枚举所有可能”的题。  基础题目 子集 电话号码字母组合 分割回文串  扩展题目 二叉树的所有路径 路径总和 II  字母大小写全排列   1. 什么是回溯？以集合 (1,2,3) 的子集为例：我们可以选择 1，也可以“退回去”不选 1 改选 2，再选 3。 这种在构造答案的过程中回退到上一步、去探索其它分支的">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-01-06T05:00:00.000Z">
+<meta property="article:modified_time" content="2026-01-06T04:26:55.753Z">
+<meta property="article:author" content="Tingfeng Li">
+<meta property="article:tag" content="子集">
+<meta property="article:tag" content="回溯">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="廷风的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">廷风的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Java 后端开发</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-algorithms/backtracking/2026-1-6-backtracking-subset" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/06/algorithms/backtracking/2026-1-6-backtracking-subset/" class="article-date">
+  <time class="dt-published" datetime="2026-01-06T05:00:00.000Z" itemprop="datePublished">2026-01-06</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      子集型回溯（2026-01-06）
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>子集型回溯应用范围：子集&#x2F;组合&#x2F;切分字符串&#x2F;按位选择等“枚举所有可能”的题。</p>
+</blockquote>
+<h3 id="基础题目"><a href="#基础题目" class="headerlink" title="基础题目"></a>基础题目</h3><ul>
+<li>子集</li>
+<li>电话号码字母组合</li>
+<li>分割回文串</li>
+</ul>
+<h3 id="扩展题目"><a href="#扩展题目" class="headerlink" title="扩展题目"></a>扩展题目</h3><ul>
+<li>二叉树的所有路径</li>
+<li>路径总和 II </li>
+<li>字母大小写全排列</li>
+</ul>
+<hr>
+<h2 id="1-什么是回溯？"><a href="#1-什么是回溯？" class="headerlink" title="1. 什么是回溯？"></a>1. 什么是回溯？</h2><p>以集合 <code>(1,2,3)</code> 的子集为例：我们可以选择 <code>1</code>，也可以“退回去”不选 <code>1</code> 改选 <code>2</code>，再选 <code>3</code>。<br> 这种<strong>在构造答案的过程中回退到上一步、去探索其它分支</strong>的现象就是回溯。</p>
+<p>回溯通常伴随递归，而不是循环：</p>
+<ul>
+<li>循环适合固定层数（例如 2 层、3 层嵌套）。</li>
+<li>但回溯题的“层数”往往<strong>未知或很深</strong>（例如字符串切分、树路径、排列组合），循环表达能力有限。</li>
+<li>递归天然对应一棵“决策树”的深度优先遍历（DFS），更适合回溯。</li>
+</ul>
+<hr>
+<h2 id="2-用“树”和“路径”理解回溯"><a href="#2-用“树”和“路径”理解回溯" class="headerlink" title="2. 用“树”和“路径”理解回溯"></a>2. 用“树”和“路径”理解回溯</h2><p>把回溯理解成 <strong>DFS 遍历一棵决策树</strong>最直观：</p>
+<ul>
+<li>每走到一个节点，我们都处于一条“根 → 当前节点”的路径上</li>
+<li>用 <code>path</code> 维护这条路径</li>
+<li>当到达满足条件的位置（通常是叶子，或某些题的节点），把 <code>path</code> 记录到 <code>ans</code></li>
+</ul>
+<p>关键点：<strong>回溯 &#x3D; 递归返回 + 恢复现场</strong></p>
+<hr>
+<h2 id="3-恢复现场：为什么必须做？"><a href="#3-恢复现场：为什么必须做？" class="headerlink" title="3. 恢复现场：为什么必须做？"></a>3. 恢复现场：为什么必须做？</h2><p>在 DFS 过程中我们经常会：</p>
+<ol>
+<li>把一个选择加入 <code>path</code></li>
+<li>递归深入</li>
+<li>返回时必须撤销这个选择，否则 <code>path</code> 会“污染”后续分支</li>
+</ol>
+<p>常见的两种恢复方式：</p>
+<ul>
+<li><strong>数据覆盖</strong>：适用于“固定长度答案”（常用数组保存）</li>
+<li><strong>回滚（removeLast）</strong>：适用于 <code>List</code> &#x2F; <code>StringBuilder</code> 这种动态结构</li>
+</ul>
+<blockquote>
+<p><strong>add → dfs → removeLast</strong><br> 只要你“改变了状态”，回来的时候就要“撤销状态”。</p>
+</blockquote>
+<hr>
+<h2 id="4-子集型回溯的两大思路"><a href="#4-子集型回溯的两大思路" class="headerlink" title="4. 子集型回溯的两大思路"></a>4. 子集型回溯的两大思路</h2><p>回溯题通常两种建模方式：</p>
+<h3 id="思路-A：从输入角度——“当前元素选不选”"><a href="#思路-A：从输入角度——“当前元素选不选”" class="headerlink" title="思路 A：从输入角度——“当前元素选不选”"></a>思路 A：从输入角度——“当前元素选不选”</h3><ul>
+<li>每个输入元素对应一层决策：<strong>选 &#x2F; 不选</strong></li>
+<li>决策树通常是二叉树</li>
+<li><strong>答案通常在叶子节点收集</strong></li>
+</ul>
+<h3 id="思路-B：从答案角度——“当前位置选哪个元素”"><a href="#思路-B：从答案角度——“当前位置选哪个元素”" class="headerlink" title="思路 B：从答案角度——“当前位置选哪个元素”"></a>思路 B：从答案角度——“当前位置选哪个元素”</h3><ul>
+<li>每一层表示“答案的当前位选什么元素”</li>
+<li>用 <code>startIndex</code> 控制下一层枚举起点，避免重复</li>
+<li><strong>答案通常在节点收集</strong>（因为走到任意节点都代表一个合法子集）</li>
+</ul>
+<blockquote>
+<p>两种思路都能做 78 子集；<br> 哪个更顺手取决于题型，有时“答案角度”的树更小，有时“选不选”更直观。</p>
+</blockquote>
+<hr>
+<h2 id="5-画树：回溯卡住时最有效的解法"><a href="#5-画树：回溯卡住时最有效的解法" class="headerlink" title="5. 画树：回溯卡住时最有效的解法"></a>5. 画树：回溯卡住时最有效的解法</h2><p>当你对“递归参数是什么、何时收集答案、怎么剪枝”不明确时：</p>
+<ul>
+<li>先画出<strong>决策树</strong></li>
+<li>每一层代表什么？</li>
+<li>每条边代表什么选择？</li>
+<li>哪些节点是合法答案？</li>
+</ul>
+<blockquote>
+<p><strong>画树能直接定位：答案在哪里收集 + 哪一步需要回溯。</strong></p>
+</blockquote>
+<hr>
+<h2 id="6-结合题目：78-子集（两种思路）"><a href="#6-结合题目：78-子集（两种思路）" class="headerlink" title="6. 结合题目：78 子集（两种思路）"></a>6. 结合题目：78 子集（两种思路）</h2><h3 id="6-1-解法-1：枚举输入元素选不选（叶子收集答案）"><a href="#6-1-解法-1：枚举输入元素选不选（叶子收集答案）" class="headerlink" title="6.1 解法 1：枚举输入元素选不选（叶子收集答案）"></a>6.1 解法 1：枚举输入元素选不选（叶子收集答案）</h3><blockquote>
+<p>特点：二叉决策树；当 <code>i == nums.length</code> 才表示一条路径完全确定，因此在叶子收集。</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">void dfs(int i, int[] nums, List&lt;Integer&gt; path, List&lt;List&lt;Integer&gt;&gt; ans) &#123;</span><br><span class="line">    // 递归边界：输入枚举完了，path 是一种完整选择</span><br><span class="line">    if (i == nums.length) &#123;</span><br><span class="line">        ans.add(new ArrayList&lt;&gt;(path)); // 注意要拷贝</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 1) 不选 nums[i]</span><br><span class="line">    dfs(i + 1, nums, path, ans);</span><br><span class="line"></span><br><span class="line">    // 2) 选 nums[i]</span><br><span class="line">    path.add(nums[i]);</span><br><span class="line">    dfs(i + 1, nums, path, ans);</span><br><span class="line">    path.removeLast(); // 恢复现场</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意：</strong></p>
+<ul>
+<li><strong>叶子收集</strong>：因为只有到 <code>i==n</code> 才能确定“每个元素选没选”</li>
+<li><strong>必须拷贝 path</strong>：否则 ans 里存的是同一个引用，后续回滚会影响已保存答案</li>
+<li><strong>恢复现场</strong>：每次 add 后都要 removeLast</li>
+</ul>
+<hr>
+<h3 id="6-2-解法-2：枚举第-i-个答案选哪个元素（节点收集答案）"><a href="#6-2-解法-2：枚举第-i-个答案选哪个元素（节点收集答案）" class="headerlink" title="6.2 解法 2：枚举第 i 个答案选哪个元素（节点收集答案）"></a>6.2 解法 2：枚举第 i 个答案选哪个元素（节点收集答案）</h3><blockquote>
+<p>特点：每个节点都是一个子集，因此走到节点就可记录；用 <code>startIndex</code> 防止重复。</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">void dfs(int start, int[] nums, List&lt;List&lt;Integer&gt;&gt; ans, List&lt;Integer&gt; path) &#123;</span><br><span class="line">    // 由于每个节点都是一个合法子集，所以直接记录当前 path</span><br><span class="line">    ans.add(new ArrayList&lt;&gt;(path));</span><br><span class="line"></span><br><span class="line">    // 枚举下一位选哪个元素：只能从 start 往后选，保证不出现 (2,1) 这种重复顺序</span><br><span class="line">    for (int j = start; j &lt; nums.length; j++) &#123;</span><br><span class="line">        path.add(nums[j]);</span><br><span class="line">        dfs(j + 1, nums, ans, path);</span><br><span class="line">        path.removeLast(); // 回滚</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>你需要牢记的点：</strong></p>
+<ul>
+<li><strong>节点收集</strong>：因为任何时刻的 <code>path</code> 都是一个合法子集</li>
+<li><strong>startIndex 是去重本质</strong>：规定递增选取顺序，避免同一组合的不同排列</li>
+<li>这类写法也是“组合类题”通用模板（如组合总和、组合数等）</li>
+</ul>
+<hr>
+<h2 id="7-String-join：在回溯里怎么用？和-StringBuilder-有什么关系？"><a href="#7-String-join：在回溯里怎么用？和-StringBuilder-有什么关系？" class="headerlink" title="7. String.join：在回溯里怎么用？和 StringBuilder 有什么关系？"></a>7. String.join：在回溯里怎么用？和 StringBuilder 有什么关系？</h2><p>在题解中看到有人用了 <code>String.join()</code>，它很适合把结果“输出成字符串”：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; path = List.of(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;);</span><br><span class="line">String s = String.join(&quot;-&quot;, path); // &quot;a-b-c&quot;</span><br></pre></td></tr></table></figure>
+
+<p>但需要注意它和 <code>StringBuilder / StringJoiner</code> 的定位不同：</p>
+<ul>
+<li><strong>String.join</strong>：一次性把已有的字符串集合拼起来（更像“格式化输出”）</li>
+<li><strong>StringBuilder</strong>：回溯过程中不断 append &#x2F; delete（更像“构造过程中的状态”）</li>
+<li><strong>StringJoiner</strong>：更偏“带前后缀的 join”，比如 <code>&quot;[a,b,c]&quot;</code></li>
+</ul>
+<p>在回溯题中一般推荐：</p>
+<ul>
+<li>构造过程：用 <strong>StringBuilder</strong>（append + deleteCharAt 回滚）</li>
+<li>输出阶段：需要展示路径时用 <strong>String.join</strong>（更清爽）</li>
+</ul>
+<hr>
+<h2 id="8-总结"><a href="#8-总结" class="headerlink" title="8. 总结"></a>8. 总结</h2><h3 id="模板-1（选不选，叶子收集）"><a href="#模板-1（选不选，叶子收集）" class="headerlink" title="模板 1（选不选，叶子收集）"></a>模板 1（选不选，叶子收集）</h3><ul>
+<li>参数：<code>i</code></li>
+<li>收集：<code>i == n</code></li>
+<li>结构：先不选，再选（选完要回滚）</li>
+</ul>
+<h3 id="模板-2（答案角度，节点收集）"><a href="#模板-2（答案角度，节点收集）" class="headerlink" title="模板 2（答案角度，节点收集）"></a>模板 2（答案角度，节点收集）</h3><ul>
+<li>参数：<code>start</code></li>
+<li>收集：进入 dfs 就收集</li>
+<li>结构：for 从 start 枚举，递归 dfs(start +1)，回滚</li>
+</ul>
+<hr>
+<h2 id="9-心得体会"><a href="#9-心得体会" class="headerlink" title="9. 心得体会"></a>9. 心得体会</h2><ul>
+<li>回溯的本质是<strong>DFS 遍历决策树</strong>，<code>path</code> 记录当前路径，<code>ans</code> 收集答案。</li>
+<li>回溯一定伴随<strong>恢复现场</strong>：add → dfs → removeLast。</li>
+<li>子集型题最常用两种建模：<ul>
+<li><strong>选不选（叶子收集）</strong></li>
+<li><strong>选哪个（节点收集 + startIndex 去重）</strong></li>
+</ul>
+</li>
+<li>思路不清楚时，<strong>画树是最高效的破局方法</strong>。</li>
+<li><code>String.join</code> 更适合输出拼接；回溯构造过程更推荐 <code>StringBuilder</code> 做状态并回滚。</li>
+</ul>
+<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/06/algorithms/backtracking/2026-1-6-backtracking-subset/" data-id="cmk23a4h10004348t59km0gxe" data-title="子集型回溯（2026-01-06）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2026/01/06/misc/Spring%20+%20Redis%20%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92%20V3.1%EF%BC%887%E5%A4%A9%E9%97%AD%E7%8E%AF%EF%BC%8C%E5%9F%BA%E4%BA%8EAI%EF%BC%89/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">Spring + Redis 学习计划 V3.1（7天闭环，基于AI）</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/ssm/">ssm</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" rel="tag">学习计划</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/jdbc/" style="font-size: 12.5px;">jdbc</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mybatis/" style="font-size: 15px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12.5px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 10px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 10px;">子集</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12.5px;">深度优先遍历</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12.5px;">记录</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 17.5px;">递归</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">一月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/12/">十二月 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/01/06/algorithms/backtracking/2026-1-6-backtracking-subset/">子集型回溯（2026-01-06）</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/06/misc/Spring%20+%20Redis%20%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92%20V3.1%EF%BC%887%E5%A4%A9%E9%97%AD%E7%8E%AF%EF%BC%8C%E5%9F%BA%E4%BA%8EAI%EF%BC%89/">Spring + Redis 学习计划 V3.1（7天闭环，基于AI）</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/05/algorithms/binary-tree/2026-1-5-binary-tree-level-order-traversal/">二叉树的层序遍历总结（2026-01-05）</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/04/algorithms/binary-tree/2026-1-4-lowestCommonAncestor/">二叉树的最近公共祖先（LCA）问题总结</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/04/backend/ssm/MyBatis/2026-1-4-mybatis-day07/">MyBatis XML 映射器学习复盘：结合实践 Bug</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Tingfeng Li<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
