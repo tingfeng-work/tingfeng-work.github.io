@@ -81,6 +81,171 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-algorithms/backtracking/2026-1-8-backtracking-subset-practice" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/08/algorithms/backtracking/2026-1-8-backtracking-subset-practice/" class="article-date">
+  <time class="dt-published" datetime="2026-01-08T04:00:00.000Z" itemprop="datePublished">2026-01-08</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2026/01/08/algorithms/backtracking/2026-1-8-backtracking-subset-practice/">子集型回溯方法论得应用（2026-01-08）</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="一、输入角度的子集型回溯"><a href="#一、输入角度的子集型回溯" class="headerlink" title="一、输入角度的子集型回溯"></a>一、输入角度的子集型回溯</h2><p>子集型回溯是一类<strong>通过枚举每个元素“选 or 不选”来构造答案集合</strong>的回溯问题。<br> 其核心思想是：</p>
+<blockquote>
+<p>对输入集合中的每一个元素，都做一次“是否加入当前解”的选择，通过递归枚举所有可能的子集。</p>
+</blockquote>
+<p>由于每个元素只有两种状态（选 &#x2F; 不选），因此这类问题<strong>天然覆盖所有可能情况，不会重、不漏</strong>。</p>
+<hr>
+<h2 id="二、子集型回溯的统一模板"><a href="#二、子集型回溯的统一模板" class="headerlink" title="二、子集型回溯的统一模板"></a>二、子集型回溯的统一模板</h2><p>子集型回溯的 DFS 过程通常包含三个核心要素：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> <span class="title function_">dfs</span><span class="params">(i, 输入集合，当前状态)</span>:</span><br><span class="line">	<span class="comment">// n 为输入集合长度</span></span><br><span class="line">    <span class="keyword">if</span> i == n:</span><br><span class="line">		<span class="comment">// 说明当前轮枚举完了输入集合</span></span><br><span class="line">        更新答案</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 不选第 i 个元素</span></span><br><span class="line">    dfs(i + <span class="number">1</span>, 输入集合，当前状态)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 选第 i 个元素（有条件）</span></span><br><span class="line">    <span class="keyword">if</span> <span class="title function_">check</span><span class="params">(i, 当前状态)</span>:</span><br><span class="line">        选择 i</span><br><span class="line">        <span class="title function_">dfs</span><span class="params">(i + <span class="number">1</span>, 输入集合，新状态)</span></span><br><span class="line">        撤销选择</span><br></pre></td></tr></table></figure>
+
+<p>其中：</p>
+<ul>
+<li><code>i</code>：当前处理到第 i 个元素</li>
+<li><code>当前状态</code>：路径（已选元素 &#x2F; 剩余资源 &#x2F; 当前得分等）</li>
+<li><code>check</code>：是否允许“选”的条件判断（<strong>条件回溯的关键</strong>）</li>
+</ul>
+<hr>
+<h2 id="三、扩展题目统一拆解"><a href="#三、扩展题目统一拆解" class="headerlink" title="三、扩展题目统一拆解"></a>三、扩展题目统一拆解</h2><p>下面 6 道题，本质上都可以<strong>统一为「子集型回溯 + 条件判断」</strong>。</p>
+<hr>
+<h3 id="LCP51-烹饪料理"><a href="#LCP51-烹饪料理" class="headerlink" title="LCP51. 烹饪料理"></a>LCP51. 烹饪料理</h3><p><strong>建模方式</strong>：</p>
+<ul>
+<li>枚举第 i 道料理：做 or 不做</li>
+<li>选的条件：材料足够</li>
+</ul>
+<p><strong>状态维护</strong>：</p>
+<ul>
+<li>剩余材料数组</li>
+</ul>
+<p>典型的「<strong>资源约束型子集回溯</strong>」</p>
+<hr>
+<h3 id="2397-被列覆盖的最多行数"><a href="#2397-被列覆盖的最多行数" class="headerlink" title="2397. 被列覆盖的最多行数"></a>2397. 被列覆盖的最多行数</h3><p><strong>建模方式</strong>：</p>
+<ul>
+<li>枚举第 i 列：选 or 不选</li>
+<li>选的条件：已选列数 ≤ numSelect</li>
+</ul>
+<p><strong>关键剪枝</strong>：</p>
+<ul>
+<li>如果 <code>剩余列数 ≤ 剩余可选数</code> → <strong>必须全选</strong></li>
+</ul>
+<p>子集型回溯 + <strong>强剪枝</strong></p>
+<hr>
+<h3 id="1239-串联字符串的最大长度"><a href="#1239-串联字符串的最大长度" class="headerlink" title="1239. 串联字符串的最大长度"></a>1239. 串联字符串的最大长度</h3><p><strong>建模方式</strong>：</p>
+<ul>
+<li>枚举每个字符串：选 or 不选</li>
+</ul>
+<p><strong>选的条件</strong>：</p>
+<ol>
+<li>字符串内部不能有重复字符</li>
+<li>与当前已选字符串字符集不能冲突</li>
+</ol>
+<p><strong>状态设计</strong>：</p>
+<ul>
+<li>使用 boolean[26] 维护字符占用情况</li>
+</ul>
+<p> 典型的「<strong>集合冲突约束型回溯</strong>」</p>
+<hr>
+<h3 id="2212-射箭比赛中的最大得分"><a href="#2212-射箭比赛中的最大得分" class="headerlink" title="2212. 射箭比赛中的最大得分"></a>2212. 射箭比赛中的最大得分</h3><p><strong>建模方式</strong>：</p>
+<ul>
+<li>枚举每个得分区间是否争夺</li>
+</ul>
+<p><strong>选的条件</strong>：</p>
+<ul>
+<li>剩余箭数 ≥ alice[i] + 1</li>
+</ul>
+<p><strong>状态维护</strong>：</p>
+<ul>
+<li>剩余箭数</li>
+<li>当前得分</li>
+</ul>
+<p>本质是 <strong>资源分配 + 子集枚举</strong></p>
+<hr>
+<h3 id="2698-求一个整数的惩罚数"><a href="#2698-求一个整数的惩罚数" class="headerlink" title="2698. 求一个整数的惩罚数"></a>2698. 求一个整数的惩罚数</h3><p><strong>建模方式</strong>：</p>
+<ul>
+<li>对 <code>i²</code> 的字符串进行切割</li>
+<li>每一刀：切 or 不切</li>
+</ul>
+<p><strong>选的条件</strong>：</p>
+<ul>
+<li>当前分割出的数字之和 ≤ i</li>
+</ul>
+<p>本质是 <strong>字符串分割型子集回溯</strong></p>
+<hr>
+<h3 id="93-复原-IP-地址（从答案角度分析）"><a href="#93-复原-IP-地址（从答案角度分析）" class="headerlink" title="93. 复原 IP 地址（从答案角度分析）"></a>93. 复原 IP 地址（从答案角度分析）</h3><p><strong>建模方式</strong>：</p>
+<ul>
+<li>字符串分割，一共分割为 4 段</li>
+</ul>
+<ul>
+<li>枚举第 i 段从哪里分割</li>
+</ul>
+<p><strong>隐含条件（关键）</strong>：</p>
+<ol>
+<li>必须切成 <strong>4 段</strong></li>
+<li>每段 ∈ [0,255]</li>
+<li>不能有前导 0</li>
+</ol>
+<p>带<strong>分割约束</strong>的字符串回溯</p>
+<hr>
+<h2 id="五、子集型回溯的优化与剪枝"><a href="#五、子集型回溯的优化与剪枝" class="headerlink" title="五、子集型回溯的优化与剪枝"></a>五、子集型回溯的优化与剪枝</h2><h3 id="条件剪枝（最常见）"><a href="#条件剪枝（最常见）" class="headerlink" title="条件剪枝（最常见）"></a>条件剪枝（最常见）</h3><ul>
+<li>选之前判断是否合法</li>
+<li>不合法直接跳过</li>
+</ul>
+<h3 id="提前终止（上界剪枝）"><a href="#提前终止（上界剪枝）" class="headerlink" title="提前终止（上界剪枝）"></a>提前终止（上界剪枝）</h3><ul>
+<li>剩余元素即使全选，也不可能更优</li>
+<li>直接 return</li>
+</ul>
+<h3 id="强制选择"><a href="#强制选择" class="headerlink" title="强制选择"></a>强制选择</h3><ul>
+<li>剩余元素数 ≤ 剩余配额</li>
+<li>不再分支，直接全选</li>
+</ul>
+<hr>
+<h2 id="六、心得体会与方法论总结"><a href="#六、心得体会与方法论总结" class="headerlink" title="六、心得体会与方法论总结"></a>六、心得体会与方法论总结</h2><ul>
+<li>子集型回溯本质是一种<strong>暴力但系统的枚举方法</strong></li>
+<li>通过“选 &#x2F; 不选”两条分支，可以<strong>完整覆盖解空间</strong></li>
+<li>时间复杂度通常为 <code>O(2^n)</code>，但<strong>剪枝决定了实际性能</strong></li>
+<li>带条件的子集回溯，核心是：<ul>
+<li><strong>把“是否能选”的逻辑抽离成 check</strong></li>
+<li>让 DFS 结构保持干净、统一</li>
+</ul>
+</li>
+<li>很多看似不同的题（资源分配、字符串切割、组合选择），<strong>在建模层面是同一类问题</strong></li>
+</ul>
+<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/08/algorithms/backtracking/2026-1-8-backtracking-subset-practice/" data-id="cmk4wpbtw0006p48tgeqk4pha" data-title="子集型回溯方法论得应用（2026-01-08）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-algorithms/backtracking/2026-1-6-backtracking-subset" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2026/01/06/algorithms/backtracking/2026-1-6-backtracking-subset/" class="article-date">
@@ -244,7 +409,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/06/algorithms/backtracking/2026-1-6-backtracking-subset/" data-id="cmk23a4h10004348t59km0gxe" data-title="子集型回溯（2026-01-06）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/06/algorithms/backtracking/2026-1-6-backtracking-subset/" data-id="cmk4wpbtw0005p48t9yl8c2m3" data-title="子集型回溯（2026-01-06）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -359,7 +524,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/06/misc/Spring%20+%20Redis%20%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92%20V3.1%EF%BC%887%E5%A4%A9%E9%97%AD%E7%8E%AF%EF%BC%8C%E5%9F%BA%E4%BA%8EAI%EF%BC%89/" data-id="cmk23a4gt0000348tgar967o9" data-title="Spring + Redis 学习计划 V3.1（7天闭环，基于AI）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/06/misc/Spring%20+%20Redis%20%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92%20V3.1%EF%BC%887%E5%A4%A9%E9%97%AD%E7%8E%AF%EF%BC%8C%E5%9F%BA%E4%BA%8EAI%EF%BC%89/" data-id="cmk4wpbtn0000p48tbt57gklu" data-title="Spring + Redis 学习计划 V3.1（7天闭环，基于AI）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -536,7 +701,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/05/algorithms/binary-tree/2026-1-5-binary-tree-level-order-traversal/" data-id="cmk23a4h8000l348t6i84ce3z" data-title="二叉树的层序遍历总结（2026-01-05）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/05/algorithms/binary-tree/2026-1-5-binary-tree-level-order-traversal/" data-id="cmk4wpbu4000rp48t5pac0uvs" data-title="二叉树的层序遍历总结（2026-01-05）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -774,7 +939,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/04/algorithms/binary-tree/2026-1-4-lowestCommonAncestor/" data-id="cmk23a4h7000g348te91o3sqv" data-title="二叉树的最近公共祖先（LCA）问题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/04/algorithms/binary-tree/2026-1-4-lowestCommonAncestor/" data-id="cmk4wpbu0000gp48t6ij8b9yn" data-title="二叉树的最近公共祖先（LCA）问题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1011,7 +1176,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/04/backend/ssm/MyBatis/2026-1-4-mybatis-day07/" data-id="cmk23a4hq003p348t5iyddd6q" data-title="MyBatis XML 映射器学习复盘：结合实践 Bug" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/04/backend/ssm/MyBatis/2026-1-4-mybatis-day07/" data-id="cmk4wpbuo0041p48t36zg98wn" data-title="MyBatis XML 映射器学习复盘：结合实践 Bug" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1250,7 +1415,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/03/algorithms/binary-tree/2026-1-3-binary-tree-traversals%20/" data-id="cmk23a4h5000a348t2jyngf9k" data-title="leetcode 通过先序 / 中序 / 后序遍历构造二叉树（" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/03/algorithms/binary-tree/2026-1-3-binary-tree-traversals%20/" data-id="cmk4wpbu1000lp48t8mhig9np" data-title="leetcode 通过先序 / 中序 / 后序遍历构造二叉树（" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1448,7 +1613,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/03/backend/ssm/MyBatis/2026-1-3-mybatis-day06/" data-id="cmk23a4hq003m348t7pjvatcq" data-title="MyBatis 动态 SQL 五个 Level 实战复盘：从语法理解到踩坑总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/03/backend/ssm/MyBatis/2026-1-3-mybatis-day06/" data-id="cmk4wpbun003zp48t9zd746f5" data-title="MyBatis 动态 SQL 五个 Level 实战复盘：从语法理解到踩坑总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1607,7 +1772,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/02/algorithms/binary-tree/2026-1-2-binary-tree-traversals/" data-id="cmk23a4h40009348t4r0kef2d" data-title="leetcode 二叉树的先序 / 中序 / 后序遍历：在二叉搜索树中的选择与应用" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/02/algorithms/binary-tree/2026-1-2-binary-tree-traversals/" data-id="cmk4wpbtz000ap48t3pclev4o" data-title="leetcode 二叉树的先序 / 中序 / 后序遍历：在二叉搜索树中的选择与应用" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1866,244 +2031,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/02/backend/mysql/2026-1-2-mybatis-day05/" data-id="cmk23a4hp003k348t12bq1k4j" data-title="MyBatis 入门学习笔记：从 JDBC 到 Mapper 映射" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/02/backend/mysql/2026-1-2-mybatis-day05/" data-id="cmk4wpbun003yp48tge9cenfw" data-title="MyBatis 入门学习笔记：从 JDBC 到 Mapper 映射" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-backend/mysql/2026-1-1-mysql-day04-jdbc-maven" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2026/01/01/backend/mysql/2026-1-1-mysql-day04-jdbc-maven/" class="article-date">
-  <time class="dt-published" datetime="2026-01-01T12:30:00.000Z" itemprop="datePublished">2026-01-01</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>►<a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/01/01/backend/mysql/2026-1-1-mysql-day04-jdbc-maven/">Maven 与 JDBC 学习笔记：从依赖管理到数据库访问实践</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p><strong>一句话导读</strong><br> 本文系统梳理了 Maven 的核心机制（依赖、生命周期、冲突解决）以及 JDBC 的完整使用流程（连接、CRUD、事务、批处理、连接池），重点理解 Java 程序是如何通过 JDBC 与数据库交互的。</p>
-</blockquote>
-<hr>
-<h2 id="一、Maven"><a href="#一、Maven" class="headerlink" title="一、Maven"></a>一、Maven</h2><h3 id="1-Maven-是什么？"><a href="#1-Maven-是什么？" class="headerlink" title="1. Maven 是什么？"></a>1. Maven 是什么？</h3><p>   Maven 是一个 <strong>项目构建与依赖管理工具</strong>。<br>    当项目需要使用第三方库时，不再手动下载 <code>.jar</code> 放进 <code>lib</code> 目录，而是通过 Maven <strong>声明依赖 → 自动下载 → 统一管理</strong>。</p>
-<hr>
-<h3 id="2-Maven-坐标（Dependency-Coordinates）"><a href="#2-Maven-坐标（Dependency-Coordinates）" class="headerlink" title="2. Maven 坐标（Dependency Coordinates）"></a>2. Maven 坐标（Dependency Coordinates）</h3><p>   每一个依赖在 Maven 中都由一组<strong>唯一坐标</strong>标识：</p>
-<ul>
-<li><strong>groupId</strong>：组织或公司名（通常反域名）</li>
-<li><strong>artifactId</strong>：项目&#x2F;模块名</li>
-<li><strong>version</strong>：版本号</li>
-</ul>
-<p>   示例（EasyExcel）：</p>
-   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;com.alibaba&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;easyexcel&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;3.1.1&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
-
-<p>   常用坐标查询网站：<br>	 <a target="_blank" rel="noopener" href="https://mvnrepository.com/">https://mvnrepository.com/</a></p>
-<hr>
-<h3 id="3-Maven-依赖配置与-scope"><a href="#3-Maven-依赖配置与-scope" class="headerlink" title="3. Maven 依赖配置与 scope"></a>3. Maven 依赖配置与 scope</h3><h4 id="依赖的基本结构"><a href="#依赖的基本结构" class="headerlink" title="依赖的基本结构"></a>依赖的基本结构</h4>   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependencies&gt;</span><br><span class="line">    &lt;dependency&gt;</span><br><span class="line">        &lt;groupId&gt;...&lt;/groupId&gt;</span><br><span class="line">        &lt;artifactId&gt;...&lt;/artifactId&gt;</span><br><span class="line">        &lt;version&gt;...&lt;/version&gt;</span><br><span class="line">        &lt;scope&gt;...&lt;/scope&gt;</span><br><span class="line">        &lt;exclusions&gt;...&lt;/exclusions&gt;</span><br><span class="line">    &lt;/dependency&gt;</span><br><span class="line">&lt;/dependencies&gt;</span><br></pre></td></tr></table></figure>
-
-<h4 id="常见依赖范围（scope）"><a href="#常见依赖范围（scope）" class="headerlink" title="常见依赖范围（scope）"></a>常见依赖范围（scope）</h4><table>
-<thead>
-<tr>
-<th>scope</th>
-<th>作用说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>compile</td>
-<td>默认值，编译 &#x2F; 测试 &#x2F; 运行都生效</td>
-</tr>
-<tr>
-<td>test</td>
-<td>仅测试阶段使用（如 JUnit）</td>
-</tr>
-<tr>
-<td>provided</td>
-<td>编译和测试有效，运行时由容器提供</td>
-</tr>
-<tr>
-<td>runtime</td>
-<td>编译不需要，运行时需要（<strong>JDBC 驱动</strong>）</td>
-</tr>
-<tr>
-<td>system</td>
-<td>手动指定 jar 路径（不推荐）</td>
-</tr>
-</tbody></table>
-<p>​    <strong>实践建议</strong><br>​    MySQL JDBC 驱动应使用 <code>runtime</code>，避免与 Java 标准 JDBC 接口混淆。</p>
-<hr>
-<h3 id="4-依赖传递性与依赖冲突"><a href="#4-依赖传递性与依赖冲突" class="headerlink" title="4. 依赖传递性与依赖冲突"></a>4. 依赖传递性与依赖冲突</h3><h4 id="4-1-同一-pom-中声明多个版本"><a href="#4-1-同一-pom-中声明多个版本" class="headerlink" title="4.1 同一 pom 中声明多个版本"></a>4.1 同一 pom 中声明多个版本</h4><ul>
-<li><strong>后声明的版本生效</strong></li>
-</ul>
-<h4 id="4-2-传递依赖冲突的解决规则（Maven-依赖调解）"><a href="#4-2-传递依赖冲突的解决规则（Maven-依赖调解）" class="headerlink" title="4.2 传递依赖冲突的解决规则（Maven 依赖调解）"></a>4.2 传递依赖冲突的解决规则（Maven 依赖调解）</h4><ol>
-<li><strong>路径最短优先</strong></li>
-<li><strong>声明顺序优先</strong></li>
-</ol>
-<p>   如果自动调解不满足需求，需要使用 <code>&lt;exclusions&gt;</code> 手动排除依赖。</p>
-<ul>
-<li>通常优先保留<strong>较高版本</strong></li>
-<li>若高版本不兼容，考虑升级<strong>上层依赖</strong></li>
-</ul>
-<hr>
-<h3 id="5-Maven-仓库机制"><a href="#5-Maven-仓库机制" class="headerlink" title="5. Maven 仓库机制"></a>5. Maven 仓库机制</h3><p>   Maven 仓库类型：</p>
-<ul>
-<li><strong>本地仓库</strong>：缓存已下载依赖</li>
-<li><strong>远程仓库</strong><ul>
-<li>中央仓库</li>
-<li>私服</li>
-<li>镜像仓库（如阿里云）</li>
-</ul>
-</li>
-</ul>
-<p>   依赖查找顺序：</p>
-<ol>
-<li>本地仓库</li>
-<li>远程仓库</li>
-<li>找不到则报错</li>
-</ol>
-<hr>
-<h3 id="6-Maven-生命周期与插件"><a href="#6-Maven-生命周期与插件" class="headerlink" title="6. Maven 生命周期与插件"></a>6. Maven 生命周期与插件</h3><h4 id="生命周期"><a href="#生命周期" class="headerlink" title="生命周期"></a>生命周期</h4><ul>
-<li><code>clean</code></li>
-<li><code>default</code></li>
-<li><code>site</code></li>
-</ul>
-<p>   常用阶段：</p>
-<ul>
-<li><code>compile</code></li>
-<li><code>install</code></li>
-<li><code>deploy</code></li>
-</ul>
-   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn clean install</span><br></pre></td></tr></table></figure>
-
-<h4 id="插件机制"><a href="#插件机制" class="headerlink" title="插件机制"></a>插件机制</h4><p>   Maven 本质是 <strong>插件执行框架</strong>，如：</p>
-<ul>
-<li>编译插件</li>
-<li>测试插件</li>
-<li>Jacoco、Checkstyle、Sonar 等</li>
-</ul>
-<hr>
-<h3 id="7-Maven-多模块与最佳实践"><a href="#7-Maven-多模块与最佳实践" class="headerlink" title="7. Maven 多模块与最佳实践"></a>7. Maven 多模块与最佳实践</h3><ul>
-<li>父模块：统一管理版本、插件</li>
-<li>子模块：只引入实际需要的依赖</li>
-<li>使用 <code>dependencyManagement</code> 统一版本</li>
-<li>将版本号集中在 <code>&lt;properties&gt;</code> 中</li>
-</ul>
-<hr>
-<h2 id="二、JDBC"><a href="#二、JDBC" class="headerlink" title="二、JDBC"></a>二、JDBC</h2><h3 id="1-JDBC-是什么？"><a href="#1-JDBC-是什么？" class="headerlink" title="1. JDBC 是什么？"></a>1. JDBC 是什么？</h3><p>JDBC（Java Database Connectivity）是 <strong>Java 访问数据库的标准接口</strong>：</p>
-<ul>
-<li>接口定义在 Java 标准库中</li>
-<li>具体实现由数据库厂商提供（JDBC Driver）</li>
-<li>Java 程序通过 JDBC 驱动与数据库通信</li>
-</ul>
-<hr>
-<h3 id="2-JDBC-连接数据库"><a href="#2-JDBC-连接数据库" class="headerlink" title="2. JDBC 连接数据库"></a>2. JDBC 连接数据库</h3><h4 id="JDBC-URL-格式（MySQL）"><a href="#JDBC-URL-格式（MySQL）" class="headerlink" title="JDBC URL 格式（MySQL）"></a>JDBC URL 格式（MySQL）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jdbc:mysql://host:port/db?param=value</span><br></pre></td></tr></table></figure>
-
-<p>示例：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jdbc:mysql://localhost:3306/db01?useSSL=false&amp;characterEncoding=utf8</span><br></pre></td></tr></table></figure>
-
-<h4 id="建立连接示例"><a href="#建立连接示例" class="headerlink" title="建立连接示例"></a>建立连接示例</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Connection conn = DriverManager.getConnection(url, user, password);</span><br></pre></td></tr></table></figure>
-
-<p> JDBC 连接是昂贵资源，必须及时释放，推荐使用 <code>try-with-resources</code>。</p>
-<hr>
-<h3 id="3-JDBC-查询流程（核心）"><a href="#3-JDBC-查询流程（核心）" class="headerlink" title="3. JDBC 查询流程（核心）"></a>3. JDBC 查询流程（核心）</h3><p><strong>标准 4 步：</strong></p>
-<ol>
-<li>加载驱动</li>
-<li>获取连接</li>
-<li>使用 <code>PreparedStatement</code></li>
-<li>使用 <code>ResultSet</code> 读取结果</li>
-</ol>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Class.forName(&quot;com.mysql.cj.jdbc.Driver&quot;);</span><br><span class="line"></span><br><span class="line">try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);</span><br><span class="line">     PreparedStatement ps = conn.prepareStatement(&quot;select name, age from tb_user where id &lt;= ?&quot;)) &#123;</span><br><span class="line"></span><br><span class="line">    ps.setObject(1, 20);</span><br><span class="line">    try (ResultSet rs = ps.executeQuery()) &#123;</span><br><span class="line">        while (rs.next()) &#123;</span><br><span class="line">            System.out.println(rs.getString(&quot;name&quot;) + &quot; 年龄：&quot; + rs.getInt(&quot;age&quot;));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h3 id="4-PreparedStatement-与-SQL-注入"><a href="#4-PreparedStatement-与-SQL-注入" class="headerlink" title="4. PreparedStatement 与 SQL 注入"></a>4. PreparedStatement 与 SQL 注入</h3><p> 错误示例（存在 SQL 注入风险）：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&quot;SELECT * FROM user WHERE name=&#x27;&quot; + name + &quot;&#x27;&quot;</span><br></pre></td></tr></table></figure>
-
-<p> 正确方式：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PreparedStatement ps = conn.prepareStatement(</span><br><span class="line">    &quot;SELECT * FROM user WHERE name = ?&quot;</span><br><span class="line">);</span><br><span class="line">ps.setString(1, name);</span><br></pre></td></tr></table></figure>
-
-<p><strong>优势：</strong></p>
-<ul>
-<li>防止 SQL 注入</li>
-<li>可复用 SQL 执行计划</li>
-<li>性能更好</li>
-</ul>
-<hr>
-<h3 id="5-JDBC-更新操作"><a href="#5-JDBC-更新操作" class="headerlink" title="5. JDBC 更新操作"></a>5. JDBC 更新操作</h3><ul>
-<li>INSERT &#x2F; UPDATE &#x2F; DELETE</li>
-<li>使用 <code>executeUpdate()</code></li>
-<li>返回影响行数</li>
-</ul>
-<h4 id="插入并获取自增主键"><a href="#插入并获取自增主键" class="headerlink" title="插入并获取自增主键"></a>插入并获取自增主键</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PreparedStatement ps = conn.prepareStatement(</span><br><span class="line">    sql, Statement.RETURN_GENERATED_KEYS</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">try (ResultSet rs = ps.getGeneratedKeys()) &#123;</span><br><span class="line">    if (rs.next()) &#123;</span><br><span class="line">        long id = rs.getLong(1);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h3 id="6-JDBC-事务"><a href="#6-JDBC-事务" class="headerlink" title="6. JDBC 事务"></a>6. JDBC 事务</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">conn.setAutoCommit(false);</span><br><span class="line">try &#123;</span><br><span class="line">    // 多条 SQL</span><br><span class="line">    conn.commit();</span><br><span class="line">&#125; catch (SQLException e) &#123;</span><br><span class="line">    conn.rollback();</span><br><span class="line">&#125; finally &#123;</span><br><span class="line">    conn.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>我的理解 JDBC 事务的本质：</p>
-<blockquote>
-<p><strong>让多条 SQL 在同一个数据库事务中执行</strong></p>
-</blockquote>
-<hr>
-<h3 id="7-JDBC-批处理（Batch）"><a href="#7-JDBC-批处理（Batch）" class="headerlink" title="7. JDBC 批处理（Batch）"></a>7. JDBC 批处理（Batch）</h3><p>适用于 <strong>同一 SQL，多组参数</strong> 的场景：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ps.addBatch();</span><br><span class="line">ps.executeBatch();</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>比循环执行效率高</li>
-<li>返回 <code>int[]</code> 表示每条语句影响行数</li>
-</ul>
-<hr>
-<h3 id="8-JDBC-连接池"><a href="#8-JDBC-连接池" class="headerlink" title="8. JDBC 连接池"></a>8. JDBC 连接池</h3><p>频繁创建&#x2F;关闭连接成本高 → 使用连接池复用连接。</p>
-<h4 id="常见连接池实现"><a href="#常见连接池实现" class="headerlink" title="常见连接池实现"></a>常见连接池实现</h4><ul>
-<li>HikariCP</li>
-<li>Druid</li>
-<li>C3P0</li>
-</ul>
-<h4 id="HikariCP-示例"><a href="#HikariCP-示例" class="headerlink" title="HikariCP 示例"></a>HikariCP 示例</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">HikariConfig config = new HikariConfig();</span><br><span class="line">config.setJdbcUrl(&quot;jdbc:mysql://localhost:3306/db01&quot;);</span><br><span class="line">config.setUsername(&quot;root&quot;);</span><br><span class="line">config.setPassword(&quot;password&quot;);</span><br><span class="line"></span><br><span class="line">DataSource ds = new HikariDataSource(config);</span><br><span class="line"></span><br><span class="line">try (Connection conn = ds.getConnection()) &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p> 注意：</p>
-<ul>
-<li><code>DataSource</code> 应全局唯一</li>
-<li><code>conn.close()</code> 并不是真正关闭，而是归还连接池</li>
-</ul>
-<hr>
-<h2 id="三、总结与个人理解"><a href="#三、总结与个人理解" class="headerlink" title="三、总结与个人理解"></a>三、总结与个人理解</h2><p>通过今天的学习，我对 <strong>Java + 数据库 + Maven</strong> 的理解更加清晰：</p>
-<ol>
-<li>体会到了 Maven 的便捷，解决了 <strong>依赖与构建的工程问题</strong></li>
-<li>JDBC 是 Java 与数据库之间的 <strong>标准桥梁</strong>（java 核心思想：一次编译到处运行的体现）</li>
-<li>事务、批处理、连接池是性能与一致性的关键</li>
-<li>而后续要学习的框架（MyBatis &#x2F; Spring）本质都是在 <strong>JDBC 之上做封装</strong></li>
-</ol>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/01/backend/mysql/2026-1-1-mysql-day04-jdbc-maven/" data-id="cmk23a4hp003j348tda112kym" data-title="Maven 与 JDBC 学习笔记：从依赖管理到数据库访问实践" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/maven/" rel="tag">maven</a></li></ul>
 
     </footer>
   </div>
@@ -2148,7 +2080,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/jdbc/" style="font-size: 12.5px;">jdbc</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mybatis/" style="font-size: 15px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12.5px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 10px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 10px;">子集</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12.5px;">深度优先遍历</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12.5px;">记录</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 17.5px;">递归</a>
+      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/jdbc/" style="font-size: 12.5px;">jdbc</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mybatis/" style="font-size: 15px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12.5px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 12.5px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 12.5px;">子集</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12.5px;">深度优先遍历</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12.5px;">记录</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 17.5px;">递归</a>
     </div>
   </div>
 
@@ -2170,6 +2102,10 @@
       <ul>
         
           <li>
+            <a href="/2026/01/08/algorithms/backtracking/2026-1-8-backtracking-subset-practice/">子集型回溯方法论得应用（2026-01-08）</a>
+          </li>
+        
+          <li>
             <a href="/2026/01/06/algorithms/backtracking/2026-1-6-backtracking-subset/">子集型回溯（2026-01-06）</a>
           </li>
         
@@ -2183,10 +2119,6 @@
         
           <li>
             <a href="/2026/01/04/algorithms/binary-tree/2026-1-4-lowestCommonAncestor/">二叉树的最近公共祖先（LCA）问题总结</a>
-          </li>
-        
-          <li>
-            <a href="/2026/01/04/backend/ssm/MyBatis/2026-1-4-mybatis-day07/">MyBatis XML 映射器学习复盘：结合实践 Bug</a>
           </li>
         
       </ul>
