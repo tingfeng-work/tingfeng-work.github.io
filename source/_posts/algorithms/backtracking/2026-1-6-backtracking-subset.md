@@ -9,7 +9,7 @@ tags:
   - 子集
   - 回溯
 toc: true
-toc_number: truey
+toc_number: true
 ---
 
 > 子集型回溯应用范围：子集/组合/切分字符串/按位选择等“枚举所有可能”的题。
