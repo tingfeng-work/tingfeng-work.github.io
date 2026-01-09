@@ -81,6 +81,418 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-algorithms/backtracking/2026-1-9-Combinatorial backtracking" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/09/algorithms/backtracking/2026-1-9-Combinatorial%20backtracking/" class="article-date">
+  <time class="dt-published" datetime="2026-01-09T04:00:00.000Z" itemprop="datePublished">2026-01-09</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2026/01/09/algorithms/backtracking/2026-1-9-Combinatorial%20backtracking/">组合型回溯 + 剪枝：从子集枚举到条件收敛</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="组合型回溯-剪枝"><a href="#组合型回溯-剪枝" class="headerlink" title="组合型回溯 + 剪枝"></a>组合型回溯 + 剪枝</h1><blockquote>
+<p><strong>一句话总结</strong>：<br> 组合型回溯本质仍是子集型回溯，但通过“组合约束 + 单调性剪枝”，将指数级搜索空间大幅收缩，只遍历“有可能成为答案”的分支。</p>
+</blockquote>
+<hr>
+<h2 id="一、什么是组合型回溯？"><a href="#一、什么是组合型回溯？" class="headerlink" title="一、什么是组合型回溯？"></a>一、什么是组合型回溯？</h2><p>在回溯问题中，我们通常会遇到两类经典模型：</p>
+<ul>
+<li><strong>子集型回溯</strong>：<br> 枚举所有可能的子集（选 &#x2F; 不选），不关心长度或数值约束</li>
+<li><strong>组合型回溯</strong>：<br> 在子集枚举的基础上，<strong>只保留满足条件的组合</strong></li>
+</ul>
+<p>常见的组合约束包括：</p>
+<ul>
+<li>固定长度（如选 k 个数）</li>
+<li>固定和（如和为 target）</li>
+<li>结构合法性（如括号匹配、IP 段合法）</li>
+</ul>
+<p>因此，<strong>组合型回溯 &#x3D; 子集型回溯 + 条件约束 + 剪枝</strong>。</p>
+<hr>
+<h2 id="二、组合型回溯的核心思想"><a href="#二、组合型回溯的核心思想" class="headerlink" title="二、组合型回溯的核心思想"></a>二、组合型回溯的核心思想</h2><p>组合型回溯的关键并不在「怎么枚举」，而在于：</p>
+<blockquote>
+<p><strong>当前状态已经不可能构成合法解时，要尽早停止搜索</strong></p>
+</blockquote>
+<p>这正是剪枝的价值所在。</p>
+<h3 id="常见剪枝维度"><a href="#常见剪枝维度" class="headerlink" title="常见剪枝维度"></a>常见剪枝维度</h3><ol>
+<li><strong>数量剪枝</strong><ul>
+<li>剩余可选元素 &lt; 还需要选的数量 → 直接返回</li>
+</ul>
+</li>
+<li><strong>数值剪枝（选择元素为正）</strong><ul>
+<li>当前和已经超过 target</li>
+<li>即使选最大值，也无法达到 target</li>
+</ul>
+</li>
+<li><strong>结构剪枝</strong><ul>
+<li>不满足合法结构（如右括号多于左括号）</li>
+</ul>
+</li>
+</ol>
+<p>这些剪枝往往都依赖于一个核心性质：</p>
+<blockquote>
+<p><strong>单调性</strong>：<br> 当前状态不满足条件，向下扩展只会更不满足。</p>
+</blockquote>
+<hr>
+<h2 id="三、典型题目拆解与剪枝思路"><a href="#三、典型题目拆解与剪枝思路" class="headerlink" title="三、典型题目拆解与剪枝思路"></a>三、典型题目拆解与剪枝思路</h2><h3 id="77-组合（Combinations）"><a href="#77-组合（Combinations）" class="headerlink" title="77. 组合（Combinations）"></a>77. 组合（Combinations）</h3><p><strong>目标</strong>：从 <code>[1…n]</code> 中选 <code>k</code> 个数</p>
+<h4 id="关键剪枝"><a href="#关键剪枝" class="headerlink" title="关键剪枝"></a>关键剪枝</h4><ul>
+<li><strong>数量剪枝</strong><ul>
+<li>剩余数字个数 &lt; 还需要选择的数量 → 直接返回</li>
+</ul>
+</li>
+<li><strong>提前返回</strong><ul>
+<li>当已选数量 &#x3D;&#x3D; k，记录答案，不再向下搜索</li>
+</ul>
+</li>
+</ul>
+<h4 id="本质理解"><a href="#本质理解" class="headerlink" title="本质理解"></a>本质理解</h4><p>这是一个<strong>固定长度的组合问题</strong>，搜索树深度是确定的，剪枝点非常清晰。</p>
+<hr>
+<h3 id="216-组合总和-III"><a href="#216-组合总和-III" class="headerlink" title="216. 组合总和 III"></a>216. 组合总和 III</h3><p><strong>目标</strong>：从 <code>[1…9]</code> 中选 <code>k</code> 个数，和为 <code>n</code></p>
+<h4 id="关键剪枝-1"><a href="#关键剪枝-1" class="headerlink" title="关键剪枝"></a>关键剪枝</h4><ol>
+<li><code>leftTarget &lt; 0</code><ul>
+<li>所有数均为正数，后续必然无解</li>
+</ul>
+</li>
+<li><code>leftTarget &gt; 剩余可选数字的最大可能和</code><ul>
+<li>即使全选最大值，也无法凑够</li>
+</ul>
+</li>
+<li>剩余数字个数 &lt; 还需要选择的数量</li>
+</ol>
+<h4 id="关键"><a href="#关键" class="headerlink" title="关键"></a>关键</h4><ul>
+<li>同时利用了「<strong>一大一小</strong>」两种剪枝方向</li>
+<li>体现出数值约束与数量约束的对称性</li>
+</ul>
+<hr>
+<h3 id="22-括号生成"><a href="#22-括号生成" class="headerlink" title="22. 括号生成"></a>22. 括号生成</h3><p><strong>目标</strong>：生成 <code>n</code> 对合法括号</p>
+<h4 id="状态定义"><a href="#状态定义" class="headerlink" title="状态定义"></a>状态定义</h4><ul>
+<li><code>left</code>：已使用左括号数量</li>
+<li><code>right</code>：已使用右括号数量</li>
+</ul>
+<h4 id="剪枝规则"><a href="#剪枝规则" class="headerlink" title="剪枝规则"></a>剪枝规则</h4><ul>
+<li><code>left &gt; n</code> → 非法</li>
+<li><code>right &gt; left</code> → 非法</li>
+</ul>
+<h4 id="本质理解-1"><a href="#本质理解-1" class="headerlink" title="本质理解"></a>本质理解</h4><p>这道题可以视为一种<strong>带结构约束的组合回溯</strong>：</p>
+<ul>
+<li>“选” → 加左括号</li>
+<li>“不选” → 加右括号（但有条件）</li>
+</ul>
+<p>本质不是排列，而是<strong>合法结构的组合生成</strong>。</p>
+<hr>
+<h3 id="39-组合总和（可重复选择）"><a href="#39-组合总和（可重复选择）" class="headerlink" title="39. 组合总和（可重复选择）"></a>39. 组合总和（可重复选择）</h3><p><strong>目标</strong>：元素可重复选，和为 target</p>
+<h4 id="关键剪枝-2"><a href="#关键剪枝-2" class="headerlink" title="关键剪枝"></a>关键剪枝</h4><ol>
+<li><p><code>leftTarget &lt; 0</code> → 直接返回</p>
+</li>
+<li><p><code>leftTarget == 0</code> → 记录答案并返回</p>
+</li>
+<li><p><strong>排序 + 剪枝</strong></p>
+<p>若当前元素 &gt; <code>leftTarget</code>，后续元素更大，可直接 break</p>
+</li>
+</ol>
+<h4 id="可重复选择的表达"><a href="#可重复选择的表达" class="headerlink" title="可重复选择的表达"></a>可重复选择的表达</h4><ul>
+<li>使用 <code>dfs(i)</code> 表示<strong>当前元素可再次选择</strong></li>
+<li>通过起始索引控制是否允许重复</li>
+</ul>
+<hr>
+<h3 id="93-复原-IP-地址"><a href="#93-复原-IP-地址" class="headerlink" title="93. 复原 IP 地址"></a>93. 复原 IP 地址</h3><p><strong>目标</strong>：将字符串分割为 4 段合法 IP</p>
+<h4 id="强剪枝条件"><a href="#强剪枝条件" class="headerlink" title="强剪枝条件"></a>强剪枝条件</h4><ol>
+<li><p><strong>字符数量剪枝</strong></p>
+<p>剩余字符数 ∉ <code>[剩余段数, 剩余段数 * 3]</code></p>
+</li>
+<li><p><strong>数值剪枝</strong></p>
+<p>当前段 &gt; 255</p>
+</li>
+<li><p><strong>前导零剪枝</strong></p>
+<p>段以 <code>0</code> 开头但长度 &gt; 1</p>
+</li>
+</ol>
+<h4 id="补充思路"><a href="#补充思路" class="headerlink" title="补充思路"></a>补充思路</h4><ul>
+<li>由于段数固定为 4</li>
+<li>该题也可以用 <strong>三重循环</strong> 实现</li>
+<li>但回溯解法在结构上更统一、可复用性更强</li>
+</ul>
+<hr>
+<h2 id="四、方法论总结：如何写好组合型回溯？"><a href="#四、方法论总结：如何写好组合型回溯？" class="headerlink" title="四、方法论总结：如何写好组合型回溯？"></a>四、方法论总结：如何写好组合型回溯？</h2><h3 id="推荐解题步骤"><a href="#推荐解题步骤" class="headerlink" title="推荐解题步骤"></a>推荐解题步骤</h3><ol>
+<li><p><strong>先不剪枝，写出正确解</strong></p>
+</li>
+<li><p>明确以下要素：</p>
+<p>状态变量（路径、索引、剩余目标）</p>
+<p>终止条件</p>
+</li>
+<li><p>回看搜索树，问自己：</p>
+<p>当前状态已经不可能成功了吗？</p>
+</li>
+<li><p>将「不可能成功」的情况提前 return</p>
+</li>
+</ol>
+<h3 id="一个重要认知"><a href="#一个重要认知" class="headerlink" title="一个重要认知"></a>一个重要认知</h3><blockquote>
+<p>剪枝为了利用题目的<strong>单调性</strong>。</p>
+</blockquote>
+<ul>
+<li>当前不满足 → 未来一定不满足</li>
+<li>才是可以安全剪枝的前提</li>
+</ul>
+<hr>
+<h2 id="五、个人心得体会"><a href="#五、个人心得体会" class="headerlink" title="五、个人心得体会"></a>五、个人心得体会</h2><ul>
+<li><p><strong>组合型回溯并不是新的模型</strong><br> 它只是对子集型回溯的“<strong>条件收敛</strong>”</p>
+</li>
+<li><p>实战中：</p>
+<p>先保证正确性、再逐步加剪枝，思路更清晰</p>
+</li>
+<li><p>多数高质量剪枝，都来源于：</p>
+<ul>
+<li>数量边界</li>
+<li>数值上下界</li>
+<li>结构合法性</li>
+</ul>
+</li>
+</ul>
+<p>当你能一眼看出「当前状态是否还有希望」，回溯题就不再是暴力搜索，而是<strong>受控的状态枚举</strong>。</p>
+<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/09/algorithms/backtracking/2026-1-9-Combinatorial%20backtracking/" data-id="cmk6yecu50006wc8teb8b0duh" data-title="组合型回溯 + 剪枝：从子集枚举到条件收敛" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%84%E5%90%88/" rel="tag">组合</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-backend/ssm/springboot/2026-1-9-springboot-day01" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/09/backend/ssm/springboot/2026-1-9-springboot-day01/" class="article-date">
+  <time class="dt-published" datetime="2026-01-08T16:00:00.000Z" itemprop="datePublished">2026-01-09</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>►<a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/SpringBoot/">SpringBoot</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2026/01/09/backend/ssm/springboot/2026-1-9-springboot-day01/">Spring Boot 基础入门与整合实践</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>本文记录了我在学习 Spring Boot 基础与整合 MyBatis、Druid 过程中的核心知识点，以及一次完整、真实的排错过程。<br>重点不在于“配置怎么写”，而在于<strong>理解 Spring Boot 自动配置的工作机制</strong>。</p>
+</blockquote>
+<hr>
+<h2 id="一、Spring-Boot-简介"><a href="#一、Spring-Boot-简介" class="headerlink" title="一、Spring Boot 简介"></a>一、Spring Boot 简介</h2><p>Spring Boot 是由 Pivotal 团队提供的快速开发框架，目标是：</p>
+<ul>
+<li>简化 Spring 应用的初始搭建</li>
+<li>减少繁琐的 XML &#x2F; Java 配置</li>
+<li>通过 <strong>自动配置（Auto Configuration）+ Starter 机制</strong> 提升开发效率</li>
+</ul>
+<hr>
+<h2 id="二、Spring-Boot-入门方式"><a href="#二、Spring-Boot-入门方式" class="headerlink" title="二、Spring Boot 入门方式"></a>二、Spring Boot 入门方式</h2><h3 id="2-1-创建方式说明"><a href="#2-1-创建方式说明" class="headerlink" title="2.1 创建方式说明"></a>2.1 创建方式说明</h3><ul>
+<li>使用 IDEA &#x2F; 官网 &#x2F; 阿里云脚手架：<strong>需要联网</strong></li>
+<li>手动创建 Maven 项目：<ul>
+<li>继承 <code>spring-boot-starter-parent</code></li>
+<li>手动编写启动类</li>
+<li><strong>不需要联网</strong>（前提是本地仓库已有依赖）</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="三、parent-与-starter-的作用区分"><a href="#三、parent-与-starter-的作用区分" class="headerlink" title="三、parent 与 starter 的作用区分"></a>三、<code>parent</code> 与 <code>starter</code> 的作用区分</h2><h3 id="3-1-parent：统一依赖版本管理"><a href="#3-1-parent：统一依赖版本管理" class="headerlink" title="3.1 parent：统一依赖版本管理"></a>3.1 parent：统一依赖版本管理</h3><p><code>spring-boot-starter-parent</code> 的作用是：</p>
+<ul>
+<li>统一管理常用依赖的版本</li>
+<li>避免版本冲突</li>
+<li>简化 pom 文件</li>
+</ul>
+<blockquote>
+<p><strong>注意</strong>：<br> parent 只“管理版本”，并不会实际引入任何依赖。</p>
+</blockquote>
+<hr>
+<h3 id="3-2-starter：功能级依赖集合"><a href="#3-2-starter：功能级依赖集合" class="headerlink" title="3.2 starter：功能级依赖集合"></a>3.2 starter：功能级依赖集合</h3><p>starter 的作用是：</p>
+<ul>
+<li>一次性引入某个技术栈所需的依赖</li>
+<li>通过<strong>依赖传递</strong>减少配置成本</li>
+</ul>
+<p>例如：</p>
+<ul>
+<li><code>spring-boot-starter-web</code></li>
+<li><code>spring-boot-starter-jdbc</code></li>
+<li><code>mybatis-spring-boot-starter</code></li>
+</ul>
+<blockquote>
+<p>parent + starter 解决的是 <strong>“配置复杂度”问题</strong></p>
+</blockquote>
+<hr>
+<h2 id="四、Spring-Boot-启动类"><a href="#四、Spring-Boot-启动类" class="headerlink" title="四、Spring Boot 启动类"></a>四、Spring Boot 启动类</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@SpringBootApplication</span><br><span class="line">public class Springboot01QuickstartApplication &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        SpringApplication.run(Springboot01QuickstartApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="启动类的作用"><a href="#启动类的作用" class="headerlink" title="启动类的作用"></a>启动类的作用</h3><ul>
+<li>标识这是一个 Spring Boot 应用</li>
+<li>启动 Spring 容器</li>
+<li>扫描当前包及其子包下的 Bean</li>
+<li>返回值是 <code>ApplicationContext</code></li>
+</ul>
+<hr>
+<h2 id="五、内嵌-Web-容器机制"><a href="#五、内嵌-Web-容器机制" class="headerlink" title="五、内嵌 Web 容器机制"></a>五、内嵌 Web 容器机制</h2><p>在引入 <code>spring-boot-starter-web</code> 后：</p>
+<ul>
+<li>默认内嵌 Tomcat</li>
+<li>Spring 会创建并管理一个 Tomcat 对象</li>
+<li>启动应用时自动启动 Web 服务器</li>
+</ul>
+<p>Spring Boot 也支持 Jetty、Undertow 等内嵌容器。</p>
+<hr>
+<h2 id="六、基础配置文件"><a href="#六、基础配置文件" class="headerlink" title="六、基础配置文件"></a>六、基础配置文件</h2><h3 id="6-1-配置文件类型与优先级"><a href="#6-1-配置文件类型与优先级" class="headerlink" title="6.1 配置文件类型与优先级"></a>6.1 配置文件类型与优先级</h3><p>Spring Boot 支持：</p>
+<ul>
+<li><code>application.properties</code></li>
+<li><code>application.yml</code></li>
+<li><code>application.yaml</code></li>
+</ul>
+<p>优先级（从高到低）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">properties &gt; yml &gt; yaml</span><br></pre></td></tr></table></figure>
+
+<p>相同配置高优先级覆盖，未冲突配置全部生效。</p>
+<hr>
+<h3 id="6-2-为什么推荐-YAML"><a href="#6-2-为什么推荐-YAML" class="headerlink" title="6.2 为什么推荐 YAML"></a>6.2 为什么推荐 YAML</h3><ul>
+<li>层级清晰</li>
+<li>可读性更好</li>
+<li>更适合复杂配置</li>
+</ul>
+<h4 id="YAML-核心规则"><a href="#YAML-核心规则" class="headerlink" title="YAML 核心规则"></a>YAML 核心规则</h4><ul>
+<li>大小写敏感</li>
+<li>缩进表示层级（只能用空格）</li>
+<li><code>key: value</code> 中冒号后必须有空格</li>
+<li><code>#</code> 表示注释</li>
+</ul>
+<hr>
+<h3 id="6-3-YAML-数据绑定方式"><a href="#6-3-YAML-数据绑定方式" class="headerlink" title="6.3 YAML 数据绑定方式"></a>6.3 YAML 数据绑定方式</h3><h4 id="方式一：-Value"><a href="#方式一：-Value" class="headerlink" title="方式一：@Value"></a>方式一：<code>@Value</code></h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@Value(&quot;$&#123;enterprise.name&#125;&quot;)</span><br><span class="line">private String name;</span><br></pre></td></tr></table></figure>
+
+<h4 id="方式二：Environment"><a href="#方式二：Environment" class="headerlink" title="方式二：Environment"></a>方式二：<code>Environment</code></h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">environment.getProperty(&quot;enterprise.name&quot;);</span><br></pre></td></tr></table></figure>
+
+<h4 id="方式三（推荐）：-ConfigurationProperties"><a href="#方式三（推荐）：-ConfigurationProperties" class="headerlink" title="方式三（推荐）：@ConfigurationProperties"></a>方式三（推荐）：<code>@ConfigurationProperties</code></h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">@Component</span><br><span class="line">@ConfigurationProperties(prefix = &quot;enterprise&quot;)</span><br><span class="line">@Data</span><br><span class="line">public class Enterprise &#123;</span><br><span class="line">    private String name;</span><br><span class="line">    private int age;</span><br><span class="line">    private String tel;</span><br><span class="line">    private String[] hobby;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>本质：<br> Spring Boot 内部大量使用这种方式完成第三方组件的<strong>自动配置</strong></p>
+</blockquote>
+<hr>
+<h2 id="七、整合第三方技术"><a href="#七、整合第三方技术" class="headerlink" title="七、整合第三方技术"></a>七、整合第三方技术</h2><h3 id="7-1-Spring-Boot-整合-JUnit"><a href="#7-1-Spring-Boot-整合-JUnit" class="headerlink" title="7.1 Spring Boot 整合 JUnit"></a>7.1 Spring Boot 整合 JUnit</h3><ul>
+<li>自动引入测试 starter</li>
+<li>使用 <code>@SpringBootTest</code></li>
+<li>测试类不在启动类包下时需指定 <code>classes</code></li>
+</ul>
+<hr>
+<h3 id="7-2-Spring-Boot-整合-MyBatis"><a href="#7-2-Spring-Boot-整合-MyBatis" class="headerlink" title="7.2 Spring Boot 整合 MyBatis"></a>7.2 Spring Boot 整合 MyBatis</h3><p>MyBatis 主要涉及两类配置：</p>
+<ol>
+<li><strong>全局配置</strong>（数据源）</li>
+<li><strong>映射配置</strong>（XML &#x2F; 注解）</li>
+</ol>
+<p>基本步骤：</p>
+<ul>
+<li>引入 MyBatis Starter</li>
+<li>配置数据源</li>
+<li>定义 Mapper 接口</li>
+<li>注入 Mapper 测试</li>
+</ul>
+<hr>
+<h3 id="7-3-Spring-Boot-整合-Druid"><a href="#7-3-Spring-Boot-整合-Druid" class="headerlink" title="7.3 Spring Boot 整合 Druid"></a>7.3 Spring Boot 整合 Druid</h3><ul>
+<li>引入 Druid Starter</li>
+<li>配置 Druid 专属配置项</li>
+<li>验证 DataSource 类型</li>
+</ul>
+<hr>
+<h2 id="八、整合过程中的问题与排错总结（重点）"><a href="#八、整合过程中的问题与排错总结（重点）" class="headerlink" title="八、整合过程中的问题与排错总结（重点）"></a>八、整合过程中的问题与排错总结（重点）</h2><h3 id="问题一：UserDao-无法注入"><a href="#问题一：UserDao-无法注入" class="headerlink" title="问题一：UserDao 无法注入"></a>问题一：<code>UserDao</code> 无法注入</h3><h4 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">No qualifying bean of type &#x27;tingfeng.mapper.UserDao&#x27; available</span><br></pre></td></tr></table></figure>
+
+<h4 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h4><ul>
+<li>Mapper 接口未被 Spring 扫描</li>
+<li><code>@Mapper</code> 只对 MyBatis 生效</li>
+</ul>
+<h4 id="解决方式"><a href="#解决方式" class="headerlink" title="解决方式"></a>解决方式</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@SpringBootApplication</span><br><span class="line">@MapperScan(&quot;tingfeng.mapper&quot;)</span><br><span class="line">public class Quickstart03Application &#123; &#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="关键认知"><a href="#关键认知" class="headerlink" title="关键认知"></a>关键认知</h4><blockquote>
+<p><strong>@Mapper 是 MyBatis 的，@MapperScan 才是 Spring 的</strong></p>
+</blockquote>
+<hr>
+<h3 id="问题二：Mapper-能扫描，但报-sqlSessionFactory-缺失"><a href="#问题二：Mapper-能扫描，但报-sqlSessionFactory-缺失" class="headerlink" title="问题二：Mapper 能扫描，但报 sqlSessionFactory 缺失"></a>问题二：Mapper 能扫描，但报 <code>sqlSessionFactory</code> 缺失</h3><h4 id="现象-1"><a href="#现象-1" class="headerlink" title="现象"></a>现象</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Property &#x27;sqlSessionFactory&#x27; or &#x27;sqlSessionTemplate&#x27; are required</span><br></pre></td></tr></table></figure>
+
+<h4 id="定位结论"><a href="#定位结论" class="headerlink" title="定位结论"></a>定位结论</h4><ul>
+<li>Mapper 已创建</li>
+<li>SqlSessionFactory 未生成</li>
+<li>SqlSessionFactory 依赖 DataSource</li>
+</ul>
+<h4 id="实际解决方式"><a href="#实际解决方式" class="headerlink" title="实际解决方式"></a>实际解决方式</h4><blockquote>
+<p><strong>将 <code>mybatis-spring-boot-starter</code> 从 3.0.4 升级至 4.0.2</strong></p>
+</blockquote>
+<h4 id="根因分析（重要）"><a href="#根因分析（重要）" class="headerlink" title="根因分析（重要）"></a>根因分析（重要）</h4><p>新版本调整了：</p>
+<ul>
+<li>Mapper 初始化时机</li>
+<li>SqlSessionFactory 校验逻辑</li>
+</ul>
+<p>避免在 DataSource 尚未完全初始化时进行强校验，从而绕开了该异常路径。</p>
+<blockquote>
+<p>⚠️ 注意：<br> 这并不代表 DataSource 问题“消失”，而是<strong>校验时机发生了变化</strong></p>
+</blockquote>
+<hr>
+<h2 id="九、总结与反思"><a href="#九、总结与反思" class="headerlink" title="九、总结与反思"></a>九、总结与反思</h2><p>这次学习和排错过程中，我最大的收获不是“配置记住了多少”，而是：</p>
+<ul>
+<li>理解了 <strong>Starter 才是自动配置的触发条件</strong></li>
+<li>明白了 <strong>异常信息可能并不是根因</strong></li>
+<li>学会从 <strong>DataSource → SqlSessionFactory → Mapper</strong> 反向排查</li>
+<li>认识到 <strong>版本升级可能改变行为，而非修复根因</strong></li>
+</ul>
+<hr>
+<h2 id="十、一句话总结"><a href="#十、一句话总结" class="headerlink" title="十、一句话总结"></a>十、一句话总结</h2><blockquote>
+<p>Spring Boot 整合 MyBatis 与数据源时，<br> 问题往往不在 Mapper 本身，<br> 而在自动配置链路是否完整、以及校验时机是否合理。</p>
+</blockquote>
+<hr>
+<h2 id="学习资料与完整代码"><a href="#学习资料与完整代码" class="headerlink" title="学习资料与完整代码"></a>学习资料与完整代码</h2><p><strong>已整理并上传至 GitHub 仓库</strong></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/09/backend/ssm/springboot/2026-1-9-springboot-day01/" data-id="cmk6yecut003jwc8t2n5afrur" data-title="Spring Boot 基础入门与整合实践" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-algorithms/backtracking/2026-1-8-backtracking-subset-practice" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2026/01/08/algorithms/backtracking/2026-1-8-backtracking-subset-practice/" class="article-date">
@@ -232,7 +644,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/08/algorithms/backtracking/2026-1-8-backtracking-subset-practice/" data-id="cmk4wpbtw0006p48tgeqk4pha" data-title="子集型回溯方法论得应用（2026-01-08）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/08/algorithms/backtracking/2026-1-8-backtracking-subset-practice/" data-id="cmk6yecu40005wc8tazzg8gqs" data-title="子集型回溯方法论得应用（2026-01-08）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -409,7 +821,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/06/algorithms/backtracking/2026-1-6-backtracking-subset/" data-id="cmk4wpbtw0005p48t9yl8c2m3" data-title="子集型回溯（2026-01-06）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/06/algorithms/backtracking/2026-1-6-backtracking-subset/" data-id="cmk6yecu30004wc8tdmzfc08v" data-title="子集型回溯（2026-01-06）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -524,7 +936,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/06/misc/Spring%20+%20Redis%20%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92%20V3.1%EF%BC%887%E5%A4%A9%E9%97%AD%E7%8E%AF%EF%BC%8C%E5%9F%BA%E4%BA%8EAI%EF%BC%89/" data-id="cmk4wpbtn0000p48tbt57gklu" data-title="Spring + Redis 学习计划 V3.1（7天闭环，基于AI）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/06/misc/Spring%20+%20Redis%20%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92%20V3.1%EF%BC%887%E5%A4%A9%E9%97%AD%E7%8E%AF%EF%BC%8C%E5%9F%BA%E4%BA%8EAI%EF%BC%89/" data-id="cmk6yectv0000wc8thdhq7b6u" data-title="Spring + Redis 学习计划 V3.1（7天闭环，基于AI）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -701,7 +1113,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/05/algorithms/binary-tree/2026-1-5-binary-tree-level-order-traversal/" data-id="cmk4wpbu4000rp48t5pac0uvs" data-title="二叉树的层序遍历总结（2026-01-05）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/05/algorithms/binary-tree/2026-1-5-binary-tree-level-order-traversal/" data-id="cmk6yecur003awc8tazry6yqb" data-title="二叉树的层序遍历总结（2026-01-05）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -939,7 +1351,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/04/algorithms/binary-tree/2026-1-4-lowestCommonAncestor/" data-id="cmk4wpbu0000gp48t6ij8b9yn" data-title="二叉树的最近公共祖先（LCA）问题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/04/algorithms/binary-tree/2026-1-4-lowestCommonAncestor/" data-id="cmk6yecur003dwc8t0bcp72fh" data-title="二叉树的最近公共祖先（LCA）问题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1176,7 +1588,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/04/backend/ssm/MyBatis/2026-1-4-mybatis-day07/" data-id="cmk4wpbuo0041p48t36zg98wn" data-title="MyBatis XML 映射器学习复盘：结合实践 Bug" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/04/backend/ssm/MyBatis/2026-1-4-mybatis-day07/" data-id="cmk6yecut003hwc8thseu49wx" data-title="MyBatis XML 映射器学习复盘：结合实践 Bug" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1415,7 +1827,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/03/algorithms/binary-tree/2026-1-3-binary-tree-traversals%20/" data-id="cmk4wpbu1000lp48t8mhig9np" data-title="leetcode 通过先序 / 中序 / 后序遍历构造二叉树（" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/03/algorithms/binary-tree/2026-1-3-binary-tree-traversals%20/" data-id="cmk6yecuq0039wc8tdhjd7j5p" data-title="leetcode 通过先序 / 中序 / 后序遍历构造二叉树（" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1613,7 +2025,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/03/backend/ssm/MyBatis/2026-1-3-mybatis-day06/" data-id="cmk4wpbun003zp48t9zd746f5" data-title="MyBatis 动态 SQL 五个 Level 实战复盘：从语法理解到踩坑总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/03/backend/ssm/MyBatis/2026-1-3-mybatis-day06/" data-id="cmk6yecus003ewc8ta85x7gxh" data-title="MyBatis 动态 SQL 五个 Level 实战复盘：从语法理解到踩坑总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1627,429 +2039,11 @@
 
 
   
-    <article id="post-algorithms/binary-tree/2026-1-2-binary-tree-traversals" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2026/01/02/algorithms/binary-tree/2026-1-2-binary-tree-traversals/" class="article-date">
-  <time class="dt-published" datetime="2026-01-02T11:30:00.000Z" itemprop="datePublished">2026-01-02</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/01/02/algorithms/binary-tree/2026-1-2-binary-tree-traversals/">leetcode 二叉树的先序 / 中序 / 后序遍历：在二叉搜索树中的选择与应用</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p><strong>刷题范围</strong></p>
-<p><strong>基础题目</strong></p>
-<p>98.验证二叉搜索树</p>
-<p><strong>扩展题目</strong></p>
-<p>700.二叉搜索树中的搜索</p>
-<p>938.二叉搜索树的范围和</p>
-<p>530.二叉搜索树的最小绝对差</p>
-<p>2476.二叉搜索树最近节点查询</p>
-<hr>
-<h2 id="三种遍历方式的本质差异"><a href="#三种遍历方式的本质差异" class="headerlink" title="三种遍历方式的本质差异"></a>三种遍历方式的本质差异</h2><p>在验证二叉搜索树（98 题）时，我分别用 <strong>先序 &#x2F; 中序 &#x2F; 后序</strong> 都实现了一遍，从而对三者有了更直观的理解。</p>
-<h3 id="先序遍历（Root-→-Left-→-Right）"><a href="#先序遍历（Root-→-Left-→-Right）" class="headerlink" title="先序遍历（Root → Left → Right）"></a>先序遍历（Root → Left → Right）</h3><p><strong>特点</strong>：</p>
-<ul>
-<li>在“访问当前节点”时，就已经掌握了关键信息</li>
-<li>有机会<strong>提前返回</strong>，不一定遍历完整棵树</li>
-</ul>
-<p><strong>直观理解</strong>：</p>
-<blockquote>
-<p>“我先看看当前节点行不行，再决定要不要往下走”</p>
-</blockquote>
-<p>在某些 BST 题目中，这意味着<strong>剪枝能力强、效率高</strong>。</p>
-<hr>
-<h3 id="中序遍历（Left-→-Root-→-Right）"><a href="#中序遍历（Left-→-Root-→-Right）" class="headerlink" title="中序遍历（Left → Root → Right）"></a>中序遍历（Left → Root → Right）</h3><p><strong>特点（BST 专属）</strong>：</p>
-<ul>
-<li>中序遍历结果是一个<strong>严格递增的有序序列</strong></li>
-</ul>
-<p><strong>直观理解</strong>：</p>
-<blockquote>
-<p>“我不急着处理当前节点，先把左边都看完，保证顺序”</p>
-</blockquote>
-<p>只要题目<strong>和“有序性 &#x2F; 相邻关系 &#x2F; 二分”有关</strong>，中序遍历往往是第一选择。</p>
-<hr>
-<h3 id="后序遍历（Left-→-Right-→-Root）"><a href="#后序遍历（Left-→-Right-→-Root）" class="headerlink" title="后序遍历（Left → Right → Root）"></a>后序遍历（Left → Right → Root）</h3><p><strong>特点</strong>：</p>
-<ul>
-<li>一定会遍历完整棵树</li>
-<li>信息在<strong>子树返回时</strong>才产生</li>
-<li>适合“自底向上”的问题</li>
-</ul>
-<p><strong>直观理解</strong>：</p>
-<blockquote>
-<p>“我要先拿到左右子树的结果，才能决定当前节点的结果”</p>
-</blockquote>
-<p>后序遍历是<strong>最通用、有返回值</strong>的一种方式。</p>
-<hr>
-<h2 id="不同题目中遍历方式的选择"><a href="#不同题目中遍历方式的选择" class="headerlink" title="不同题目中遍历方式的选择"></a>不同题目中遍历方式的选择</h2><p>理解三种遍历的本质后，再回头看具体题目，会发现“顺序选择”并不是随意的。</p>
-<hr>
-<h3 id="700-二叉搜索树中的搜索-——-先序遍历更优"><a href="#700-二叉搜索树中的搜索-——-先序遍历更优" class="headerlink" title="700. 二叉搜索树中的搜索 —— 先序遍历更优"></a>700. 二叉搜索树中的搜索 —— 先序遍历更优</h3><p><strong>核心原因</strong>：</p>
-<ul>
-<li>一旦 <code>root.val == target</code>，可以立刻返回</li>
-<li>完全没必要遍历无关子树</li>
-</ul>
-<p>先序遍历在这里的优势是： <strong>“能提前命中并终止递归”</strong></p>
-<hr>
-<h3 id="2️⃣-938-二叉搜索树的范围和-——-先序-剪枝思想"><a href="#2️⃣-938-二叉搜索树的范围和-——-先序-剪枝思想" class="headerlink" title="2️⃣ 938. 二叉搜索树的范围和 —— 先序 + 剪枝思想"></a>2️⃣ 938. 二叉搜索树的范围和 —— 先序 + 剪枝思想</h3><p>题目要求：</p>
-<blockquote>
-<p>计算所有值在 <code>[low, high]</code> 范围内节点的和</p>
-</blockquote>
-<p><strong>关键观察（BST 性质）</strong>：</p>
-<ul>
-<li>当前值 <code>&lt; low</code> → 只可能在右子树</li>
-<li>当前值 <code>&gt; high</code> → 只可能在左子树</li>
-<li>当前值在区间内 → 左右子树都可能有贡献</li>
-</ul>
-<p>这使得解法可以在“访问当前节点”时直接<strong>决定递归方向</strong>，非常适合 <strong>先序遍历 + 提前返回</strong>。本质是： <strong>在“递”的阶段就完成剪枝决策</strong></p>
-<hr>
-<h3 id="530-二叉搜索树的最小绝对差-——-中序遍历"><a href="#530-二叉搜索树的最小绝对差-——-中序遍历" class="headerlink" title="530. 二叉搜索树的最小绝对差 —— 中序遍历"></a>530. 二叉搜索树的最小绝对差 —— 中序遍历</h3><p>BST 中序遍历是<strong>严格递增序列</strong>，那么：</p>
-<ul>
-<li>最小绝对差</li>
-<li>一定只会出现在<strong>相邻两个节点之间</strong></li>
-</ul>
-<p>因此只需要：</p>
-<ol>
-<li>中序遍历</li>
-<li>记录前一个节点</li>
-<li>比较当前值与前一个值的差</li>
-</ol>
-<p>这是一个<strong>典型“利用 BST 有序性”的题目</strong></p>
-<hr>
-<h3 id="2476-二叉搜索树最近节点查询-——-中序-二分"><a href="#2476-二叉搜索树最近节点查询-——-中序-二分" class="headerlink" title="2476. 二叉搜索树最近节点查询 —— 中序 + 二分"></a>2476. 二叉搜索树最近节点查询 —— 中序 + 二分</h3><p>这道题让我收获最大的不是遍历本身，而是<strong>复杂度分析的思维</strong>。</p>
-<h4 id="两种思路对比"><a href="#两种思路对比" class="headerlink" title="两种思路对比"></a>两种思路对比</h4><p><strong>思路一：</strong></p>
-<ul>
-<li>每次查询都遍历整棵树</li>
-<li>时间复杂度：<code>O(n × q)</code></li>
-</ul>
-<p><strong>思路二：</strong></p>
-<ol>
-<li>中序遍历 BST → 得到有序数组</li>
-<li>对每个 query 在数组中二分查找</li>
-</ol>
-<ul>
-<li>时间复杂度：<code>O(n + q log n)</code></li>
-</ul>
-<h4 id="为什么必须选思路二？"><a href="#为什么必须选思路二？" class="headerlink" title="为什么必须选思路二？"></a>为什么必须选思路二？</h4><p>根据题目提示：</p>
-<ul>
-<li><code>queries.length</code> 和 <code>节点数 n</code> <strong>是同一个数量级</strong></li>
-</ul>
-<p>所以：</p>
-<ul>
-<li>思路一 ≈ <code>O(n²)</code>（直接超时）</li>
-<li>思路二 ≈ <code>O(n log n)</code>（可接受）</li>
-</ul>
-<p><strong>结论</strong>：</p>
-<blockquote>
-<p>当 BST 查询规模大、查询次数多时，一定要先转成有序数组（这种方式逻辑也很清晰，把逻辑都揉在树的遍历过程中十分复杂）</p>
-</blockquote>
-<hr>
-<h2 id="今天的核心学习总结"><a href="#今天的核心学习总结" class="headerlink" title="今天的核心学习总结"></a>今天的核心学习总结</h2><p>通过今天这组题目，我对二叉树遍历有了一个更“工程化”的理解：</p>
-<ol>
-<li><strong>遍历顺序的本质是“信息产生的时机”</strong></li>
-<li>先序遍历适合：提前判断、剪枝、搜索类问题</li>
-<li>中序遍历在 BST 中有特性：有序性、相邻关系、二分优化</li>
-<li>后序遍历最通用：自底向上、依赖子树返回值（今天体会不明显）</li>
-<li>在数据规模较大时，<strong>复杂度分析往往比写法本身更重要</strong></li>
-</ol>
-<hr>
-<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/02/algorithms/binary-tree/2026-1-2-binary-tree-traversals/" data-id="cmk4wpbtz000ap48t3pclev4o" data-title="leetcode 二叉树的先序 / 中序 / 后序遍历：在二叉搜索树中的选择与应用" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-backend/mysql/2026-1-2-mybatis-day05" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2026/01/02/backend/mysql/2026-1-2-mybatis-day05/" class="article-date">
-  <time class="dt-published" datetime="2026-01-01T16:00:00.000Z" itemprop="datePublished">2026-01-02</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>►<a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/01/02/backend/mysql/2026-1-2-mybatis-day05/">MyBatis 入门学习笔记：从 JDBC 到 Mapper 映射</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p><strong>一句话导读</strong><br>  MyBatis 的核心价值不在于“帮你写 SQL”，而在于 <strong>消除 JDBC 中大量的硬编码问题，让 SQL 与 Java 解耦，同时保持对 SQL 的完全掌控</strong>。</p>
-</blockquote>
-<hr>
-<h2 id="一、为什么需要-MyBatis？——-从-JDBC-的痛点说起"><a href="#一、为什么需要-MyBatis？——-从-JDBC-的痛点说起" class="headerlink" title="一、为什么需要 MyBatis？—— 从 JDBC 的痛点说起"></a>一、为什么需要 MyBatis？—— 从 JDBC 的痛点说起</h2><p>在直接使用 JDBC 操作数据库时，很快会遇到以下问题：</p>
-<h3 id="SQL-硬编码问题严重"><a href="#SQL-硬编码问题严重" class="headerlink" title="SQL 硬编码问题严重"></a>SQL 硬编码问题严重</h3><ul>
-<li>SQL 直接写在 Java 代码中</li>
-<li>一旦 SQL 发生变化，必须修改并重新编译 Java 代码</li>
-<li>实际项目中，SQL 变化非常频繁，维护成本高</li>
-</ul>
-<hr>
-<h3 id="参数绑定不灵活"><a href="#参数绑定不灵活" class="headerlink" title="参数绑定不灵活"></a>参数绑定不灵活</h3><ul>
-<li>使用 <code>PreparedStatement</code> 需要手动设置占位符</li>
-<li><code>where</code> 条件的数量和顺序变化时：<ul>
-<li>SQL 要改</li>
-<li>Java 代码也要跟着改</li>
-</ul>
-</li>
-<li>可维护性较差</li>
-</ul>
-<hr>
-<h3 id="结果集解析硬编码"><a href="#结果集解析硬编码" class="headerlink" title="结果集解析硬编码"></a>结果集解析硬编码</h3><ul>
-<li>查询结果需要手动从 <code>ResultSet</code> 中取值</li>
-<li>强依赖数据库字段名</li>
-<li>一旦 SQL 查询字段变化，解析逻辑也要修改</li>
-</ul>
-<hr>
-<h3 id="总结一句话"><a href="#总结一句话" class="headerlink" title="总结一句话"></a>总结一句话</h3><blockquote>
-<p><strong>JDBC 的问题本质是：硬编码太多、关注点不分离、维护成本高。</strong></p>
-</blockquote>
-<p>因此，引入 <strong>MyBatis</strong> 来解决这些问题。</p>
-<hr>
-<h2 id="二、MyBatis-是什么？"><a href="#二、MyBatis-是什么？" class="headerlink" title="二、MyBatis 是什么？"></a>二、MyBatis 是什么？</h2><p><strong>MyBatis 是一个持久层（DAO 层）框架</strong>，对 JDBC 操作过程进行了封装，使开发者：</p>
-<ul>
-<li>只需要关注 <strong>SQL 本身</strong></li>
-<li>不再关心：<ul>
-<li>驱动注册</li>
-<li>Connection 创建</li>
-<li>Statement &#x2F; PreparedStatement 创建</li>
-<li>参数设置</li>
-<li>结果集解析</li>
-</ul>
-</li>
-</ul>
-<hr>
-<h3 id="MyBatis-的核心思想"><a href="#MyBatis-的核心思想" class="headerlink" title="MyBatis 的核心思想"></a>MyBatis 的核心思想</h3><ul>
-<li>使用 <strong>XML 或注解</strong> 描述 SQL</li>
-<li>将 SQL 与 Java 对象进行映射</li>
-<li>框架负责：<ul>
-<li>执行 SQL</li>
-<li>参数映射</li>
-<li>结果集映射</li>
-<li>返回 Java 对象</li>
-</ul>
-</li>
-</ul>
-<hr>
-<h2 id="三、MyBatis-整体架构与工作流程"><a href="#三、MyBatis-整体架构与工作流程" class="headerlink" title="三、MyBatis 整体架构与工作流程"></a>三、MyBatis 整体架构与工作流程</h2><h3 id="核心配置文件与映射文件"><a href="#核心配置文件与映射文件" class="headerlink" title="核心配置文件与映射文件"></a>核心配置文件与映射文件</h3><ul>
-<li><p><strong><code>mybatis-config.xml</code></strong></p>
-<p>全局配置文件，配置：</p>
-<ul>
-<li>数据源</li>
-<li>事务管理器</li>
-<li>Mapper 映射文件位置</li>
-</ul>
-</li>
-<li><p><strong><code>mapper.xml</code></strong></p>
-<ul>
-<li>SQL 映射文件</li>
-<li>一个 SQL 对应一个 <code>MappedStatement</code></li>
-</ul>
-</li>
-</ul>
-<hr>
-<h3 id="SqlSessionFactory-与-SqlSession"><a href="#SqlSessionFactory-与-SqlSession" class="headerlink" title="SqlSessionFactory 与 SqlSession"></a>SqlSessionFactory 与 SqlSession</h3><ul>
-<li><code>SqlSessionFactoryBuilder</code><br> → 构建 <code>SqlSessionFactory</code></li>
-<li><code>SqlSessionFactory</code><br> → 创建 <code>SqlSession</code></li>
-<li><strong>所有数据库操作都通过 <code>SqlSession</code> 完成</strong></li>
-</ul>
-<hr>
-<h3 id="Executor（执行器）"><a href="#Executor（执行器）" class="headerlink" title="Executor（执行器）"></a>Executor（执行器）</h3><p>MyBatis 底层通过 <code>Executor</code> 接口执行 SQL：</p>
-<ul>
-<li><strong>SimpleExecutor</strong>：基本执行器</li>
-<li><strong>CachingExecutor</strong>：带缓存的执行器</li>
-</ul>
-<hr>
-<h3 id="MappedStatement（核心抽象）"><a href="#MappedStatement（核心抽象）" class="headerlink" title="MappedStatement（核心抽象）"></a>MappedStatement（核心抽象）</h3><ul>
-<li>每一条 SQL 都会被封装成一个 <code>MappedStatement</code></li>
-<li>包含：<ul>
-<li>SQL 本身</li>
-<li>输入参数映射规则</li>
-<li>输出结果映射规则</li>
-</ul>
-</li>
-</ul>
-<p> 本质类比 JDBC：</p>
-<ul>
-<li>参数映射 ≈ <code>PreparedStatement.setXxx</code></li>
-<li>结果映射 ≈ <code>ResultSet</code> 解析</li>
-</ul>
-<hr>
-<h3 id="MyBatis-工作流程总结"><a href="#MyBatis-工作流程总结" class="headerlink" title="MyBatis 工作流程总结"></a>MyBatis 工作流程总结</h3><ol>
-<li>构建 <code>SqlSessionFactory</code></li>
-<li>获取 <code>SqlSession</code></li>
-<li>获取 Mapper 接口代理对象</li>
-<li>调用接口方法执行 SQL</li>
-<li>提交事务并关闭 Session</li>
-</ol>
-<hr>
-<h2 id="四、MyBatis-的核心特性"><a href="#四、MyBatis-的核心特性" class="headerlink" title="四、MyBatis 的核心特性"></a>四、MyBatis 的核心特性</h2><ul>
-<li><strong>SQL 与 Java 解耦</strong></li>
-<li><strong>自动结果映射</strong></li>
-<li><strong>强大的动态 SQL 能力</strong></li>
-<li><strong>内置缓存机制（一级 &#x2F; 二级）</strong></li>
-</ul>
-<hr>
-<h2 id="五、MyBatis-缓存机制"><a href="#五、MyBatis-缓存机制" class="headerlink" title="五、MyBatis 缓存机制"></a>五、MyBatis 缓存机制</h2><h3 id="一级缓存（SqlSession-级别）"><a href="#一级缓存（SqlSession-级别）" class="headerlink" title="一级缓存（SqlSession 级别）"></a>一级缓存（SqlSession 级别）</h3><ul>
-<li>默认开启、不可关闭</li>
-<li>同一个 <code>SqlSession</code> 中，相同查询只执行一次 SQL</li>
-</ul>
-<p><strong>触发清空的情况：</strong></p>
-<ul>
-<li>执行 <code>INSERT / UPDATE / DELETE</code></li>
-<li>调用 <code>clearCache()</code></li>
-<li>事务回滚</li>
-<li>不同的 <code>StatementId</code></li>
-</ul>
-<hr>
-<h3 id="二级缓存（Mapper-级别）"><a href="#二级缓存（Mapper-级别）" class="headerlink" title="二级缓存（Mapper 级别）"></a>二级缓存（Mapper 级别）</h3><ul>
-<li>多个 <code>SqlSession</code> 共享</li>
-<li>需要显式开启</li>
-</ul>
-<h4 id="全局配置"><a href="#全局配置" class="headerlink" title="全局配置"></a>全局配置</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;settings&gt;</span><br><span class="line">    &lt;setting name=&quot;cacheEnabled&quot; value=&quot;true&quot;/&gt;</span><br><span class="line">&lt;/settings&gt;</span><br></pre></td></tr></table></figure>
-
-<h4 id="Mapper-配置"><a href="#Mapper-配置" class="headerlink" title="Mapper 配置"></a>Mapper 配置</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;cache</span><br><span class="line">  eviction=&quot;LRU&quot;</span><br><span class="line">  flushInterval=&quot;60000&quot;</span><br><span class="line">  size=&quot;512&quot;</span><br><span class="line">  readOnly=&quot;true&quot;/&gt;</span><br></pre></td></tr></table></figure>
-
-<h4 id="常见缓存策略"><a href="#常见缓存策略" class="headerlink" title="常见缓存策略"></a>常见缓存策略</h4><table>
-<thead>
-<tr>
-<th>策略</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>LRU</td>
-<td>最近最少使用（默认）</td>
-</tr>
-<tr>
-<td>FIFO</td>
-<td>先进先出</td>
-</tr>
-<tr>
-<td>SOFT</td>
-<td>软引用</td>
-</tr>
-<tr>
-<td>WEAK</td>
-<td>弱引用</td>
-</tr>
-</tbody></table>
-<hr>
-<h2 id="六、MyBatis-入门实践"><a href="#六、MyBatis-入门实践" class="headerlink" title="六、MyBatis 入门实践"></a>六、MyBatis 入门实践</h2><h3 id="引入依赖"><a href="#引入依赖" class="headerlink" title="引入依赖"></a>引入依赖</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">  &lt;groupId&gt;org.mybatis&lt;/groupId&gt;</span><br><span class="line">  &lt;artifactId&gt;mybatis&lt;/artifactId&gt;</span><br><span class="line">  &lt;version&gt;x.x.x&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h3 id="构建-SqlSessionFactory（XML）"><a href="#构建-SqlSessionFactory（XML）" class="headerlink" title="构建 SqlSessionFactory（XML）"></a>构建 SqlSessionFactory（XML）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">InputStream is = Resources.getResourceAsStream(&quot;mybatis-config.xml&quot;);</span><br><span class="line">SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(is);</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h3 id="Mapper-XML-示例"><a href="#Mapper-XML-示例" class="headerlink" title="Mapper XML 示例"></a>Mapper XML 示例</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;mapper namespace=&quot;UserMapper&quot;&gt;</span><br><span class="line">    &lt;select id=&quot;getUser&quot; resultType=&quot;User&quot;&gt;</span><br><span class="line">        SELECT * FROM tb_user WHERE id = #&#123;id&#125;</span><br><span class="line">    &lt;/select&gt;</span><br><span class="line">&lt;/mapper&gt;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h3 id="使用-SqlSession-执行-SQL（旧方式）"><a href="#使用-SqlSession-执行-SQL（旧方式）" class="headerlink" title="使用 SqlSession 执行 SQL（旧方式）"></a>使用 SqlSession 执行 SQL（旧方式）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">List&lt;User&gt; list = session.selectList(&quot;UserMapper.getUser&quot;, 10);</span><br></pre></td></tr></table></figure>
-
-<p>问题：</p>
-<ul>
-<li>namespace, select ID 硬编码</li>
-<li>参数类型不安全</li>
-</ul>
-<hr>
-<h3 id="Mapper-接口（推荐方式）"><a href="#Mapper-接口（推荐方式）" class="headerlink" title="Mapper 接口（推荐方式）"></a>Mapper 接口（推荐方式）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public interface UserMapper &#123;</span><br><span class="line">    List&lt;User&gt; getUser(int id);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">UserMapper mapper = session.getMapper(UserMapper.class);</span><br><span class="line">mapper.getUser(10);</span><br></pre></td></tr></table></figure>
-
-<p><strong>底层通过动态代理生成实现类</strong>，接口方法 ↔ SQL 映射一一对应。</p>
-<hr>
-<h3 id="Mapper-接口与-XML-的目录约定（重要）"><a href="#Mapper-接口与-XML-的目录约定（重要）" class="headerlink" title="Mapper 接口与 XML 的目录约定（重要）"></a>Mapper 接口与 XML 的目录约定（重要）</h3><ul>
-<li>Mapper 接口在 <code>java</code> 目录</li>
-<li>Mapper XML 在 <code>resources</code> 目录</li>
-<li><strong>包路径保持一致</strong></li>
-</ul>
-<p>这是 MyBatis 正确定位 SQL 的关键。</p>
-<hr>
-<h2 id="七、注解开发方式"><a href="#七、注解开发方式" class="headerlink" title="七、注解开发方式"></a>七、注解开发方式</h2><h3 id="基本示例"><a href="#基本示例" class="headerlink" title="基本示例"></a>基本示例</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@Select(&quot;SELECT * FROM tb_user WHERE id = #&#123;id&#125;&quot;)</span><br><span class="line">User getUser(int id);</span><br></pre></td></tr></table></figure>
-
-<h3 id="常用注解"><a href="#常用注解" class="headerlink" title="常用注解"></a>常用注解</h3><ul>
-<li><code>@Select / @Insert / @Update / @Delete</code></li>
-<li><code>@Param</code>：多参数映射</li>
-<li><code>@Results / @Result</code>：字段映射</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@Results(&#123;</span><br><span class="line">    @Result(property = &quot;id&quot;, column = &quot;user_id&quot;),</span><br><span class="line">    @Result(property = &quot;name&quot;, column = &quot;user_name&quot;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-
-<p><strong>官方建议</strong>：</p>
-<ul>
-<li>简单 SQL → 注解</li>
-<li>复杂 SQL → XML</li>
-</ul>
-<hr>
-<h2 id="八、工具类封装-SqlSessionFactory"><a href="#八、工具类封装-SqlSessionFactory" class="headerlink" title="八、工具类封装 SqlSessionFactory"></a>八、工具类封装 SqlSessionFactory</h2><p>由于获取连接流程固定，可以封装工具类：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">InputStream is = Resources.getResourceAsStream(&quot;mybatis-config.xml&quot;);</span><br><span class="line">SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(is);</span><br><span class="line">SqlSession session = factory.openSession();</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h2 id="九、总结与个人理解"><a href="#九、总结与个人理解" class="headerlink" title="九、总结与个人理解"></a>九、总结与个人理解</h2><p>通过 MyBatis 的学习，我对 Java 数据访问层有了更清晰的认识：</p>
-<ol>
-<li>MyBatis 的核心价值是 <strong>解耦，而不是隐藏 SQL</strong></li>
-<li>它通过配置与映射，消除了 JDBC 的大量硬编码</li>
-<li>Mapper 接口 + 动态代理，是非常优雅的设计</li>
-<li>XML 与注解并不是对立关系，而是各司其职</li>
-</ol>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/02/backend/mysql/2026-1-2-mybatis-day05/" data-id="cmk4wpbun003yp48tge9cenfw" data-title="MyBatis 入门学习笔记：从 JDBC 到 Mapper 映射" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
 
 
   <nav id="page-nav">
     
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">下一页 &raquo;</a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">下一页 &raquo;</a>
   </nav>
 
 </section>
@@ -2060,7 +2054,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/ssm/">ssm</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/ssm/">ssm</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/SpringBoot/">SpringBoot</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li></ul>
     </div>
   </div>
 
@@ -2070,7 +2064,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" rel="tag">学习计划</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" rel="tag">学习计划</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E5%90%88/" rel="tag">组合</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
     </div>
   </div>
 
@@ -2080,7 +2074,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/jdbc/" style="font-size: 12.5px;">jdbc</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mybatis/" style="font-size: 15px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12.5px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 12.5px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 12.5px;">子集</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12.5px;">深度优先遍历</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12.5px;">记录</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 17.5px;">递归</a>
+      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/jdbc/" style="font-size: 12px;">jdbc</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mybatis/" style="font-size: 16px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 14px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 12px;">子集</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12px;">深度优先遍历</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E7%BB%84%E5%90%88/" style="font-size: 10px;">组合</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12px;">记录</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 18px;">递归</a>
     </div>
   </div>
 
@@ -2102,6 +2096,14 @@
       <ul>
         
           <li>
+            <a href="/2026/01/09/algorithms/backtracking/2026-1-9-Combinatorial%20backtracking/">组合型回溯 + 剪枝：从子集枚举到条件收敛</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/09/backend/ssm/springboot/2026-1-9-springboot-day01/">Spring Boot 基础入门与整合实践</a>
+          </li>
+        
+          <li>
             <a href="/2026/01/08/algorithms/backtracking/2026-1-8-backtracking-subset-practice/">子集型回溯方法论得应用（2026-01-08）</a>
           </li>
         
@@ -2111,14 +2113,6 @@
         
           <li>
             <a href="/2026/01/06/misc/Spring%20+%20Redis%20%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92%20V3.1%EF%BC%887%E5%A4%A9%E9%97%AD%E7%8E%AF%EF%BC%8C%E5%9F%BA%E4%BA%8EAI%EF%BC%89/">Spring + Redis 学习计划 V3.1（7天闭环，基于AI）</a>
-          </li>
-        
-          <li>
-            <a href="/2026/01/05/algorithms/binary-tree/2026-1-5-binary-tree-level-order-traversal/">二叉树的层序遍历总结（2026-01-05）</a>
-          </li>
-        
-          <li>
-            <a href="/2026/01/04/algorithms/binary-tree/2026-1-4-lowestCommonAncestor/">二叉树的最近公共祖先（LCA）问题总结</a>
           </li>
         
       </ul>

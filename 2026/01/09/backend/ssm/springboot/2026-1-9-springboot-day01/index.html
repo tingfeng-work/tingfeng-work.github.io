@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Spring Boot 基础入门与整合实践 | 廷风的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="本文记录了我在学习 Spring Boot 基础与整合 MyBatis、Druid 过程中的核心知识点，以及一次完整、真实的排错过程。重点不在于“配置怎么写”，而在于理解 Spring Boot 自动配置的工作机制。   一、Spring Boot 简介Spring Boot 是由 Pivotal 团队提供的快速开发框架，目标是：  简化 Spring 应用的初始搭建 减少繁琐的 XML &amp;#x">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring Boot 基础入门与整合实践">
+<meta property="og:url" content="http://example.com/2026/01/09/backend/ssm/springboot/2026-1-9-springboot-day01/index.html">
+<meta property="og:site_name" content="廷风的技术博客">
+<meta property="og:description" content="本文记录了我在学习 Spring Boot 基础与整合 MyBatis、Druid 过程中的核心知识点，以及一次完整、真实的排错过程。重点不在于“配置怎么写”，而在于理解 Spring Boot 自动配置的工作机制。   一、Spring Boot 简介Spring Boot 是由 Pivotal 团队提供的快速开发框架，目标是：  简化 Spring 应用的初始搭建 减少繁琐的 XML &amp;#x">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-01-08T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-01-09T14:09:22.462Z">
+<meta property="article:author" content="Tingfeng Li">
+<meta property="article:tag" content="mybatis">
+<meta property="article:tag" content="druid">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="廷风的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">廷风的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Java 后端开发</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-backend/ssm/springboot/2026-1-9-springboot-day01" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/09/backend/ssm/springboot/2026-1-9-springboot-day01/" class="article-date">
+  <time class="dt-published" datetime="2026-01-08T16:00:00.000Z" itemprop="datePublished">2026-01-09</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>►<a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/SpringBoot/">SpringBoot</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      Spring Boot 基础入门与整合实践
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>本文记录了我在学习 Spring Boot 基础与整合 MyBatis、Druid 过程中的核心知识点，以及一次完整、真实的排错过程。<br>重点不在于“配置怎么写”，而在于<strong>理解 Spring Boot 自动配置的工作机制</strong>。</p>
+</blockquote>
+<hr>
+<h2 id="一、Spring-Boot-简介"><a href="#一、Spring-Boot-简介" class="headerlink" title="一、Spring Boot 简介"></a>一、Spring Boot 简介</h2><p>Spring Boot 是由 Pivotal 团队提供的快速开发框架，目标是：</p>
+<ul>
+<li>简化 Spring 应用的初始搭建</li>
+<li>减少繁琐的 XML &#x2F; Java 配置</li>
+<li>通过 <strong>自动配置（Auto Configuration）+ Starter 机制</strong> 提升开发效率</li>
+</ul>
+<hr>
+<h2 id="二、Spring-Boot-入门方式"><a href="#二、Spring-Boot-入门方式" class="headerlink" title="二、Spring Boot 入门方式"></a>二、Spring Boot 入门方式</h2><h3 id="2-1-创建方式说明"><a href="#2-1-创建方式说明" class="headerlink" title="2.1 创建方式说明"></a>2.1 创建方式说明</h3><ul>
+<li>使用 IDEA &#x2F; 官网 &#x2F; 阿里云脚手架：<strong>需要联网</strong></li>
+<li>手动创建 Maven 项目：<ul>
+<li>继承 <code>spring-boot-starter-parent</code></li>
+<li>手动编写启动类</li>
+<li><strong>不需要联网</strong>（前提是本地仓库已有依赖）</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="三、parent-与-starter-的作用区分"><a href="#三、parent-与-starter-的作用区分" class="headerlink" title="三、parent 与 starter 的作用区分"></a>三、<code>parent</code> 与 <code>starter</code> 的作用区分</h2><h3 id="3-1-parent：统一依赖版本管理"><a href="#3-1-parent：统一依赖版本管理" class="headerlink" title="3.1 parent：统一依赖版本管理"></a>3.1 parent：统一依赖版本管理</h3><p><code>spring-boot-starter-parent</code> 的作用是：</p>
+<ul>
+<li>统一管理常用依赖的版本</li>
+<li>避免版本冲突</li>
+<li>简化 pom 文件</li>
+</ul>
+<blockquote>
+<p><strong>注意</strong>：<br> parent 只“管理版本”，并不会实际引入任何依赖。</p>
+</blockquote>
+<hr>
+<h3 id="3-2-starter：功能级依赖集合"><a href="#3-2-starter：功能级依赖集合" class="headerlink" title="3.2 starter：功能级依赖集合"></a>3.2 starter：功能级依赖集合</h3><p>starter 的作用是：</p>
+<ul>
+<li>一次性引入某个技术栈所需的依赖</li>
+<li>通过<strong>依赖传递</strong>减少配置成本</li>
+</ul>
+<p>例如：</p>
+<ul>
+<li><code>spring-boot-starter-web</code></li>
+<li><code>spring-boot-starter-jdbc</code></li>
+<li><code>mybatis-spring-boot-starter</code></li>
+</ul>
+<blockquote>
+<p>parent + starter 解决的是 <strong>“配置复杂度”问题</strong></p>
+</blockquote>
+<hr>
+<h2 id="四、Spring-Boot-启动类"><a href="#四、Spring-Boot-启动类" class="headerlink" title="四、Spring Boot 启动类"></a>四、Spring Boot 启动类</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@SpringBootApplication</span><br><span class="line">public class Springboot01QuickstartApplication &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        SpringApplication.run(Springboot01QuickstartApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="启动类的作用"><a href="#启动类的作用" class="headerlink" title="启动类的作用"></a>启动类的作用</h3><ul>
+<li>标识这是一个 Spring Boot 应用</li>
+<li>启动 Spring 容器</li>
+<li>扫描当前包及其子包下的 Bean</li>
+<li>返回值是 <code>ApplicationContext</code></li>
+</ul>
+<hr>
+<h2 id="五、内嵌-Web-容器机制"><a href="#五、内嵌-Web-容器机制" class="headerlink" title="五、内嵌 Web 容器机制"></a>五、内嵌 Web 容器机制</h2><p>在引入 <code>spring-boot-starter-web</code> 后：</p>
+<ul>
+<li>默认内嵌 Tomcat</li>
+<li>Spring 会创建并管理一个 Tomcat 对象</li>
+<li>启动应用时自动启动 Web 服务器</li>
+</ul>
+<p>Spring Boot 也支持 Jetty、Undertow 等内嵌容器。</p>
+<hr>
+<h2 id="六、基础配置文件"><a href="#六、基础配置文件" class="headerlink" title="六、基础配置文件"></a>六、基础配置文件</h2><h3 id="6-1-配置文件类型与优先级"><a href="#6-1-配置文件类型与优先级" class="headerlink" title="6.1 配置文件类型与优先级"></a>6.1 配置文件类型与优先级</h3><p>Spring Boot 支持：</p>
+<ul>
+<li><code>application.properties</code></li>
+<li><code>application.yml</code></li>
+<li><code>application.yaml</code></li>
+</ul>
+<p>优先级（从高到低）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">properties &gt; yml &gt; yaml</span><br></pre></td></tr></table></figure>
+
+<p>相同配置高优先级覆盖，未冲突配置全部生效。</p>
+<hr>
+<h3 id="6-2-为什么推荐-YAML"><a href="#6-2-为什么推荐-YAML" class="headerlink" title="6.2 为什么推荐 YAML"></a>6.2 为什么推荐 YAML</h3><ul>
+<li>层级清晰</li>
+<li>可读性更好</li>
+<li>更适合复杂配置</li>
+</ul>
+<h4 id="YAML-核心规则"><a href="#YAML-核心规则" class="headerlink" title="YAML 核心规则"></a>YAML 核心规则</h4><ul>
+<li>大小写敏感</li>
+<li>缩进表示层级（只能用空格）</li>
+<li><code>key: value</code> 中冒号后必须有空格</li>
+<li><code>#</code> 表示注释</li>
+</ul>
+<hr>
+<h3 id="6-3-YAML-数据绑定方式"><a href="#6-3-YAML-数据绑定方式" class="headerlink" title="6.3 YAML 数据绑定方式"></a>6.3 YAML 数据绑定方式</h3><h4 id="方式一：-Value"><a href="#方式一：-Value" class="headerlink" title="方式一：@Value"></a>方式一：<code>@Value</code></h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@Value(&quot;$&#123;enterprise.name&#125;&quot;)</span><br><span class="line">private String name;</span><br></pre></td></tr></table></figure>
+
+<h4 id="方式二：Environment"><a href="#方式二：Environment" class="headerlink" title="方式二：Environment"></a>方式二：<code>Environment</code></h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">environment.getProperty(&quot;enterprise.name&quot;);</span><br></pre></td></tr></table></figure>
+
+<h4 id="方式三（推荐）：-ConfigurationProperties"><a href="#方式三（推荐）：-ConfigurationProperties" class="headerlink" title="方式三（推荐）：@ConfigurationProperties"></a>方式三（推荐）：<code>@ConfigurationProperties</code></h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">@Component</span><br><span class="line">@ConfigurationProperties(prefix = &quot;enterprise&quot;)</span><br><span class="line">@Data</span><br><span class="line">public class Enterprise &#123;</span><br><span class="line">    private String name;</span><br><span class="line">    private int age;</span><br><span class="line">    private String tel;</span><br><span class="line">    private String[] hobby;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>本质：<br> Spring Boot 内部大量使用这种方式完成第三方组件的<strong>自动配置</strong></p>
+</blockquote>
+<hr>
+<h2 id="七、整合第三方技术"><a href="#七、整合第三方技术" class="headerlink" title="七、整合第三方技术"></a>七、整合第三方技术</h2><h3 id="7-1-Spring-Boot-整合-JUnit"><a href="#7-1-Spring-Boot-整合-JUnit" class="headerlink" title="7.1 Spring Boot 整合 JUnit"></a>7.1 Spring Boot 整合 JUnit</h3><ul>
+<li>自动引入测试 starter</li>
+<li>使用 <code>@SpringBootTest</code></li>
+<li>测试类不在启动类包下时需指定 <code>classes</code></li>
+</ul>
+<hr>
+<h3 id="7-2-Spring-Boot-整合-MyBatis"><a href="#7-2-Spring-Boot-整合-MyBatis" class="headerlink" title="7.2 Spring Boot 整合 MyBatis"></a>7.2 Spring Boot 整合 MyBatis</h3><p>MyBatis 主要涉及两类配置：</p>
+<ol>
+<li><strong>全局配置</strong>（数据源）</li>
+<li><strong>映射配置</strong>（XML &#x2F; 注解）</li>
+</ol>
+<p>基本步骤：</p>
+<ul>
+<li>引入 MyBatis Starter</li>
+<li>配置数据源</li>
+<li>定义 Mapper 接口</li>
+<li>注入 Mapper 测试</li>
+</ul>
+<hr>
+<h3 id="7-3-Spring-Boot-整合-Druid"><a href="#7-3-Spring-Boot-整合-Druid" class="headerlink" title="7.3 Spring Boot 整合 Druid"></a>7.3 Spring Boot 整合 Druid</h3><ul>
+<li>引入 Druid Starter</li>
+<li>配置 Druid 专属配置项</li>
+<li>验证 DataSource 类型</li>
+</ul>
+<hr>
+<h2 id="八、整合过程中的问题与排错总结（重点）"><a href="#八、整合过程中的问题与排错总结（重点）" class="headerlink" title="八、整合过程中的问题与排错总结（重点）"></a>八、整合过程中的问题与排错总结（重点）</h2><h3 id="问题一：UserDao-无法注入"><a href="#问题一：UserDao-无法注入" class="headerlink" title="问题一：UserDao 无法注入"></a>问题一：<code>UserDao</code> 无法注入</h3><h4 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">No qualifying bean of type &#x27;tingfeng.mapper.UserDao&#x27; available</span><br></pre></td></tr></table></figure>
+
+<h4 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h4><ul>
+<li>Mapper 接口未被 Spring 扫描</li>
+<li><code>@Mapper</code> 只对 MyBatis 生效</li>
+</ul>
+<h4 id="解决方式"><a href="#解决方式" class="headerlink" title="解决方式"></a>解决方式</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@SpringBootApplication</span><br><span class="line">@MapperScan(&quot;tingfeng.mapper&quot;)</span><br><span class="line">public class Quickstart03Application &#123; &#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="关键认知"><a href="#关键认知" class="headerlink" title="关键认知"></a>关键认知</h4><blockquote>
+<p><strong>@Mapper 是 MyBatis 的，@MapperScan 才是 Spring 的</strong></p>
+</blockquote>
+<hr>
+<h3 id="问题二：Mapper-能扫描，但报-sqlSessionFactory-缺失"><a href="#问题二：Mapper-能扫描，但报-sqlSessionFactory-缺失" class="headerlink" title="问题二：Mapper 能扫描，但报 sqlSessionFactory 缺失"></a>问题二：Mapper 能扫描，但报 <code>sqlSessionFactory</code> 缺失</h3><h4 id="现象-1"><a href="#现象-1" class="headerlink" title="现象"></a>现象</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Property &#x27;sqlSessionFactory&#x27; or &#x27;sqlSessionTemplate&#x27; are required</span><br></pre></td></tr></table></figure>
+
+<h4 id="定位结论"><a href="#定位结论" class="headerlink" title="定位结论"></a>定位结论</h4><ul>
+<li>Mapper 已创建</li>
+<li>SqlSessionFactory 未生成</li>
+<li>SqlSessionFactory 依赖 DataSource</li>
+</ul>
+<h4 id="实际解决方式"><a href="#实际解决方式" class="headerlink" title="实际解决方式"></a>实际解决方式</h4><blockquote>
+<p><strong>将 <code>mybatis-spring-boot-starter</code> 从 3.0.4 升级至 4.0.2</strong></p>
+</blockquote>
+<h4 id="根因分析（重要）"><a href="#根因分析（重要）" class="headerlink" title="根因分析（重要）"></a>根因分析（重要）</h4><p>新版本调整了：</p>
+<ul>
+<li>Mapper 初始化时机</li>
+<li>SqlSessionFactory 校验逻辑</li>
+</ul>
+<p>避免在 DataSource 尚未完全初始化时进行强校验，从而绕开了该异常路径。</p>
+<blockquote>
+<p>⚠️ 注意：<br> 这并不代表 DataSource 问题“消失”，而是<strong>校验时机发生了变化</strong></p>
+</blockquote>
+<hr>
+<h2 id="九、总结与反思"><a href="#九、总结与反思" class="headerlink" title="九、总结与反思"></a>九、总结与反思</h2><p>这次学习和排错过程中，我最大的收获不是“配置记住了多少”，而是：</p>
+<ul>
+<li>理解了 <strong>Starter 才是自动配置的触发条件</strong></li>
+<li>明白了 <strong>异常信息可能并不是根因</strong></li>
+<li>学会从 <strong>DataSource → SqlSessionFactory → Mapper</strong> 反向排查</li>
+<li>认识到 <strong>版本升级可能改变行为，而非修复根因</strong></li>
+</ul>
+<hr>
+<h2 id="十、一句话总结"><a href="#十、一句话总结" class="headerlink" title="十、一句话总结"></a>十、一句话总结</h2><blockquote>
+<p>Spring Boot 整合 MyBatis 与数据源时，<br> 问题往往不在 Mapper 本身，<br> 而在自动配置链路是否完整、以及校验时机是否合理。</p>
+</blockquote>
+<hr>
+<h2 id="学习资料与完整代码"><a href="#学习资料与完整代码" class="headerlink" title="学习资料与完整代码"></a>学习资料与完整代码</h2><p><strong>已整理并上传至 GitHub 仓库</strong></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/09/backend/ssm/springboot/2026-1-9-springboot-day01/" data-id="cmk6yecut003jwc8t2n5afrur" data-title="Spring Boot 基础入门与整合实践" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2026/01/09/algorithms/backtracking/2026-1-9-Combinatorial%20backtracking/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          组合型回溯 + 剪枝：从子集枚举到条件收敛
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2026/01/08/algorithms/backtracking/2026-1-8-backtracking-subset-practice/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">子集型回溯方法论得应用（2026-01-08）</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/ssm/">ssm</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/SpringBoot/">SpringBoot</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" rel="tag">学习计划</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E5%90%88/" rel="tag">组合</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/jdbc/" style="font-size: 12px;">jdbc</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mybatis/" style="font-size: 16px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 14px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 12px;">子集</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12px;">深度优先遍历</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E7%BB%84%E5%90%88/" style="font-size: 10px;">组合</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12px;">记录</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 18px;">递归</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">一月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/12/">十二月 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/01/09/algorithms/backtracking/2026-1-9-Combinatorial%20backtracking/">组合型回溯 + 剪枝：从子集枚举到条件收敛</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/09/backend/ssm/springboot/2026-1-9-springboot-day01/">Spring Boot 基础入门与整合实践</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/08/algorithms/backtracking/2026-1-8-backtracking-subset-practice/">子集型回溯方法论得应用（2026-01-08）</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/06/algorithms/backtracking/2026-1-6-backtracking-subset/">子集型回溯（2026-01-06）</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/06/misc/Spring%20+%20Redis%20%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92%20V3.1%EF%BC%887%E5%A4%A9%E9%97%AD%E7%8E%AF%EF%BC%8C%E5%9F%BA%E4%BA%8EAI%EF%BC%89/">Spring + Redis 学习计划 V3.1（7天闭环，基于AI）</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Tingfeng Li<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
