@@ -248,7 +248,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/10/algorithms/backtracking/2026-1-10-Permutation-backtracking/" data-id="cmk7tuhvj0001ys8tfw2w47zz" data-title="排列型回溯" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/10/algorithms/backtracking/2026-1-10-Permutation-backtracking/" data-id="cmk8gbsq8000eiw8t2vvxcegw" data-title="排列型回溯" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -480,11 +480,218 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/10/algorithms/backtracking/2026-1-10-backtracking-summary/" data-id="cmk7tuhvn0005ys8t1tcoa3w9" data-title="回溯总结篇" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/10/algorithms/backtracking/2026-1-10-backtracking-summary/" data-id="cmk8gbsqa000liw8tfib1hq1z" data-title="回溯总结篇" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-backend/ssm/springboot/2026-1-10-springboot-day02 " class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/10/backend/ssm/springboot/2026-1-10-springboot-day02%20/" class="article-date">
+  <time class="dt-published" datetime="2026-01-09T16:00:00.000Z" itemprop="datePublished">2026-01-10</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>►<a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/SpringBoot/">SpringBoot</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2026/01/10/backend/ssm/springboot/2026-1-10-springboot-day02%20/">Spring Boot + SSMP 基础实战与问题复盘</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>本文基于一次完整的 Spring Boot 基础项目实践，总结了从<strong>实体类 → 数据层 → 业务层 → 表现层 → 前后端联调</strong>的开发流程，并重点记录了在整合 MyBatis-Plus、JUnit、分页插件等过程中遇到的典型问题及解决方案，作为后续复盘与查错参考。</p>
+</blockquote>
+<p>项目采用 <strong>单体架构（非前后端分离）</strong>，以熟悉 Spring Boot + MyBatis-Plus 的基础开发模式为目标。</p>
+<h2 id="一、实体类开发（Entity）"><a href="#一、实体类开发（Entity）" class="headerlink" title="一、实体类开发（Entity）"></a>一、实体类开发（Entity）</h2><h3 id="1-数据库准备"><a href="#1-数据库准备" class="headerlink" title="1. 数据库准备"></a>1. 数据库准备</h3><ul>
+<li>创建业务表（如 <code>tbl_book</code>）</li>
+<li>初始化测试数据</li>
+</ul>
+<h3 id="2-实体类创建"><a href="#2-实体类创建" class="headerlink" title="2. 实体类创建"></a>2. 实体类创建</h3><ul>
+<li>根据表结构创建实体类</li>
+<li>使用 <strong>Lombok</strong> 简化样板代码（getter &#x2F; setter &#x2F; toString 等）</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@Data</span><br><span class="line">public class Book &#123;</span><br><span class="line">    private Long id;</span><br><span class="line">    private String type;</span><br><span class="line">    private String name;</span><br><span class="line">    private String description;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="二、数据层开发（CRUD）"><a href="#二、数据层开发（CRUD）" class="headerlink" title="二、数据层开发（CRUD）"></a>二、数据层开发（CRUD）</h2><h3 id="技术选型"><a href="#技术选型" class="headerlink" title="技术选型"></a>技术选型</h3><ul>
+<li>ORM 框架：<strong>MyBatis-Plus</strong></li>
+<li>数据源：<strong>Druid</strong></li>
+<li>测试框架：JUnit</li>
+</ul>
+<h3 id="核心步骤"><a href="#核心步骤" class="headerlink" title="核心步骤"></a>核心步骤</h3><ol>
+<li>引入 MyBatis-Plus Starter</li>
+<li>配置数据库连接信息</li>
+<li>配置 MP 相关属性<ul>
+<li>表名前缀（<code>table-prefix</code>）</li>
+<li>主键策略（<code>id-type</code>）</li>
+<li>SQL 日志（<code>log-impl</code>）</li>
+</ul>
+</li>
+<li>使用 <code>BaseMapper&lt;T&gt;</code> 快速完成 CRUD</li>
+<li>使用 <code>@Mapper</code> 或 <code>@MapperScan</code> 交给 Spring 管理</li>
+<li>编写 Mapper 测试类验证功能</li>
+</ol>
+<hr>
+<h2 id="三、问题复盘-①：测试类能运行，测试方法却报-NoSuchMethodError"><a href="#三、问题复盘-①：测试类能运行，测试方法却报-NoSuchMethodError" class="headerlink" title="三、问题复盘 ①：测试类能运行，测试方法却报 NoSuchMethodError"></a>三、问题复盘 ①：测试类能运行，测试方法却报 <code>NoSuchMethodError</code></h2><h3 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h3><ul>
+<li>直接运行测试类 ✔</li>
+<li>单独运行测试方法 ❌ 报错：<code>NoSuchMethodError</code></li>
+</ul>
+<h3 id="原因分析"><a href="#原因分析" class="headerlink" title="原因分析"></a>原因分析</h3><ul>
+<li><strong>Classpath 中存在多个 JUnit 版本</strong></li>
+<li>Spring Boot 默认引入的测试依赖与本地环境冲突</li>
+</ul>
+<h3 id="解决过程"><a href="#解决过程" class="headerlink" title="解决过程"></a>解决过程</h3><ul>
+<li>尝试在 <code>pom.xml</code> 中强制覆盖 JUnit 版本 → ❌ 无效</li>
+<li><strong>最终解决方案：降低 Spring Boot 版本</strong></li>
+</ul>
+<p>从 <strong>Spring Boot 4.x 降级到 Spring Boot 3.x</strong> 后问题消失</p>
+<blockquote>
+<p>结论：<br> <strong>测试相关问题优先排查：Spring Boot 版本 × Starter 版本 × IDE 运行方式</strong></p>
+</blockquote>
+<hr>
+<h2 id="四、问题复盘-②：Spring-Boot-3-MyBatis-Plus-启动时报-Mapper-Bean-异常"><a href="#四、问题复盘-②：Spring-Boot-3-MyBatis-Plus-启动时报-Mapper-Bean-异常" class="headerlink" title="四、问题复盘 ②：Spring Boot 3 + MyBatis-Plus 启动时报 Mapper Bean 异常"></a>四、问题复盘 ②：Spring Boot 3 + MyBatis-Plus 启动时报 Mapper Bean 异常</h2><h3 id="报错信息"><a href="#报错信息" class="headerlink" title="报错信息"></a>报错信息</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Invalid bean definition with name &#x27;xxxMapper&#x27;</span><br></pre></td></tr></table></figure>
+
+<h3 id="排查过程"><a href="#排查过程" class="headerlink" title="排查过程"></a>排查过程</h3><ul>
+<li><code>@Mapper</code> ✔</li>
+<li><code>@MapperScan</code> ✔</li>
+<li>包路径无误 ✔</li>
+</ul>
+<h3 id="根本原因"><a href="#根本原因" class="headerlink" title="根本原因"></a>根本原因</h3><p><strong>Spring Boot 3 与 MyBatis-Plus Starter 版本不兼容</strong></p>
+<h3 id="正确依赖方式"><a href="#正确依赖方式" class="headerlink" title="正确依赖方式"></a>正确依赖方式</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- Spring Boot 2.x --&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;com.baomidou&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;mybatis-plus-spring-starter&lt;/artifactId&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">&lt;!-- Spring Boot 3.x --&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;com.baomidou&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;mybatis-plus-spring-boot3-starter&lt;/artifactId&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>结论：<br> <strong>Spring Boot 3 必须使用 boot3 专用的 MyBatis-Plus Starter</strong></p>
+</blockquote>
+<hr>
+<h2 id="五、问题复盘-③：配置了-IdType-AUTO，却生成了“雪花-ID”"><a href="#五、问题复盘-③：配置了-IdType-AUTO，却生成了“雪花-ID”" class="headerlink" title="五、问题复盘 ③：配置了 IdType.AUTO，却生成了“雪花 ID”"></a>五、问题复盘 ③：配置了 <code>IdType.AUTO</code>，却生成了“雪花 ID”</h2><h3 id="现象-1"><a href="#现象-1" class="headerlink" title="现象"></a>现象</h3><ul>
+<li>实体类主键配置为 <code>IdType.AUTO</code></li>
+<li>插入后 ID 却像雪花算法生成</li>
+</ul>
+<h3 id="真正原因"><a href="#真正原因" class="headerlink" title="真正原因"></a>真正原因</h3><p>并非 AUTO 失效，而是：</p>
+<ul>
+<li>之前使用过 <strong>雪花 ID 策略</strong></li>
+<li>删除数据后，<strong>数据库的 <code>AUTO_INCREMENT</code> 未重置</strong></li>
+<li>产生了“脏 ID ”</li>
+</ul>
+<h3 id="解决方式"><a href="#解决方式" class="headerlink" title="解决方式"></a>解决方式</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ALTER TABLE tbl_book AUTO_INCREMENT = 1;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>结论：<br> <strong>主键策略问题，一定要同时检查：代码配置 + 数据库状态</strong></p>
+</blockquote>
+<hr>
+<h2 id="六、数据层开发（分页功能）"><a href="#六、数据层开发（分页功能）" class="headerlink" title="六、数据层开发（分页功能）"></a>六、数据层开发（分页功能）</h2><h3 id="MyBatis-Plus-分页-API"><a href="#MyBatis-Plus-分页-API" class="headerlink" title="MyBatis-Plus 分页 API"></a>MyBatis-Plus 分页 API</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">void testGetPage()&#123;</span><br><span class="line">    IPage&lt;Book&gt; page = new Page&lt;&gt;(2, 5);</span><br><span class="line">    bookMapper.selectPage(page, null);</span><br><span class="line"></span><br><span class="line">    System.out.println(page.getCurrent());</span><br><span class="line">    System.out.println(page.getSize());</span><br><span class="line">    System.out.println(page.getTotal());</span><br><span class="line">    System.out.println(page.getPages());</span><br><span class="line">    System.out.println(page.getRecords());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="分页参数说明"><a href="#分页参数说明" class="headerlink" title="分页参数说明"></a>分页参数说明</h3><ul>
+<li>当前页码</li>
+<li>每页条数</li>
+</ul>
+<h3 id="必须配置分页拦截器（由于分页是方言，为了提高扩展性，通过拦截器的方式实现）"><a href="#必须配置分页拦截器（由于分页是方言，为了提高扩展性，通过拦截器的方式实现）" class="headerlink" title="必须配置分页拦截器（由于分页是方言，为了提高扩展性，通过拦截器的方式实现）"></a>必须配置分页拦截器（由于分页是方言，为了提高扩展性，通过拦截器的方式实现）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">@Configuration</span><br><span class="line">public class MPConfig &#123;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    public MybatisPlusInterceptor mybatisPlusInterceptor()&#123;</span><br><span class="line">        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();</span><br><span class="line">        interceptor.addInnerInterceptor(new PaginationInnerInterceptor());</span><br><span class="line">        return interceptor;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="七、问题复盘-④：分页不生效"><a href="#七、问题复盘-④：分页不生效" class="headerlink" title="七、问题复盘 ④：分页不生效"></a>七、问题复盘 ④：分页不生效</h2><h3 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h3><ul>
+<li>MyBatis-Plus <strong>将分页能力拆分为插件</strong></li>
+<li>未引入解析 SQL 的依赖</li>
+</ul>
+<h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;com.baomidou&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;mybatis-plus-jsqlparser&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;3.5.15&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="八、数据层开发（条件查询）"><a href="#八、数据层开发（条件查询）" class="headerlink" title="八、数据层开发（条件查询）"></a>八、数据层开发（条件查询）</h2><h3 id="普通条件构造（存在风险）"><a href="#普通条件构造（存在风险）" class="headerlink" title="普通条件构造（存在风险）"></a>普通条件构造（存在风险）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">QueryWrapper&lt;Book&gt; qw = new QueryWrapper&lt;&gt;();</span><br><span class="line">qw.like(&quot;name&quot;, &quot;Spring&quot;);</span><br><span class="line">bookMapper.selectList(qw);</span><br></pre></td></tr></table></figure>
+
+<p>❌ 问题：字段名是字符串，<strong>编译期无法检查</strong></p>
+<hr>
+<h3 id="Lambda-条件构造（推荐）"><a href="#Lambda-条件构造（推荐）" class="headerlink" title="Lambda 条件构造（推荐）"></a>Lambda 条件构造（推荐）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">LambdaQueryWrapper&lt;Book&gt; lqw = new LambdaQueryWrapper&lt;&gt;();</span><br><span class="line">lqw.like(name != null, Book::getName, name);</span><br><span class="line">bookMapper.selectList(lqw);</span><br></pre></td></tr></table></figure>
+
+<p>✅ 优点：</p>
+<ul>
+<li>编译期安全</li>
+<li>支持条件开关</li>
+<li>重构友好</li>
+</ul>
+<hr>
+<h2 id="九、业务层开发（Service）"><a href="#九、业务层开发（Service）" class="headerlink" title="九、业务层开发（Service）"></a>九、业务层开发（Service）</h2><p>业务层职责：</p>
+<blockquote>
+<p><strong>组织业务逻辑，对数据层进行封装调用</strong></p>
+</blockquote>
+<p>开发步骤：</p>
+<ol>
+<li>定义 Service 接口</li>
+<li>编写 ServiceImpl</li>
+<li>注入 Mapper</li>
+<li>编写测试验证逻辑正确性</li>
+</ol>
+<hr>
+<h2 id="十、表现层开发（Controller）"><a href="#十、表现层开发（Controller）" class="headerlink" title="十、表现层开发（Controller）"></a>十、表现层开发（Controller）</h2><h3 id="核心工作"><a href="#核心工作" class="headerlink" title="核心工作"></a>核心工作</h3><ul>
+<li>编写 REST Controller</li>
+<li>接收参数</li>
+<li>调用业务层</li>
+<li>返回统一结果</li>
+</ul>
+<h3 id="参数接收注意点"><a href="#参数接收注意点" class="headerlink" title="参数接收注意点"></a>参数接收注意点</h3><ul>
+<li>JSON 实体：<code>@RequestBody</code></li>
+<li>路径变量：<code>@PathVariable</code></li>
+</ul>
+<p>使用 <strong>ApiFox</strong> 进行接口测试与调试。</p>
+<hr>
+<h2 id="十一、统一返回结果设计"><a href="#十一、统一返回结果设计" class="headerlink" title="十一、统一返回结果设计"></a>十一、统一返回结果设计</h2><p>为保证前后端交互一致性：</p>
+<ul>
+<li>封装统一响应对象</li>
+<li>包含：<ul>
+<li><code>code</code></li>
+<li><code>data</code></li>
+<li><code>msg</code></li>
+</ul>
+</li>
+<li>同时考虑异常场景</li>
+</ul>
+<hr>
+<h2 id="十二、前后端联调"><a href="#十二、前后端联调" class="headerlink" title="十二、前后端联调"></a>十二、前后端联调</h2><ul>
+<li><p>将前端静态资源拷贝到：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">resources/static</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Spring Boot 自动托管静态资源</p>
+</li>
+<li><p>实现简单的前后端一体化访问</p>
+</li>
+</ul>
+<hr>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>通过这次 Spring Boot 基础实战，我完成了：</p>
+<ul>
+<li>一条完整的 <strong>SSMP 开发链路</strong></li>
+<li>多个 <strong>真实问题的排查与解决</strong></li>
+<li>对 <strong>版本兼容性、插件机制、主键策略</strong> 的深入理解</li>
+</ul>
+<h2 id="学习资料与完整代码"><a href="#学习资料与完整代码" class="headerlink" title="学习资料与完整代码"></a>学习资料与完整代码</h2><p><strong>已整理并上传至 GitHub 仓库</strong></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/10/backend/ssm/springboot/2026-1-10-springboot-day02%20/" data-id="cmk8gbsqi001diw8t3zp14308" data-title="Spring Boot + SSMP 基础实战与问题复盘" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring-MVC/" rel="tag">Spring MVC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mybatis-plus/" rel="tag">mybatis-plus</a></li></ul>
 
     </footer>
   </div>
@@ -682,7 +889,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/09/algorithms/backtracking/2026-1-9-Combinatorial%20backtracking/" data-id="cmk7tuhvp0009ys8t1r7g6g6t" data-title="组合型回溯 + 剪枝：从子集枚举到条件收敛" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/09/algorithms/backtracking/2026-1-9-Combinatorial%20backtracking/" data-id="cmk8gbsqd000uiw8t1fwz3apb" data-title="组合型回溯 + 剪枝：从子集枚举到条件收敛" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -892,7 +1099,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/09/backend/ssm/springboot/2026-1-9-springboot-day01/" data-id="cmk7tuhx1005pys8tchprcwib" data-title="Spring Boot 基础入门与整合实践" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/09/backend/ssm/springboot/2026-1-9-springboot-day01/" data-id="cmk8gbsqk001kiw8thgmb1eil" data-title="Spring Boot 基础入门与整合实践" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1057,7 +1264,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/08/algorithms/backtracking/2026-1-8-backtracking-subset-practice/" data-id="cmk7tuhvp000ays8t3um1ctgl" data-title="子集型回溯方法论得应用（2026-01-08）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/08/algorithms/backtracking/2026-1-8-backtracking-subset-practice/" data-id="cmk8gbsqc000riw8t2sp35oaj" data-title="子集型回溯方法论得应用（2026-01-08）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1234,7 +1441,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/06/algorithms/backtracking/2026-1-6-backtracking-subset/" data-id="cmk7tuhvn0006ys8t4tj81bn8" data-title="子集型回溯（2026-01-06）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/06/algorithms/backtracking/2026-1-6-backtracking-subset/" data-id="cmk8gbsqa000niw8t2v2whwzb" data-title="子集型回溯（2026-01-06）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1349,7 +1556,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/06/misc/Spring%20+%20Redis%20%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92%20V3.1%EF%BC%887%E5%A4%A9%E9%97%AD%E7%8E%AF%EF%BC%8C%E5%9F%BA%E4%BA%8EAI%EF%BC%89/" data-id="cmk7tuhvc0000ys8tg5bg01zn" data-title="Spring + Redis 学习计划 V3.1（7天闭环，基于AI）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/06/misc/Spring%20+%20Redis%20%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92%20V3.1%EF%BC%887%E5%A4%A9%E9%97%AD%E7%8E%AF%EF%BC%8C%E5%9F%BA%E4%BA%8EAI%EF%BC%89/" data-id="cmk8gbspt0000iw8th0do9vpc" data-title="Spring + Redis 学习计划 V3.1（7天闭环，基于AI）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1526,7 +1733,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/05/algorithms/binary-tree/2026-1-5-binary-tree-level-order-traversal/" data-id="cmk7tuhwd0035ys8ta4axe9yt" data-title="二叉树的层序遍历总结（2026-01-05）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/05/algorithms/binary-tree/2026-1-5-binary-tree-level-order-traversal/" data-id="cmk8gbsq9000giw8t6bgfamcl" data-title="二叉树的层序遍历总结（2026-01-05）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1764,248 +1971,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/04/algorithms/binary-tree/2026-1-4-lowestCommonAncestor/" data-id="cmk7tuhwc0032ys8t2jobckea" data-title="二叉树的最近公共祖先（LCA）问题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/04/algorithms/binary-tree/2026-1-4-lowestCommonAncestor/" data-id="cmk8gbsq7000aiw8tbts0h009" data-title="二叉树的最近公共祖先（LCA）问题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-backend/ssm/MyBatis/2026-1-4-mybatis-day07" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2026/01/04/backend/ssm/MyBatis/2026-1-4-mybatis-day07/" class="article-date">
-  <time class="dt-published" datetime="2026-01-03T16:00:00.000Z" itemprop="datePublished">2026-01-04</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>►<a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/01/04/backend/ssm/MyBatis/2026-1-4-mybatis-day07/">MyBatis XML 映射器学习复盘：结合实践 Bug</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>在学习 MyBatis XML 映射器之前，我以为这部分内容只是“把 SQL 写进 XML”。<br> 但真正动手后，我发现：</p>
-<p><strong>我遇到的大多数问题，都不是 SQL 写错，而是「我并不知道 MyBatis 在什么时候、用什么规则去解析这些 XML」。</strong></p>
-<p>这篇文章并不是官方文档的复述，而是<strong>我在学习过程中真实遇到的问题、修复的 Bug，以及最终形成理解总结。</strong></p>
-</blockquote>
-<hr>
-<h2 id="Bug-：为什么必须用-Param，不然-XML-对不上？"><a href="#Bug-：为什么必须用-Param，不然-XML-对不上？" class="headerlink" title="Bug ：为什么必须用 @Param，不然 XML 对不上？"></a>Bug ：为什么必须用 <code>@Param</code>，不然 XML 对不上？</h2><h3 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">query(String name, String status);</span><br><span class="line">#&#123;name&#125;  // 报错</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h3 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h3><ul>
-<li>方法传入的形参名不保存，MyBatis 默认参数名为 <code>param1 / param2</code></li>
-</ul>
-<hr>
-<h3 id="正确做法"><a href="#正确做法" class="headerlink" title="正确做法"></a>正确做法</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">query(@Param(&quot;name&quot;) String name,</span><br><span class="line">      @Param(&quot;status&quot;) String status);</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h3 id="最终结论"><a href="#最终结论" class="headerlink" title="最终结论"></a>最终结论</h3><blockquote>
-<p><strong>多参数方法，一律使用 <code>@Param</code>，及规范又易读</strong></p>
-</blockquote>
-<hr>
-<h2 id="XML-映射器整体结构认知"><a href="#XML-映射器整体结构认知" class="headerlink" title="XML 映射器整体结构认知"></a>XML 映射器整体结构认知</h2><p>一个 SQL 映射文件中，真正重要的顶级元素并不多（按推荐顺序）：</p>
-<ul>
-<li><code>resultMap</code>：结果集到对象的映射规则（最强大、最复杂）</li>
-<li><code>sql</code>：可复用的 SQL 片段</li>
-<li><code>select</code></li>
-<li><code>insert</code></li>
-<li><code>update</code></li>
-<li><code>delete</code></li>
-</ul>
-<p><strong>核心思想只有一个：</strong></p>
-<blockquote>
-<p><strong>Mapper XML 的职责是：定义 SQL + 描述 SQL 执行结果如何映射成 Java 对象。</strong></p>
-</blockquote>
-<hr>
-<h2 id="select：最常用，也最容易被“想简单”的地方"><a href="#select：最常用，也最容易被“想简单”的地方" class="headerlink" title="select：最常用，也最容易被“想简单”的地方"></a>select：最常用，也最容易被“想简单”的地方</h2><p>一个最基本的查询如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;select id=&quot;selectById&quot; resultType=&quot;com.tingfeng.mybatis.pojo.User&quot;&gt;</span><br><span class="line">  select * from tb_user where id = #&#123;id&#125;</span><br><span class="line">&lt;/select&gt;</span><br></pre></td></tr></table></figure>
-
-<h3 id="的本质理解"><a href="#的本质理解" class="headerlink" title="#{} 的本质理解"></a><code>#&#123;&#125;</code> 的本质理解</h3><p><code>#&#123;id&#125;</code> 并不是字符串拼接，而是 <strong>预编译参数占位符</strong>，底层等价于 JDBC：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String sql = &quot;select * from tb_user where id = ?&quot;;</span><br><span class="line">PreparedStatement ps = conn.prepareStatement(sql);</span><br><span class="line">ps.setInt(1, id);</span><br></pre></td></tr></table></figure>
-
-<p><strong>结论</strong>：</p>
-<ul>
-<li><code>#&#123;&#125;</code> 安全（防 SQL 注入）</li>
-<li><code>#&#123;&#125;</code> 会使用 <code>PreparedStatement</code></li>
-</ul>
-<hr>
-<h3 id="select-的核心属性"><a href="#select-的核心属性" class="headerlink" title="select 的核心属性"></a>select 的核心属性</h3><table>
-<thead>
-<tr>
-<th>属性</th>
-<th>工程级理解</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>parameterType</code></td>
-<td>可省略，MyBatis 可通过参数类型推断</td>
-</tr>
-<tr>
-<td><code>resultType</code></td>
-<td>适合字段名与属性名一致的简单映射</td>
-</tr>
-<tr>
-<td><code>resultMap</code></td>
-<td>字段名不一致 &#x2F; 复杂映射时使用（二选一）</td>
-</tr>
-<tr>
-<td><code>statementType</code></td>
-<td>默认 PREPARED，几乎不用改</td>
-</tr>
-<tr>
-<td><code>resultOrdered</code></td>
-<td>针对嵌套结果集的内存优化（进阶）</td>
-</tr>
-</tbody></table>
-<blockquote>
-<p><strong>resultType 和 resultMap 永远只能选一个</strong></p>
-</blockquote>
-<hr>
-<h2 id="insert-update-delete：关注事务与主键"><a href="#insert-update-delete：关注事务与主键" class="headerlink" title="insert &#x2F; update &#x2F; delete：关注事务与主键"></a>insert &#x2F; update &#x2F; delete：关注事务与主键</h2><h3 id="修改语句的共同点"><a href="#修改语句的共同点" class="headerlink" title="修改语句的共同点"></a>修改语句的共同点</h3><ul>
-<li>insert &#x2F; update &#x2F; delete <strong>都会修改数据库</strong></li>
-<li><strong>必须提交事务</strong>（<code>sqlSession.commit()</code>）</li>
-</ul>
-<p>这是我忽略了很多次的一点。</p>
-<hr>
-<h3 id="useGeneratedKeys：主键回填"><a href="#useGeneratedKeys：主键回填" class="headerlink" title="useGeneratedKeys：主键回填"></a>useGeneratedKeys：主键回填</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;insert id=&quot;insertUser&quot;</span><br><span class="line">        useGeneratedKeys=&quot;true&quot;</span><br><span class="line">        keyProperty=&quot;id&quot;&gt;</span><br><span class="line">  insert into tb_user(name, phone)</span><br><span class="line">  values(#&#123;name&#125;, #&#123;phone&#125;)</span><br><span class="line">&lt;/insert&gt;</span><br></pre></td></tr></table></figure>
-
-<p>执行完成后：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">user.getId(); // 已自动回填</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p><strong>最常用的主键获取方式</strong></p>
-</blockquote>
-<hr>
-<h3 id="selectKey：数据库不支持自增时的备用方案"><a href="#selectKey：数据库不支持自增时的备用方案" class="headerlink" title="selectKey：数据库不支持自增时的备用方案"></a>selectKey：数据库不支持自增时的备用方案</h3><ul>
-<li><code>BEFORE</code>：先生成 key，再 insert</li>
-<li><code>AFTER</code>：先 insert，再查询 key（类似 Oracle）</li>
-</ul>
-<hr>
-<h2 id="sql-标签：SQL-复用的本质是字符串拼接"><a href="#sql-标签：SQL-复用的本质是字符串拼接" class="headerlink" title="sql 标签：SQL 复用的本质是字符串拼接"></a>sql 标签：SQL 复用的本质是字符串拼接</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;sql id=&quot;userColumns&quot;&gt;</span><br><span class="line">  $&#123;alias&#125;.id, $&#123;alias&#125;.username</span><br><span class="line">&lt;/sql&gt;</span><br><span class="line">&lt;select id=&quot;selectUsers&quot; resultType=&quot;map&quot;&gt;</span><br><span class="line">  select</span><br><span class="line">    &lt;include refid=&quot;userColumns&quot;&gt;</span><br><span class="line">      &lt;property name=&quot;alias&quot; value=&quot;t1&quot;/&gt;</span><br><span class="line">    &lt;/include&gt;</span><br><span class="line">  from tb_user t1</span><br><span class="line">&lt;/select&gt;</span><br></pre></td></tr></table></figure>
-
-<h3 id="关键理解"><a href="#关键理解" class="headerlink" title="关键理解"></a>关键理解</h3><ul>
-<li><code>&lt;sql&gt;</code> 本质是 <strong>字符串模板</strong></li>
-<li>所以只能使用 <code>$&#123;&#125;</code>（字符串替换）</li>
-<li><strong>不能用于接收用户输入</strong></li>
-</ul>
-<p><strong>结论</strong>：</p>
-<ul>
-<li><code>$&#123;&#125;</code> 只用于 SQL 结构</li>
-<li><code>#&#123;&#125;</code> 只用于业务参数</li>
-</ul>
-<hr>
-<h2 id="参数传递机制：最容易踩坑，踩坑后要通过-sql-日志来分析"><a href="#参数传递机制：最容易踩坑，踩坑后要通过-sql-日志来分析" class="headerlink" title="参数传递机制：最容易踩坑，踩坑后要通过 sql 日志来分析"></a>参数传递机制：最容易踩坑，踩坑后要通过 sql 日志来分析</h2><h3 id="一个关键前提"><a href="#一个关键前提" class="headerlink" title="一个关键前提"></a>一个关键前提</h3><blockquote>
-<p><strong>Mapper 方法的形参名默认不会被保留下来！</strong></p>
-</blockquote>
-<p>编译后，参数名变成：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">param1 / param2 / arg0 / arg1</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h3 id="单参数为什么“随便写都能用”"><a href="#单参数为什么“随便写都能用”" class="headerlink" title="单参数为什么“随便写都能用”"></a>单参数为什么“随便写都能用”</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">User selectUser(int id);</span><br><span class="line">where id = #&#123;id&#125;</span><br></pre></td></tr></table></figure>
-
-<p>因为 <strong>只有一个参数，不存在歧义</strong>。</p>
-<hr>
-<h3 id="多参数的真实规则"><a href="#多参数的真实规则" class="headerlink" title="多参数的真实规则"></a>多参数的真实规则</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">User select(String name, String status);</span><br></pre></td></tr></table></figure>
-
-<p>错误写法：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">where name = #&#123;name&#125; and status = #&#123;status&#125;</span><br></pre></td></tr></table></figure>
-
-<p>正确写法（不推荐）：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">where name = #&#123;param1&#125; and status = #&#123;param2&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>推荐写法</strong>（易读，明确）：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">User select(@Param(&quot;name&quot;) String name,</span><br><span class="line">            @Param(&quot;status&quot;) String status);</span><br><span class="line">where name = #&#123;name&#125; and status = #&#123;status&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h3 id="foreach-中-collection-的真相"><a href="#foreach-中-collection-的真相" class="headerlink" title="foreach 中 collection 的真相"></a>foreach 中 collection 的真相</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">int batchInsert(@Param(&quot;users&quot;) List&lt;User&gt; users);</span><br><span class="line">&lt;foreach collection=&quot;users&quot; item=&quot;user&quot;&gt;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p><strong>collection 指的是映射过程中的“参数名”，不是 Java 变量名</strong></p>
-</blockquote>
-<hr>
-<h2 id="结果映射：自动映射-vs-resultMap"><a href="#结果映射：自动映射-vs-resultMap" class="headerlink" title="结果映射：自动映射 vs resultMap"></a>结果映射：自动映射 vs resultMap</h2><h3 id="自动映射的前提"><a href="#自动映射的前提" class="headerlink" title="自动映射的前提"></a>自动映射的前提</h3><ul>
-<li>列名 &#x3D;&#x3D; 属性名（忽略大小写）</li>
-<li>或开启下划线转驼峰：</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;setting name=&quot;mapUnderscoreToCamelCase&quot; value=&quot;true&quot;/&gt;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h3 id="resultMap-的使用场景"><a href="#resultMap-的使用场景" class="headerlink" title="resultMap 的使用场景"></a>resultMap 的使用场景</h3><ul>
-<li>列名与属性名完全不一致</li>
-<li>多表查询（列名冲突）</li>
-<li>嵌套对象 &#x2F; 集合映射</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;resultMap id=&quot;userMap&quot; type=&quot;User&quot;&gt;</span><br><span class="line">  &lt;id column=&quot;user_id&quot; property=&quot;id&quot;/&gt;</span><br><span class="line">  &lt;result column=&quot;user_name&quot; property=&quot;username&quot;/&gt;</span><br><span class="line">&lt;/resultMap&gt;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p><code>&lt;id&gt;</code> 与 <code>&lt;result&gt;</code> 的区别在于：<br> <strong>id 会被标记为对象标识，对缓存和嵌套映射有优化作用</strong></p>
-</blockquote>
-<hr>
-<h2 id="自动映射的工作机制"><a href="#自动映射的工作机制" class="headerlink" title="自动映射的工作机制"></a>自动映射的工作机制</h2><ul>
-<li>自动映射先执行</li>
-<li>手动 resultMap 后执行（可覆盖）</li>
-</ul>
-<p>自动映射等级：</p>
-<ul>
-<li><code>NONE</code></li>
-<li><code>PARTIAL</code>（默认）</li>
-<li><code>FULL</code></li>
-</ul>
-<hr>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h3 id="动态-SQL-XML-映射的实践原则"><a href="#动态-SQL-XML-映射的实践原则" class="headerlink" title="动态 SQL &#x2F; XML 映射的实践原则"></a>动态 SQL &#x2F; XML 映射的实践原则</h3><ol>
-<li>参数永远用 <code>#&#123;&#125;</code>，结构才用 <code>$&#123;&#125;</code></li>
-<li>多参数一律使用 <code>@Param</code></li>
-<li>字段不一致优先用别名，其次 resultMap</li>
-<li>insert&#x2F;update&#x2F;delete 记得提交事务</li>
-<li>通过 <strong>SQL 日志反推问题</strong>，而不是盯 XML 发呆</li>
-<li>MyBatis 并不“智能”，它只是<strong>严格执行规则</strong></li>
-</ol>
-<hr>
-<h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h2><p>通过这一阶段对 <strong>XML 映射器</strong> 的系统学习，我最大的收获不是记住了多少标签，而是：</p>
-<blockquote>
-<p><strong>真正理解了 MyBatis 是如何把 SQL、参数和 Java 对象串联起来的</strong></p>
-</blockquote>
-<p>回头看这些 Bug，我发现它们有一个共同点：</p>
-<blockquote>
-<p><strong>不是我不会写 SQL，而是我不知道 MyBatis 在“什么时候、用什么身份”去解析这些 XML。</strong></p>
-</blockquote>
-<p>当我开始用“框架视角”理解 MyBatis，而不是“语法视角”，这些问题才真正消失。</p>
-<hr>
-<h2 id="学习资料与完整代码"><a href="#学习资料与完整代码" class="headerlink" title="学习资料与完整代码"></a>学习资料与完整代码</h2><ul>
-<li>XML 映射器理论学习笔记</li>
-<li>可运行的 MyBatis Demo</li>
-</ul>
-<p><strong>已整理并上传至 GitHub 仓库（含 README 说明）</strong></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/04/backend/ssm/MyBatis/2026-1-4-mybatis-day07/" data-id="cmk7tuhwe003ays8t2lyict9s" data-title="MyBatis XML 映射器学习复盘：结合实践 Bug" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li></ul>
 
     </footer>
   </div>
@@ -2040,7 +2010,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" rel="tag">学习计划</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8E%92%E5%88%97/" rel="tag">排列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E5%90%88/" rel="tag">组合</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring-MVC/" rel="tag">Spring MVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis-plus/" rel="tag">mybatis-plus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" rel="tag">学习计划</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8E%92%E5%88%97/" rel="tag">排列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E5%90%88/" rel="tag">组合</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
     </div>
   </div>
 
@@ -2050,7 +2020,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/jdbc/" style="font-size: 12.5px;">jdbc</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mybatis/" style="font-size: 15px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12.5px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 17.5px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 12.5px;">子集</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 10px;">总结</a> <a href="/tags/%E6%8E%92%E5%88%97/" style="font-size: 10px;">排列</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12.5px;">深度优先遍历</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E7%BB%84%E5%90%88/" style="font-size: 10px;">组合</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12.5px;">记录</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 17.5px;">递归</a>
+      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/Spring/" style="font-size: 10px;">Spring</a> <a href="/tags/Spring-MVC/" style="font-size: 10px;">Spring MVC</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/jdbc/" style="font-size: 12.5px;">jdbc</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mybatis/" style="font-size: 15px;">mybatis</a> <a href="/tags/mybatis-plus/" style="font-size: 10px;">mybatis-plus</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12.5px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 17.5px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 12.5px;">子集</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 10px;">总结</a> <a href="/tags/%E6%8E%92%E5%88%97/" style="font-size: 10px;">排列</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12.5px;">深度优先遍历</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E7%BB%84%E5%90%88/" style="font-size: 10px;">组合</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12.5px;">记录</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 17.5px;">递归</a>
     </div>
   </div>
 
@@ -2080,15 +2050,15 @@
           </li>
         
           <li>
+            <a href="/2026/01/10/backend/ssm/springboot/2026-1-10-springboot-day02%20/">Spring Boot + SSMP 基础实战与问题复盘</a>
+          </li>
+        
+          <li>
             <a href="/2026/01/09/algorithms/backtracking/2026-1-9-Combinatorial%20backtracking/">组合型回溯 + 剪枝：从子集枚举到条件收敛</a>
           </li>
         
           <li>
             <a href="/2026/01/09/backend/ssm/springboot/2026-1-9-springboot-day01/">Spring Boot 基础入门与整合实践</a>
-          </li>
-        
-          <li>
-            <a href="/2026/01/08/algorithms/backtracking/2026-1-8-backtracking-subset-practice/">子集型回溯方法论得应用（2026-01-08）</a>
           </li>
         
       </ul>
