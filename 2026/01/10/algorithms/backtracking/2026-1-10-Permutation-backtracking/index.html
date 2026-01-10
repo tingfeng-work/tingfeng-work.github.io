@@ -4,16 +4,20 @@
   <meta charset="utf-8">
   
   
-  <title>标签: maven | 廷风的技术博客</title>
+  <title>排列型回溯 | 廷风的技术博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="记录 Java 后端学习与项目实践的技术博客">
-<meta property="og:type" content="website">
-<meta property="og:title" content="廷风的技术博客">
-<meta property="og:url" content="http://example.com/tags/maven/index.html">
+  <meta name="description" content="排列型回溯的本质是「每一层都可以从所有未使用的元素中重新选择」，顺序不同即视为不同答案，通常通过 used &#x2F; flag 数组 来记录当前路径中已使用的元素。   一、什么是排列型回溯？在回溯问题中，排列型问题有一个非常鲜明的特征：  元素相同，但顺序不同，算作不同答案 例如： [1, 2] 和 [2, 1] 是 两个不同的解    这与我们之前做过的两类问题形成了清晰对比：    类">
+<meta property="og:type" content="article">
+<meta property="og:title" content="排列型回溯">
+<meta property="og:url" content="http://example.com/2026/01/10/algorithms/backtracking/2026-1-10-Permutation-backtracking/index.html">
 <meta property="og:site_name" content="廷风的技术博客">
-<meta property="og:description" content="记录 Java 后端学习与项目实践的技术博客">
+<meta property="og:description" content="排列型回溯的本质是「每一层都可以从所有未使用的元素中重新选择」，顺序不同即视为不同答案，通常通过 used &#x2F; flag 数组 来记录当前路径中已使用的元素。   一、什么是排列型回溯？在回溯问题中，排列型问题有一个非常鲜明的特征：  元素相同，但顺序不同，算作不同答案 例如： [1, 2] 和 [2, 1] 是 两个不同的解    这与我们之前做过的两类问题形成了清晰对比：    类">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-01-10T05:00:00.000Z">
+<meta property="article:modified_time" content="2026-01-10T03:54:21.397Z">
 <meta property="article:author" content="Tingfeng Li">
+<meta property="article:tag" content="排列">
+<meta property="article:tag" content="回溯">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternate" href="/atom.xml" title="廷风的技术博客" type="application/atom+xml">
@@ -79,39 +83,195 @@
 </header>
 
       <div class="outer">
-        <section id="main">
-  
-  
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2026" class="archive-year">2026</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2026/01/01/backend/mysql/2026-1-1-mysql-day04-jdbc-maven/" class="archive-article-date">
-  <time class="dt-published" datetime="2026-01-01T12:30:00.000Z" itemprop="datePublished">1月 1</time>
+        <section id="main"><article id="post-algorithms/backtracking/2026-1-10-Permutation-backtracking" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/10/algorithms/backtracking/2026-1-10-Permutation-backtracking/" class="article-date">
+  <time class="dt-published" datetime="2026-01-10T05:00:00.000Z" itemprop="datePublished">2026-01-10</time>
 </a>
-      
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2026/01/01/backend/mysql/2026-1-1-mysql-day04-jdbc-maven/">Maven 与 JDBC 学习笔记：从依赖管理到数据库访问实践</a>
+    <h1 class="p-name article-title" itemprop="headline name">
+      排列型回溯
     </h1>
   
 
-    </header>
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>排列型回溯的本质是「<strong>每一层都可以从所有未使用的元素中重新选择</strong>」，顺序不同即视为不同答案，通常通过 <strong>used &#x2F; flag 数组</strong> 来记录当前路径中已使用的元素。</p>
+</blockquote>
+<hr>
+<h2 id="一、什么是排列型回溯？"><a href="#一、什么是排列型回溯？" class="headerlink" title="一、什么是排列型回溯？"></a>一、什么是排列型回溯？</h2><p>在回溯问题中，<strong>排列型问题</strong>有一个非常鲜明的特征：</p>
+<ul>
+<li><strong>元素相同，但顺序不同，算作不同答案</strong></li>
+<li>例如：<ul>
+<li><code>[1, 2]</code> 和 <code>[2, 1]</code> 是 <strong>两个不同的解</strong></li>
+</ul>
+</li>
+</ul>
+<p>这与我们之前做过的两类问题形成了清晰对比：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>是否关心顺序</th>
+<th>是否允许重复选</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>子集型</td>
+<td>❌ 不关心</td>
+<td>每个元素只选 &#x2F; 不选</td>
+</tr>
+<tr>
+<td>组合型</td>
+<td>❌ 不关心</td>
+<td>对于选或不选有约束条件</td>
+</tr>
+<tr>
+<td><strong>排列型</strong></td>
+<td>✅ 关心</td>
+<td><strong>每一轮可选任意当前轮次未使用元素</strong></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="二、排列型回溯的核心思想"><a href="#二、排列型回溯的核心思想" class="headerlink" title="二、排列型回溯的核心思想"></a>二、排列型回溯的核心思想</h2><p>从「<strong>枚举答案的角度</strong>」来看，排列型回溯有两个关键点：</p>
+<h3 id="每一层都在“选位置”，而不是“选元素范围”"><a href="#每一层都在“选位置”，而不是“选元素范围”" class="headerlink" title="每一层都在“选位置”，而不是“选元素范围”"></a>每一层都在“选位置”，而不是“选元素范围”</h3><ul>
+<li>第 0 位选谁？</li>
+<li>第 1 位选谁？</li>
+<li>第 2 位选谁？</li>
+</ul>
+<p>每一层都可以从 <strong>当前轮所有尚未使用的元素中选择</strong></p>
+<hr>
+<h3 id="必须显式记录「当前路径中已使用的元素」"><a href="#必须显式记录「当前路径中已使用的元素」" class="headerlink" title="必须显式记录「当前路径中已使用的元素」"></a>必须显式记录「当前路径中已使用的元素」</h3><p>因此，排列型回溯 <strong>一定需要</strong> 一个 <code>used / flag</code> 数组：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">used[i] = true  → nums[i] 已经在当前排列中使用过</span><br><span class="line">used[i] = false → 当前轮次仍可选择 nums[i]</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="三、基础题目分析"><a href="#三、基础题目分析" class="headerlink" title="三、基础题目分析"></a>三、基础题目分析</h2><h3 id="46-全排列（Permutations）"><a href="#46-全排列（Permutations）" class="headerlink" title="46. 全排列（Permutations）"></a>46. 全排列（Permutations）</h3><h4 id="问题特征"><a href="#问题特征" class="headerlink" title="问题特征"></a>问题特征</h4><ul>
+<li>目标：生成数组的所有排列</li>
+<li>终止条件：<strong>当前路径长度 &#x3D;&#x3D; nums.length</strong></li>
+<li>每一层：从所有 <code>used[i] == false</code> 的元素中选一个</li>
+</ul>
+<hr>
+<h4 id="核心实现思路"><a href="#核心实现思路" class="headerlink" title="核心实现思路"></a>核心实现思路</h4><ol>
+<li>使用 <code>path</code> 记录当前排列</li>
+<li>使用 <code>used[]</code> 标记哪些元素已被选</li>
+<li>当 <code>path.size() == nums.length</code> 时，记录答案</li>
+<li>回溯时恢复现场（<code>used[i] = false</code>）</li>
+</ol>
+<hr>
+<h4 id="关键点总结"><a href="#关键点总结" class="headerlink" title="关键点总结"></a>关键点总结</h4><ul>
+<li><strong>排列的深度 &#x3D; nums.length</strong></li>
+<li><strong>叶子节点数量 &#x3D; n!</strong></li>
+<li><code>used[]</code> 的作用是：<strong>保证每个元素在同一条路径中只出现一次</strong></li>
+</ul>
+<hr>
+<h3 id="51-N-皇后（N-Queens）"><a href="#51-N-皇后（N-Queens）" class="headerlink" title="51. N 皇后（N-Queens）"></a>51. N 皇后（N-Queens）</h3><p>这是一个<strong>非常经典的“受限排列问题”</strong>。</p>
+<hr>
+<h4 id="问题拆解"><a href="#问题拆解" class="headerlink" title="问题拆解"></a>问题拆解</h4><ul>
+<li>每一行只能放一个皇后</li>
+<li>每一列只能放一个皇后</li>
+<li>皇后不能在同一条对角线上</li>
+</ul>
+<hr>
+<h4 id="建模方式（非常关键）"><a href="#建模方式（非常关键）" class="headerlink" title="建模方式（非常关键）"></a>建模方式（非常关键）</h4><p>用一个一维数组 <code>queens</code> 表示棋盘状态：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">queens[row] = col</span><br></pre></td></tr></table></figure>
+
+<p>含义是：</p>
+<ul>
+<li>第 <code>row</code> 行</li>
+<li>第 <code>col</code> 列</li>
+<li>放置了一个皇后</li>
+</ul>
+<hr>
+<h4 id="为什么这是一个排列问题？"><a href="#为什么这是一个排列问题？" class="headerlink" title="为什么这是一个排列问题？"></a>为什么这是一个排列问题？</h4><ul>
+<li>行天然不重复（递归层数保证）</li>
+<li>列不能重复 → <code>queens</code> 本质是一个 <strong>列索引的全排列</strong></li>
+<li>对角线限制 → 给这个全排列 <strong>增加合法性约束</strong></li>
+</ul>
+<hr>
+<h4 id="对角线判断条件"><a href="#对角线判断条件" class="headerlink" title="对角线判断条件"></a>对角线判断条件</h4><p>若两个皇后在 <code>(r1, c1)</code> 和 <code>(r2, c2)</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">|r1 - r2| == |c1 - c2| → 在同一对角线</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="本质总结"><a href="#本质总结" class="headerlink" title="本质总结"></a>本质总结</h4><blockquote>
+<p><strong>N 皇后 &#x3D; 带约束条件的全排列问题</strong></p>
+</blockquote>
+<hr>
+<h2 id="四、扩展题目"><a href="#四、扩展题目" class="headerlink" title="四、扩展题目"></a>四、扩展题目</h2><h3 id="357-统计各位数字都不同的数字个数"><a href="#357-统计各位数字都不同的数字个数" class="headerlink" title="357. 统计各位数字都不同的数字个数"></a>357. 统计各位数字都不同的数字个数</h3><p>这道题虽然形式不同，但本质仍然是：</p>
+<ul>
+<li>在每一位上选数字</li>
+<li>同一个数字不能重复使用</li>
+<li>位数不同，形成不同答案</li>
+</ul>
+<p>本质是 <strong>多层排列 + 剪枝计数</strong>，而不是生成具体排列。</p>
+<hr>
+<h2 id="五、排列型回溯的时间复杂度"><a href="#五、排列型回溯的时间复杂度" class="headerlink" title="五、排列型回溯的时间复杂度"></a>五、排列型回溯的时间复杂度</h2><p>排列问题的时间复杂度通常非常直观：</p>
+<ul>
+<li><p><strong>等于叶子节点数量</strong></p>
+</li>
+<li><p>对于 n 个元素的全排列：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">时间复杂度 = O(n!) // 画树分析节点数量得到</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>这是排列问题不可避免的代价，因此：</p>
+<ul>
+<li>剪枝尤为重要</li>
+<li>约束条件越多，搜索空间越小</li>
+</ul>
+<hr>
+<h2 id="六、心得体会与方法论总结"><a href="#六、心得体会与方法论总结" class="headerlink" title="六、心得体会与方法论总结"></a>六、心得体会与方法论总结</h2><h3 id="排列型回溯的固定模板"><a href="#排列型回溯的固定模板" class="headerlink" title="排列型回溯的固定模板"></a>排列型回溯的固定模板</h3><ol>
+<li>路径长度固定（通常等于元素个数）</li>
+<li>每一层从 <strong>所有未使用元素中选择</strong></li>
+<li>使用 <code>used[] / flag[]</code> 记录使用状态</li>
+<li>回溯时一定要 <strong>恢复现场</strong></li>
+</ol>
+<hr>
+<h3 id="与前两类回溯的根本区别"><a href="#与前两类回溯的根本区别" class="headerlink" title="与前两类回溯的根本区别"></a>与前两类回溯的根本区别</h3><blockquote>
+<p><strong>是否允许在下一层重新选择之前没选过的元素</strong></p>
+</blockquote>
+<ul>
+<li>子集 &#x2F; 组合：「之前轮次选过，就不能再选」</li>
+<li>排列：「只要当前路径没用过，就可以选」</li>
+</ul>
+<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/10/algorithms/backtracking/2026-1-10-Permutation-backtracking/" data-id="cmk7tuhvj0001ys8tfw2w47zz" data-title="排列型回溯" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8E%92%E5%88%97/" rel="tag">排列</a></li></ul>
+
+    </footer>
   </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2026/01/10/algorithms/backtracking/2026-1-10-backtracking-summary/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">回溯总结篇</div>
+    </a>
+  
+</nav>
+
+  
 </article>
-  
-  
-    </div></section>
-  
 
 
 </section>
