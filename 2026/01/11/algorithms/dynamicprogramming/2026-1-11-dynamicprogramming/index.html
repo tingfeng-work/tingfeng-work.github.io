@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>动态规划：从回溯到记忆化搜索，再到递推 | 廷风的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="核心思想：当前状态的最优解，来源于之前状态的最优解  基础题目：198. 打家劫舍 扩展题目：  爬楼梯 使用最小花费爬楼梯 爬楼梯 II 打家劫舍 II   一、什么是动态规划？很多人第一次接触动态规划，都会被「状态转移方程」劝退。但实际上，动态规划并不是一种“新算法”，而是回溯的一种系统性优化。  动态规划 &#x3D; 回溯 + 去重 + 自底向上  理解动态规划，最自然的一条路径是：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="动态规划：从回溯到记忆化搜索，再到递推">
+<meta property="og:url" content="http://example.com/2026/01/11/algorithms/dynamicprogramming/2026-1-11-dynamicprogramming/index.html">
+<meta property="og:site_name" content="廷风的技术博客">
+<meta property="og:description" content="核心思想：当前状态的最优解，来源于之前状态的最优解  基础题目：198. 打家劫舍 扩展题目：  爬楼梯 使用最小花费爬楼梯 爬楼梯 II 打家劫舍 II   一、什么是动态规划？很多人第一次接触动态规划，都会被「状态转移方程」劝退。但实际上，动态规划并不是一种“新算法”，而是回溯的一种系统性优化。  动态规划 &#x3D; 回溯 + 去重 + 自底向上  理解动态规划，最自然的一条路径是：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/assets/1.png">
+<meta property="article:published_time" content="2026-01-11T05:30:00.000Z">
+<meta property="article:modified_time" content="2026-01-11T04:32:18.105Z">
+<meta property="article:author" content="Tingfeng Li">
+<meta property="article:tag" content="记忆化搜索">
+<meta property="article:tag" content="递推">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/assets/1.png">
+  
+    <link rel="alternate" href="/atom.xml" title="廷风的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">廷风的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Java 后端开发</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-algorithms/dynamicprogramming/2026-1-11-dynamicprogramming" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/11/algorithms/dynamicprogramming/2026-1-11-dynamicprogramming/" class="article-date">
+  <time class="dt-published" datetime="2026-01-11T05:30:00.000Z" itemprop="datePublished">2026-01-11</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      动态规划：从回溯到记忆化搜索，再到递推
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p><strong>核心思想</strong>：当前状态的最优解，来源于之前状态的最优解</p>
+</blockquote>
+<p><strong>基础题目</strong>：198. 打家劫舍</p>
+<p><strong>扩展题目</strong>：</p>
+<ul>
+<li>爬楼梯</li>
+<li>使用最小花费爬楼梯</li>
+<li>爬楼梯 II</li>
+<li>打家劫舍 II</li>
+</ul>
+<hr>
+<h2 id="一、什么是动态规划？"><a href="#一、什么是动态规划？" class="headerlink" title="一、什么是动态规划？"></a>一、什么是动态规划？</h2><p>很多人第一次接触动态规划，都会被「状态转移方程」劝退。但实际上，<strong>动态规划并不是一种“新算法”，而是回溯的一种系统性优化</strong>。</p>
+<blockquote>
+<p>动态规划 &#x3D; 回溯 + 去重 + 自底向上</p>
+</blockquote>
+<p>理解动态规划，最自然的一条路径是：</p>
+<blockquote>
+<p><strong>回溯 → 记忆化搜索 → 递推（DP）</strong></p>
+</blockquote>
+<p>下面我们通过「打家劫舍」这个经典问题，完整走一遍这条路径。</p>
+<hr>
+<h2 id="二、从回溯开始：暴力-DFS-的本质"><a href="#二、从回溯开始：暴力-DFS-的本质" class="headerlink" title="二、从回溯开始：暴力 DFS 的本质"></a>二、从回溯开始：暴力 DFS 的本质</h2><p>以 <strong>198. 打家劫舍</strong> 为例：</p>
+<ul>
+<li>每一间房子：<strong>选 or 不选</strong></li>
+<li>不能选相邻的房子</li>
+</ul>
+<p>我们从“最后一个房子”开始思考，定义：</p>
+<blockquote>
+<p><strong>dfs(i)</strong>：考虑前 <code>i</code> 个房子，能偷到的最大金额</p>
+</blockquote>
+<p>那么对于第 <code>i</code> 个房子：</p>
+<ul>
+<li>不偷：最大金额 &#x3D; <code>dfs(i - 1)</code></li>
+<li>偷：最大金额 &#x3D; <code>dfs(i - 2) + nums[i]</code></li>
+</ul>
+<p>得到递归公式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dfs(i) = max(dfs(i - 1), dfs(i - 2) + nums[i])</span><br></pre></td></tr></table></figure>
+
+<p>但问题也随之而来：<strong>大量重复计算</strong>。</p>
+<p><img src="/assets/1.png" alt="1"></p>
+<p>可以看到：</p>
+<ul>
+<li><code>dfs(2)</code> 被计算了多次</li>
+<li><code>dfs(1)</code> 被计算了更多次</li>
+</ul>
+<p>这正是 <strong>动态规划要解决的核心问题：重复子问题</strong></p>
+<hr>
+<h2 id="三、记忆化搜索：给回溯加“缓存”"><a href="#三、记忆化搜索：给回溯加“缓存”" class="headerlink" title="三、记忆化搜索：给回溯加“缓存”"></a>三、记忆化搜索：给回溯加“缓存”</h2><p>回溯的问题不在于“递归”，而在于 <strong>重复递归</strong>。</p>
+<p>解决方法也很直接：</p>
+<blockquote>
+<p><strong>算过的结果，存下来，下次直接用</strong></p>
+</blockquote>
+<p>这就是 <strong>记忆化搜索（Memoization）</strong>。</p>
+<h3 id="Java-示例"><a href="#Java-示例" class="headerlink" title="Java 示例"></a>Java 示例</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">private int dfs(int i, int[] nums, int[] cache) &#123;</span><br><span class="line">    if (i &lt; 0) &#123;</span><br><span class="line">        return 0;</span><br><span class="line">    &#125;</span><br><span class="line">    if (cache[i] != -1) &#123;</span><br><span class="line">    	// 之前计算过,直接返回</span><br><span class="line">        return cache[i];</span><br><span class="line">    &#125;</span><br><span class="line">    // 之前没算过，将当前结果缓存</span><br><span class="line">    cache[i] = Math.max(</span><br><span class="line">        dfs(i - 1, nums, cache),</span><br><span class="line">        dfs(i - 2, nums, cache) + nums[i]</span><br><span class="line">    );</span><br><span class="line">    return cache[i];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时：</p>
+<ul>
+<li>时间复杂度：从指数级 ➜ <strong>O(n)</strong></li>
+<li>但仍然有：<ul>
+<li>递归栈空间</li>
+<li>cache 数组空间</li>
+</ul>
+</li>
+</ul>
+<p>接下来就是最后一步优化空间复杂度：<strong>递推</strong></p>
+<hr>
+<h2 id="四、从记忆化搜索到递推（真正的-DP）"><a href="#四、从记忆化搜索到递推（真正的-DP）" class="headerlink" title="四、从记忆化搜索到递推（真正的 DP）"></a>四、从记忆化搜索到递推（真正的 DP）</h2><p>观察记忆化搜索中的递归关系：</p>
+<ul>
+<li><code>dfs(2)</code> 依赖 <code>dfs(1)</code> 和 <code>dfs(0)</code></li>
+<li><code>dfs(3)</code> 依赖 <code>dfs(2)</code> 和 <code>dfs(1)</code></li>
+<li>……</li>
+</ul>
+<p>这说明：</p>
+<blockquote>
+<p><strong>状态之间的依赖顺序是确定的</strong></p>
+</blockquote>
+<p>既然如此，我们完全可以：</p>
+<ul>
+<li>不再“递”</li>
+<li>只保留“归”</li>
+<li><strong>从小到大计算每一个状态</strong></li>
+</ul>
+<h3 id="递推（DP）的三要素"><a href="#递推（DP）的三要素" class="headerlink" title="递推（DP）的三要素"></a>递推（DP）的三要素</h3><p>从记忆化搜索到递推，本质上完成了三件事：</p>
+<ol>
+<li><strong>状态数组（dp）</strong>：<code>dp[i]</code> 记录 <code>dfs(i)</code> 的结果</li>
+<li><strong>循环代替递归</strong>：从 <code>i = 0</code> 推到 <code>n</code></li>
+<li><strong>初始化代替递归边界</strong>：<code>dp[0]</code>、<code>dp[1]</code> 对应原来的递归边界</li>
+</ol>
+<h3 id="为什么叫“递推”？"><a href="#为什么叫“递推”？" class="headerlink" title="为什么叫“递推”？"></a>为什么叫“递推”？</h3><blockquote>
+<p>因为当前状态是 <strong>由之前状态推导出来的</strong></p>
+</blockquote>
+<p>在打家劫舍中：</p>
+<ul>
+<li>偷到第 <code>i</code> 间房子的最大金额<br> <strong>不是只由第 <code>i</code> 间房子决定的</strong></li>
+<li>而是由：<ul>
+<li>第 <code>i-1</code> 间房子的最优解</li>
+<li>第 <code>i-2</code> 间房子的最优解<br> 共同决定</li>
+</ul>
+</li>
+</ul>
+<p>这正是动态规划中最核心的结构：</p>
+<blockquote>
+<p><strong>最优子结构</strong></p>
+</blockquote>
+<hr>
+<h2 id="五、空间优化：从-O-n-到-O-1"><a href="#五、空间优化：从-O-n-到-O-1" class="headerlink" title="五、空间优化：从 O(n) 到 O(1)"></a>五、空间优化：从 O(n) 到 O(1)</h2><p>在打家劫舍中：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i] 只依赖 dp[i-1] 和 dp[i-2]</span><br></pre></td></tr></table></figure>
+
+<p>因此：</p>
+<ul>
+<li>不需要完整 dp 数组</li>
+<li>只需要保存「前两个状态」</li>
+</ul>
+<p> 空间复杂度可进一步优化为 <strong>O(1)</strong></p>
+<hr>
+<h2 id="六、结合具体题目总结-DP-模型"><a href="#六、结合具体题目总结-DP-模型" class="headerlink" title="六、结合具体题目总结 DP 模型"></a>六、结合具体题目总结 DP 模型</h2><h3 id="70-爬楼梯"><a href="#70-爬楼梯" class="headerlink" title="70. 爬楼梯"></a>70. 爬楼梯</h3><ul>
+<li><strong>状态定义</strong>：<code>dp[i]</code> &#x3D; 爬到第 i 阶的方法数</li>
+<li><strong>递推公式</strong>：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i] = dp[i - 1] + dp[i - 2]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>初始化</strong>：<ul>
+<li><code>dp[0] = 1</code></li>
+<li><code>dp[1] = 1</code></li>
+</ul>
+</li>
+<li><strong>答案</strong>：<code>dp[n]</code></li>
+</ul>
+<p>本质：<strong>斐波那契数列</strong></p>
+<hr>
+<h3 id="746-使用最小花费爬楼梯"><a href="#746-使用最小花费爬楼梯" class="headerlink" title="746. 使用最小花费爬楼梯"></a>746. 使用最小花费爬楼梯</h3><ul>
+<li><strong>状态定义</strong>：<code>dp[i]</code> &#x3D; 到达第 i 阶的最小花费</li>
+<li><strong>递推公式</strong>：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dp[i] = min(dp[i - 1] + cost[i - 1],</span><br><span class="line">            dp[i - 2] + cost[i - 2])</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>初始化</strong>：<ul>
+<li><code>dp[0] = 0</code></li>
+<li><code>dp[1] = 0</code></li>
+</ul>
+</li>
+<li><strong>答案</strong>：<code>dp[n]</code></li>
+</ul>
+<p>特点： <strong>不是计数，而是最小值优化</strong></p>
+<hr>
+<h3 id="3693-爬楼梯-II"><a href="#3693-爬楼梯-II" class="headerlink" title="3693. 爬楼梯 II"></a>3693. 爬楼梯 II</h3><ul>
+<li>一次可以跳 <strong>1 &#x2F; 2 &#x2F; 3</strong> 阶</li>
+<li><strong>递推公式</strong>：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i] = dp[i - 1] + dp[i - 2] + dp[i - 3]</span><br></pre></td></tr></table></figure>
+
+<p>本质变化只有：</p>
+<blockquote>
+<p><strong>当前状态依赖的“历史状态数量”变多了</strong>，计算 cost 的方式不同了</p>
+</blockquote>
+<hr>
+<h3 id="213-打家劫舍-II（环形）"><a href="#213-打家劫舍-II（环形）" class="headerlink" title="213. 打家劫舍 II（环形）"></a>213. 打家劫舍 II（环形）</h3><p>核心难点：</p>
+<blockquote>
+<p><strong>首尾不能同时选</strong></p>
+</blockquote>
+<p>经典处理方式：</p>
+<ul>
+<li>情况一：不偷第 0 间 ➜ 偷 <code>[1 … n-1]</code></li>
+<li>情况二：不偷第 n-1 间 ➜ 偷 <code>[0 … n-2]</code></li>
+<li>对两种情况分别做 <strong>198 打家劫舍</strong></li>
+<li>取最大值</li>
+</ul>
+<p> <strong>环形 DP → 拆成两个线性 DP</strong></p>
+<hr>
+<h2 id="七、心得与方法论总结"><a href="#七、心得与方法论总结" class="headerlink" title="七、心得与方法论总结"></a>七、心得与方法论总结</h2><h3 id="动态规划到底“动”在哪？"><a href="#动态规划到底“动”在哪？" class="headerlink" title="动态规划到底“动”在哪？"></a>动态规划到底“动”在哪？</h3><ul>
+<li>状态是变化的</li>
+<li>当前状态来自之前状态</li>
+<li>本质是 <strong>dfs 中的“归”</strong></li>
+</ul>
+<p>递推，其实就是：</p>
+<blockquote>
+<p><strong>省略 dfs 的“递”，只保留“归”</strong></p>
+</blockquote>
+<hr>
+<h3 id="想不出递推公式怎么办？"><a href="#想不出递推公式怎么办？" class="headerlink" title="想不出递推公式怎么办？"></a>想不出递推公式怎么办？</h3><p>一个非常实用的技巧：</p>
+<blockquote>
+<p><strong>回退一步，用回溯 + 记忆化搜索先写出来</strong></p>
+</blockquote>
+<ul>
+<li>回溯天然符合“选 or 不选”</li>
+<li>递归公式写出来后</li>
+<li>直接“翻译”为 dp 即可</li>
+</ul>
+<hr>
+<h3 id="什么时候应该想到动态规划？"><a href="#什么时候应该想到动态规划？" class="headerlink" title="什么时候应该想到动态规划？"></a>什么时候应该想到动态规划？</h3><p>当题目满足以下特征之一时，<strong>高度警惕 DP</strong>：</p>
+<ul>
+<li>当前结果依赖之前的结果</li>
+<li>有“最优”“最多”“最少”“方案数”等关键词</li>
+<li>存在大量重复子问题</li>
+<li>能清晰定义「状态」</li>
+</ul>
+<p>一句话总结：</p>
+<blockquote>
+<p><strong>只要当前状态是在之前状态的基础上演化而来，就可以尝试动态规划</strong></p>
+</blockquote>
+<hr>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>动态规划并不是死记模板，而是一种 <strong>从回溯中抽象出的系统性思维方式</strong>。<br>真正掌握 DP 的标志，不是会写状态转移方程，而是：</p>
+<blockquote>
+<p><strong>能从回溯自然地推导出递推</strong></p>
+</blockquote>
+<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/11/algorithms/dynamicprogramming/2026-1-11-dynamicprogramming/" data-id="cmkbbdw2a004l5w8tcr5hatqq" data-title="动态规划：从回溯到记忆化搜索，再到递推" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" rel="tag">记忆化搜索</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%80%92%E6%8E%A8/" rel="tag">递推</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2026/01/12/algorithms/dynamicprogramming/2026-1-12-dynamicprogramming-practice/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          从回溯到记忆化搜索到递推：动态规划巩固练习
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2026/01/10/algorithms/backtracking/2026-1-10-Permutation-backtracking/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">排列型回溯</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/ssm/">ssm</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/SpringBoot/">SpringBoot</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring-MVC/" rel="tag">Spring MVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis-plus/" rel="tag">mybatis-plus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" rel="tag">学习计划</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8E%92%E5%88%97/" rel="tag">排列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8B%E8%AF%95/" rel="tag">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" rel="tag">热部署</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E5%90%88/" rel="tag">组合</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" rel="tag">记忆化搜索</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E6%8E%A8/" rel="tag">递推</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%85%8D%E7%BD%AE/" rel="tag">配置</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/Spring/" style="font-size: 10px;">Spring</a> <a href="/tags/Spring-MVC/" style="font-size: 10px;">Spring MVC</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/jdbc/" style="font-size: 12.5px;">jdbc</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mybatis/" style="font-size: 15px;">mybatis</a> <a href="/tags/mybatis-plus/" style="font-size: 10px;">mybatis-plus</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12.5px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 17.5px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 12.5px;">子集</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 10px;">总结</a> <a href="/tags/%E6%8E%92%E5%88%97/" style="font-size: 10px;">排列</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B5%8B%E8%AF%95/" style="font-size: 10px;">测试</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12.5px;">深度优先遍历</a> <a href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" style="font-size: 10px;">热部署</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E7%BB%84%E5%90%88/" style="font-size: 10px;">组合</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12.5px;">记录</a> <a href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" style="font-size: 12.5px;">记忆化搜索</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 17.5px;">递归</a> <a href="/tags/%E9%80%92%E6%8E%A8/" style="font-size: 12.5px;">递推</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">一月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/12/">十二月 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/01/13/backend/ssm/springboot/2026-1-11-springboot-day03%20/">Spring Boot 配置与测试实战复盘</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/12/algorithms/dynamicprogramming/2026-1-12-dynamicprogramming-practice/">从回溯到记忆化搜索到递推：动态规划巩固练习</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/11/algorithms/dynamicprogramming/2026-1-11-dynamicprogramming/">动态规划：从回溯到记忆化搜索，再到递推</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/10/algorithms/backtracking/2026-1-10-Permutation-backtracking/">排列型回溯</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/10/algorithms/backtracking/2026-1-10-backtracking-summary/">回溯总结篇</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Tingfeng Li<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
