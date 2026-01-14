@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>DP 模型：从回溯语义到 0-1 背包与完全背包（2026-01-13） | 廷风的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="本文通过 494、322、2915 三道典型题目，总结 0-1 背包与完全背包的统一建模方式。重点在于如何从回溯语义自然推导出动态规划模型。  基础题目：01背包、完全背包 01背包变形： 494.目标和、2915.和为目标值的最长子序列的长度 完全背包变形： 322.零钱兑换  一、为什么要从“回溯语义”入手理解 DP？在学习动态规划的过程中，我一度陷入这样的问题：  明明知道这是 DP 题">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DP 模型：从回溯语义到 0-1 背包与完全背包（2026-01-13）">
+<meta property="og:url" content="http://example.com/2026/01/13/algorithms/dynamicprogramming/2026-1-13-dynamicprogramming-01%E8%83%8C%E5%8C%85%E4%B8%8E%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85%E6%A8%A1%E5%9E%8B/index.html">
+<meta property="og:site_name" content="廷风的技术博客">
+<meta property="og:description" content="本文通过 494、322、2915 三道典型题目，总结 0-1 背包与完全背包的统一建模方式。重点在于如何从回溯语义自然推导出动态规划模型。  基础题目：01背包、完全背包 01背包变形： 494.目标和、2915.和为目标值的最长子序列的长度 完全背包变形： 322.零钱兑换  一、为什么要从“回溯语义”入手理解 DP？在学习动态规划的过程中，我一度陷入这样的问题：  明明知道这是 DP 题">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-01-13T04:30:00.000Z">
+<meta property="article:modified_time" content="2026-01-13T03:48:35.569Z">
+<meta property="article:author" content="Tingfeng Li">
+<meta property="article:tag" content="01背包">
+<meta property="article:tag" content="完全背包">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="廷风的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">廷风的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Java 后端开发</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-algorithms/dynamicprogramming/2026-1-13-dynamicprogramming-01背包与完全背包模型" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/13/algorithms/dynamicprogramming/2026-1-13-dynamicprogramming-01%E8%83%8C%E5%8C%85%E4%B8%8E%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85%E6%A8%A1%E5%9E%8B/" class="article-date">
+  <time class="dt-published" datetime="2026-01-13T04:30:00.000Z" itemprop="datePublished">2026-01-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      DP 模型：从回溯语义到 0-1 背包与完全背包（2026-01-13）
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>本文通过 494、322、2915 三道典型题目，总结 <strong>0-1 背包与完全背包的统一建模方式</strong>。重点在于<strong>如何从回溯语义自然推导出动态规划模型</strong>。</p>
+</blockquote>
+<p><strong>基础题目</strong>：01背包、完全背包</p>
+<p><strong>01背包变形</strong>：</p>
+<p>494.目标和、2915.和为目标值的最长子序列的长度</p>
+<p><strong>完全背包变形</strong>：</p>
+<p>322.零钱兑换</p>
+<hr>
+<h2 id="一、为什么要从“回溯语义”入手理解-DP？"><a href="#一、为什么要从“回溯语义”入手理解-DP？" class="headerlink" title="一、为什么要从“回溯语义”入手理解 DP？"></a>一、为什么要从“回溯语义”入手理解 DP？</h2><p>在学习动态规划的过程中，我一度陷入这样的问题：</p>
+<ul>
+<li>明明知道这是 DP 题</li>
+<li>但一到写 <code>dp[i][j]</code> 就容易：<ul>
+<li>不知道从何下手</li>
+<li>理解错误状态含义</li>
+<li>写错初始化</li>
+</ul>
+</li>
+</ul>
+<p>后来我解题循序渐进旨在加深对回溯与DP的理解：</p>
+<blockquote>
+<p><strong>所有 DP 题，先用 <code>dfs(i, j)</code> 把“语义”想清楚，再翻译成 DP。</strong></p>
+</blockquote>
+<p>这篇博客正是围绕这一方法，总结 <strong>0-1 背包与完全背包</strong> 这两类最常见的 DP 模型。</p>
+<hr>
+<h2 id="二、统一视角：什么是“背包模型”？"><a href="#二、统一视角：什么是“背包模型”？" class="headerlink" title="二、统一视角：什么是“背包模型”？"></a>二、统一视角：什么是“背包模型”？</h2><p>从抽象层面看，背包问题的本质只有一句话：</p>
+<blockquote>
+<p><strong>枚举每个输入元素，决定“选或不选”，并维护一个容量约束。</strong></p>
+</blockquote>
+<h3 id="0-1-背包模型"><a href="#0-1-背包模型" class="headerlink" title="0-1 背包模型"></a>0-1 背包模型</h3><p><strong>问题描述</strong></p>
+<ul>
+<li>有 <code>n</code> 个物品</li>
+<li>第 <code>i</code> 个物品体积 <code>w[i]</code>，价值 <code>v[i]</code></li>
+<li>每个物品最多选一次</li>
+<li>在容量 <code>capacity</code> 内，求最大价值和</li>
+</ul>
+<h3 id="回溯语义三问（非常重要）"><a href="#回溯语义三问（非常重要）" class="headerlink" title="回溯语义三问（非常重要）"></a>回溯语义三问（非常重要）</h3><ul>
+<li>当前操作：枚举第 i 个物品选或不选：不选，剩余容量不变；选，容量减少 w[i]</li>
+<li>子问题：剩余容量为 c 时，前 i 个物品中的最大价值和</li>
+<li>下一个子问题：分类讨论：<ul>
+<li>当前操作不选：剩余容量 c 从前 i-1 个物品中得到的最大价值</li>
+<li>当前操作选：剩余容量 c - w[i] 从前 i-1 个物品得到的最大价值</li>
+</ul>
+</li>
+</ul>
+<h3 id="回溯表达式"><a href="#回溯表达式" class="headerlink" title="回溯表达式"></a>回溯表达式</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">int dfs(int i, int c, int[] w, int[] v) &#123;</span><br><span class="line">    if (i &lt; 0) return 0;</span><br><span class="line">    if (w[i] &gt; c) &#123;</span><br><span class="line">        return dfs(i - 1, c, w, v);</span><br><span class="line">    &#125;</span><br><span class="line">    return Math.max(</span><br><span class="line">        dfs(i - 1, c, w, v),                 // 不选</span><br><span class="line">        dfs(i - 1, c - w[i], w, v) + v[i]    // 选</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>一旦写出这段递归，DP 就已经成功了一半。</strong></p>
+<hr>
+<h3 id="完全背包模型"><a href="#完全背包模型" class="headerlink" title="完全背包模型"></a>完全背包模型</h3><p>完全背包与 0-1 背包只有一个本质区别：</p>
+<blockquote>
+<p><strong>当前物品是否允许在同一层决策中被再次使用</strong></p>
+</blockquote>
+<h4 id="回溯表达式-1"><a href="#回溯表达式-1" class="headerlink" title="回溯表达式"></a>回溯表达式</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dfs(i, c) = max(</span><br><span class="line">    dfs(i - 1, c),          // 不选</span><br><span class="line">    dfs(i, c - w[i]) + v[i] // 选，并且还能继续选 i</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h4 id="一个非常容易困惑的问题"><a href="#一个非常容易困惑的问题" class="headerlink" title="一个非常容易困惑的问题"></a>一个非常容易困惑的问题</h4><blockquote>
+<p>为什么不需要写 <code>dfs(i - 1, c - w[i])</code>？即选了一次后不在选了</p>
+</blockquote>
+<p>原因在于：</p>
+<ul>
+<li><code>dfs(i, c - w[i])</code> 中，下一层仍然可以选择“不选”，自然会递归到 <code>dfs(i - 1, c - w[i])</code></li>
+</ul>
+<p>也就是说：</p>
+<blockquote>
+<p><strong>“选一次就不再选”这个语义，已经被递归本身隐式表达了。</strong></p>
+</blockquote>
+<p>这是我在完全背包中收获最大的一个认知点。</p>
+<hr>
+<h2 id="三、常见背包问题的分类方式"><a href="#三、常见背包问题的分类方式" class="headerlink" title="三、常见背包问题的分类方式"></a>三、常见背包问题的分类方式</h2><p>在做题时，我会优先判断两个维度：</p>
+<h3 id="1-装不装满？"><a href="#1-装不装满？" class="headerlink" title="1. 装不装满？"></a>1. 装不装满？</h3><ul>
+<li><strong>至多装 capacity</strong></li>
+<li><strong>恰好装 capacity</strong></li>
+<li><strong>至少装 capacity</strong></li>
+</ul>
+<h3 id="2-求什么？"><a href="#2-求什么？" class="headerlink" title="2. 求什么？"></a>2. 求什么？</h3><ul>
+<li>方案数</li>
+<li>最大价值</li>
+<li>最小价值</li>
+</ul>
+<blockquote>
+<p>大部分 LeetCode 背包题，都可以被放入这个二维分类表中。</p>
+</blockquote>
+<hr>
+<h2 id="四、结合具体题目分析"><a href="#四、结合具体题目分析" class="headerlink" title="四、结合具体题目分析"></a>四、结合具体题目分析</h2><h3 id="494-目标和-——-0-1-背包（恰好装满，求方案数）"><a href="#494-目标和-——-0-1-背包（恰好装满，求方案数）" class="headerlink" title="494. 目标和 —— 0-1 背包（恰好装满，求方案数）"></a>494. 目标和 —— 0-1 背包（恰好装满，求方案数）</h3><h4 id="建模思路"><a href="#建模思路" class="headerlink" title="建模思路"></a>建模思路</h4><ul>
+<li>每个数只能用一次 → <strong>0-1 背包</strong></li>
+<li>每个数选或不选 → 枚举符号</li>
+<li>本质是：<strong>恰好凑出 target 的方案数</strong></li>
+</ul>
+<h4 id="回溯语义"><a href="#回溯语义" class="headerlink" title="回溯语义"></a>回溯语义</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dfs(i, t)：使用前 i 个数，凑出和为 t 的方案数</span><br></pre></td></tr></table></figure>
+
+<h4 id="转移关系"><a href="#转移关系" class="headerlink" title="转移关系"></a>转移关系</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dfs(i, t) = dfs(i - 1, t)           // 不选 nums[i]</span><br><span class="line">          + dfs(i - 1, t - nums[i]) // 选 nums[i]</span><br></pre></td></tr></table></figure>
+
+<p>在实现时，我采用了：</p>
+<ol>
+<li>回溯 + 记忆化搜索</li>
+<li>翻译为二维 DP</li>
+<li>再做空间优化</li>
+</ol>
+<blockquote>
+<p>这道题让我深刻体会到：<br> <strong><code>dp[i][j]</code> 的含义，必须和 dfs(i, j) 的返回值一一对应。</strong></p>
+</blockquote>
+<hr>
+<h3 id="322-零钱兑换-——-完全背包（恰好装满，求最小价值）"><a href="#322-零钱兑换-——-完全背包（恰好装满，求最小价值）" class="headerlink" title="322. 零钱兑换 —— 完全背包（恰好装满，求最小价值）"></a>322. 零钱兑换 —— 完全背包（恰好装满，求最小价值）</h3><h4 id="模型映射"><a href="#模型映射" class="headerlink" title="模型映射"></a>模型映射</h4><table>
+<thead>
+<tr>
+<th>零钱兑换</th>
+<th>背包模型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>amount</td>
+<td>capacity</td>
+</tr>
+<tr>
+<td>coin 面值</td>
+<td>物品体积</td>
+</tr>
+<tr>
+<td>使用枚数</td>
+<td>价值（每次 +1）</td>
+</tr>
+</tbody></table>
+<h4 id="为什么是完全背包？"><a href="#为什么是完全背包？" class="headerlink" title="为什么是完全背包？"></a>为什么是完全背包？</h4><p>因为：<strong>同一种硬币，在同一轮决策中可以被重复使用</strong></p>
+<h4 id="转移方程（核心）——-经过回溯、空间优化的结果"><a href="#转移方程（核心）——-经过回溯、空间优化的结果" class="headerlink" title="转移方程（核心）—— 经过回溯、空间优化的结果"></a>转移方程（核心）—— 经过回溯、空间优化的结果</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dp[j] = min(</span><br><span class="line">    dp[j],              // 不使用当前硬币</span><br><span class="line">    dp[j - coin] + 1    // 使用一次当前硬币</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="2915-和为目标值的最长子序列-——-0-1-背包（恰好装满，求最大价值）"><a href="#2915-和为目标值的最长子序列-——-0-1-背包（恰好装满，求最大价值）" class="headerlink" title="2915. 和为目标值的最长子序列 —— 0-1 背包（恰好装满，求最大价值）"></a>2915. 和为目标值的最长子序列 —— 0-1 背包（恰好装满，求最大价值）</h3><h4 id="抽象方式"><a href="#抽象方式" class="headerlink" title="抽象方式"></a>抽象方式</h4><ul>
+<li>每个元素只能选一次 → <strong>0-1 背包</strong></li>
+<li>nums[i] 作为“体积”</li>
+<li>每选一个元素，价值 +1</li>
+</ul>
+<h4 id="语义定义"><a href="#语义定义" class="headerlink" title="语义定义"></a>语义定义</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[j]：和为 j 时，能得到的最大长度</span><br></pre></td></tr></table></figure>
+
+<p>这道题让我意识到：</p>
+<blockquote>
+<p><strong>“价值”不一定是题目直接给的，而可以从题目中转化。</strong></p>
+</blockquote>
+<hr>
+<h2 id="五、空间优化：理解即可，不必强求"><a href="#五、空间优化：理解即可，不必强求" class="headerlink" title="五、空间优化：理解即可，不必强求"></a>五、空间优化：理解即可，不必强求</h2><p>在这三道题中，状态转移均只依赖于：</p>
+<ul>
+<li>上一层 <code>i - 1</code></li>
+<li>或当前层更小的 <code>j</code></li>
+</ul>
+<p>因此可以：</p>
+<ol>
+<li><code>dp[n][target] → dp[2][target]</code></li>
+<li>再进一步压缩为一维数组</li>
+</ol>
+<p>但我目前的态度是：</p>
+<blockquote>
+<p><strong>空间优化属于锦上添花，优先保证语义正确。</strong></p>
+</blockquote>
+<p>如果一维 DP 的依赖方向一时想不清楚，我会选择保留二维。</p>
+<hr>
+<h2 id="六、总结与反思"><a href="#六、总结与反思" class="headerlink" title="六、总结与反思"></a>六、总结与反思</h2><p>通过这几道题，我对动态规划的理解有了一个明显转变：</p>
+<ul>
+<li>DP 的核心不在公式</li>
+<li>而在 <strong>状态含义 + 转移语义</strong></li>
+</ul>
+<p>我目前仍然习惯：<strong>先写 dfs(i, j)，再翻译成 dp</strong></p>
+<p>但我也希望，随着练习的增多，能够逐渐做到：</p>
+<ul>
+<li>直接从问题 → 状态定义 → 转移方程</li>
+<li>减少对回溯的依赖</li>
+</ul>
+<p>这是我接下来刻意训练的方向。</p>
+<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/13/algorithms/dynamicprogramming/2026-1-13-dynamicprogramming-01%E8%83%8C%E5%8C%85%E4%B8%8E%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85%E6%A8%A1%E5%9E%8B/" data-id="cmkdskca80051ww8thyrkfx74" data-title="DP 模型：从回溯语义到 0-1 背包与完全背包（2026-01-13）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/01%E8%83%8C%E5%8C%85/" rel="tag">01背包</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" rel="tag">完全背包</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2026/01/14/misc/git-%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E6%95%B4%E7%90%86%E6%80%BB%E7%BB%93/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          git 开发工具整理总结
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2026/01/13/backend/project/2026-1-13-project-day01/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">项目结构搭建：从系统结构图到多模块 Maven 项目设计</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/ssm/">ssm</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/SpringBoot/">SpringBoot</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/01%E8%83%8C%E5%8C%85/" rel="tag">01背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring-MVC/" rel="tag">Spring MVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis-plus/" rel="tag">mybatis-plus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" rel="tag">学习计划</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" rel="tag">完全背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8E%92%E5%88%97/" rel="tag">排列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8B%E8%AF%95/" rel="tag">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" rel="tag">热部署</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E5%90%88/" rel="tag">组合</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" rel="tag">记忆化搜索</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E6%8E%A8/" rel="tag">递推</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%85%8D%E7%BD%AE/" rel="tag">配置</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/01%E8%83%8C%E5%8C%85/" style="font-size: 10px;">01背包</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/Spring/" style="font-size: 10px;">Spring</a> <a href="/tags/Spring-MVC/" style="font-size: 10px;">Spring MVC</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/jdbc/" style="font-size: 12.5px;">jdbc</a> <a href="/tags/maven/" style="font-size: 12.5px;">maven</a> <a href="/tags/mybatis/" style="font-size: 15px;">mybatis</a> <a href="/tags/mybatis-plus/" style="font-size: 10px;">mybatis-plus</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12.5px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 17.5px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 12.5px;">子集</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" style="font-size: 10px;">完全背包</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 12.5px;">总结</a> <a href="/tags/%E6%8E%92%E5%88%97/" style="font-size: 10px;">排列</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B5%8B%E8%AF%95/" style="font-size: 10px;">测试</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12.5px;">深度优先遍历</a> <a href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" style="font-size: 10px;">热部署</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E7%BB%84%E5%90%88/" style="font-size: 10px;">组合</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12.5px;">记录</a> <a href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" style="font-size: 12.5px;">记忆化搜索</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 17.5px;">递归</a> <a href="/tags/%E9%80%92%E6%8E%A8/" style="font-size: 12.5px;">递推</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">一月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/12/">十二月 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/01/14/misc/git-%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E6%95%B4%E7%90%86%E6%80%BB%E7%BB%93/">git 开发工具整理总结</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/13/algorithms/dynamicprogramming/2026-1-13-dynamicprogramming-01%E8%83%8C%E5%8C%85%E4%B8%8E%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85%E6%A8%A1%E5%9E%8B/">DP 模型：从回溯语义到 0-1 背包与完全背包（2026-01-13）</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/13/backend/project/2026-1-13-project-day01/">项目结构搭建：从系统结构图到多模块 Maven 项目设计</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/13/backend/ssm/springboot/2026-1-11-springboot-day03%20/">Spring Boot 配置与测试实战复盘</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/12/algorithms/dynamicprogramming/2026-1-12-dynamicprogramming-practice/">从回溯到记忆化搜索到递推：动态规划巩固练习</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Tingfeng Li<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

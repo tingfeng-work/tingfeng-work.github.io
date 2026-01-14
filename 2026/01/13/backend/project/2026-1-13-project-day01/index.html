@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>项目结构搭建：从系统结构图到多模块 Maven 项目设计 | 廷风的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="本文记录了我在餐饮管理系统项目中，从系统结构图设计到多模块 Maven 项目搭建的完整思考过程。   一、从产品原型到系统结构图在项目初期，我根据产品原型首先尝试绘制系统结构图，用于梳理系统的整体模块划分。 初版结构图的问题最初绘制的结构图中，各个模块是平级关系，主要关注功能划分，而忽略了：  模块之间的 层级关系 模块之间的 依赖方向 不同模块在工程中的 关注重点  在这一阶段，我逐渐意识到：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="项目结构搭建：从系统结构图到多模块 Maven 项目设计">
+<meta property="og:url" content="http://example.com/2026/01/13/backend/project/2026-1-13-project-day01/index.html">
+<meta property="og:site_name" content="廷风的技术博客">
+<meta property="og:description" content="本文记录了我在餐饮管理系统项目中，从系统结构图设计到多模块 Maven 项目搭建的完整思考过程。   一、从产品原型到系统结构图在项目初期，我根据产品原型首先尝试绘制系统结构图，用于梳理系统的整体模块划分。 初版结构图的问题最初绘制的结构图中，各个模块是平级关系，主要关注功能划分，而忽略了：  模块之间的 层级关系 模块之间的 依赖方向 不同模块在工程中的 关注重点  在这一阶段，我逐渐意识到：">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-01-12T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-01-13T09:38:11.917Z">
+<meta property="article:author" content="Tingfeng Li">
+<meta property="article:tag" content="maven">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="廷风的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">廷风的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Java 后端开发</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-backend/project/2026-1-13-project-day01" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/13/backend/project/2026-1-13-project-day01/" class="article-date">
+  <time class="dt-published" datetime="2026-01-12T16:00:00.000Z" itemprop="datePublished">2026-01-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      项目结构搭建：从系统结构图到多模块 Maven 项目设计
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>本文记录了我在餐饮管理系统项目中，从系统结构图设计到多模块 Maven 项目搭建的完整思考过程。</p>
+</blockquote>
+<hr>
+<h2 id="一、从产品原型到系统结构图"><a href="#一、从产品原型到系统结构图" class="headerlink" title="一、从产品原型到系统结构图"></a>一、从产品原型到系统结构图</h2><p>在项目初期，我根据产品原型首先尝试绘制系统结构图，用于梳理系统的整体模块划分。</p>
+<h3 id="初版结构图的问题"><a href="#初版结构图的问题" class="headerlink" title="初版结构图的问题"></a>初版结构图的问题</h3><p>最初绘制的结构图中，各个模块是<strong>平级关系</strong>，主要关注功能划分，而忽略了：</p>
+<ul>
+<li>模块之间的 <strong>层级关系</strong></li>
+<li>模块之间的 <strong>依赖方向</strong></li>
+<li>不同模块在工程中的 <strong>关注重点</strong></li>
+</ul>
+<p>在这一阶段，我逐渐意识到：<br> <strong>系统结构图不只是“模块列表”，而是模块间关系的表达。</strong></p>
+<hr>
+<h3 id="结构图的逐步演进"><a href="#结构图的逐步演进" class="headerlink" title="结构图的逐步演进"></a>结构图的逐步演进</h3><p>在不断调整后，我对结构图提出了更明确的目标：</p>
+<ul>
+<li>能体现 <strong>调用层级</strong></li>
+<li>能反映 <strong>依赖方向</strong></li>
+<li>能提示 <strong>开发过程中的关键关注点</strong>（如高并发、事务敏感、高频读等）</li>
+</ul>
+<p>在这一原则下，结构图经历了多次迭代，最终形成了第三版系统结构图，用于指导后续的工程搭建。</p>
+<hr>
+<h2 id="二、从系统结构图到项目模块规划"><a href="#二、从系统结构图到项目模块规划" class="headerlink" title="二、从系统结构图到项目模块规划"></a>二、从系统结构图到项目模块规划</h2><p>基于最终的系统结构图，我开始尝试将设计落地为实际的项目结构。</p>
+<h3 id="初始拆分思路"><a href="#初始拆分思路" class="headerlink" title="初始拆分思路"></a>初始拆分思路</h3><p>最初的出发点是：</p>
+<ul>
+<li>结构清晰</li>
+<li>各层职责独立</li>
+</ul>
+<p>因此，我按照经典的三层架构，将项目拆分为三个 Maven Module：</p>
+<ul>
+<li>controller</li>
+<li>service</li>
+<li>dao</li>
+</ul>
+<p>从“概念理解”的角度看，这样的拆分似乎是合理的。</p>
+<hr>
+<h2 id="三、对照教学案例后的关键反思"><a href="#三、对照教学案例后的关键反思" class="headerlink" title="三、对照教学案例后的关键反思"></a>三、对照教学案例后的关键反思</h2><p>在对照教学案例（如 sky-take-out）后，我发现一个非常明显的差异：</p>
+<h3 id="教学案例的模块划分方式"><a href="#教学案例的模块划分方式" class="headerlink" title="教学案例的模块划分方式"></a>教学案例的模块划分方式</h3><p>案例项目并 <strong>没有</strong> 将 controller &#x2F; service &#x2F; dao 拆分为独立 Maven Module，而是采用了：</p>
+<ul>
+<li><strong>pojo</strong>：实体类与数据模型模块</li>
+<li><strong>common</strong>：通用常量、工具类、公共定义</li>
+<li><strong>server</strong>：业务模块（包含 controller &#x2F; service &#x2F; mapper）</li>
+</ul>
+<p>并且：<strong>所有模块由一个 parent pom 统一管理</strong></p>
+<hr>
+<h3 id="我的拆分方式存在的问题"><a href="#我的拆分方式存在的问题" class="headerlink" title="我的拆分方式存在的问题"></a>我的拆分方式存在的问题</h3><p>对比之后，我逐渐意识到自己最初的设计存在以下隐患：</p>
+<ol>
+<li>controller &#x2F; service &#x2F; dao <strong>强耦合、同步演进</strong></li>
+<li>业务变化频繁，模块边界不稳定</li>
+<li>缺少统一的实体与通用模块<ul>
+<li>实体类、常量、工具类被迫分散在不同模块</li>
+<li>不可避免地出现模块间交叉 import</li>
+</ul>
+</li>
+<li>结构复杂，但并未带来工程收益</li>
+</ol>
+<p><strong>最终结果很可能是：模块越拆越乱。</strong></p>
+<hr>
+<h2 id="四、什么该拆-Module，什么不该拆"><a href="#四、什么该拆-Module，什么不该拆" class="headerlink" title="四、什么该拆 Module，什么不该拆"></a>四、什么该拆 Module，什么不该拆</h2><h3 id="Maven-Module-≠-逻辑分层"><a href="#Maven-Module-≠-逻辑分层" class="headerlink" title="Maven Module ≠ 逻辑分层"></a>Maven Module ≠ 逻辑分层</h3><p>在这一阶段，我对 Maven Module 的角色有了更清晰的认识：</p>
+<blockquote>
+<p><strong>Maven Module 的拆分依据不是 MVC 分层，而是工程属性。</strong></p>
+</blockquote>
+<p>更合理的判断标准是：</p>
+<ul>
+<li><strong>稳定性</strong>：是否长期稳定、不易变化</li>
+<li><strong>复用性</strong>：是否会被多个模块依赖</li>
+<li><strong>变化频率</strong>：是否频繁随业务调整</li>
+</ul>
+<hr>
+<h3 id="合理的拆分原则"><a href="#合理的拆分原则" class="headerlink" title="合理的拆分原则"></a>合理的拆分原则</h3><ul>
+<li><strong>稳定、通用、可复用的内容</strong><br> → 适合拆为 Maven Module（如 common、pojo）</li>
+<li><strong>强耦合、变化频繁的业务逻辑</strong><br> → 更适合作为 package 层次存在（controller &#x2F; service &#x2F; mapper）</li>
+</ul>
+<p>这一认知也解释了为什么教学案例会选择将 MVC 分层整合在 server 模块中。</p>
+<hr>
+<h2 id="五、项目搭建：从“能跑”到“规范”"><a href="#五、项目搭建：从“能跑”到“规范”" class="headerlink" title="五、项目搭建：从“能跑”到“规范”"></a>五、项目搭建：从“能跑”到“规范”</h2><p>在统一思路后，我按照案例的工程结构重新搭建了项目，形成了如下多模块 Maven 项目：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">backend-catering-management-system</span><br><span class="line">├── common</span><br><span class="line">├── pojo</span><br><span class="line">├── server</span><br><span class="line">└── pom.xml</span><br></pre></td></tr></table></figure>
+
+<h3 id="父工程的角色"><a href="#父工程的角色" class="headerlink" title="父工程的角色"></a>父工程的角色</h3><p>父工程（parent pom）主要职责是：</p>
+<ul>
+<li>统一管理依赖版本</li>
+<li>统一插件配置</li>
+<li>管理子模块（Aggregator）</li>
+</ul>
+<p>在这一过程中，我遇到了一个典型的 Maven 报错：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Aggregator projects require &#x27;pom&#x27; as packaging</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="问题与结论"><a href="#问题与结论" class="headerlink" title="问题与结论"></a>问题与结论</h3><p>通过该问题明确了一个关键规则：</p>
+<ul>
+<li><strong>聚合父工程的 packaging 必须是 <code>pom</code></strong></li>
+<li>父工程不参与业务代码编译</li>
+<li><strong>只有子模块才是 <code>jar</code></strong></li>
+</ul>
+<p>这一细节也进一步加深了我对 Maven 多模块项目结构的理解。</p>
+<hr>
+<h2 id="六、阶段性总结"><a href="#六、阶段性总结" class="headerlink" title="六、阶段性总结"></a>六、阶段性总结</h2><p>通过从系统结构图到项目搭建的完整过程，我对后端工程结构有了更清晰的认识：</p>
+<ul>
+<li>项目结构不能自由发挥，一切为了方便开发为主</li>
+<li>复杂的结构并不一定带来更好的工程效果</li>
+<li><strong>知道“为什么不这么拆”，比“我能拆得多细”更重要</strong></li>
+</ul>
+<hr>
+<h2 id="学习资料与完整代码"><a href="#学习资料与完整代码" class="headerlink" title="学习资料与完整代码"></a>学习资料与完整代码</h2><p><strong>已整理并上传至 GitHub 仓库</strong></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/13/backend/project/2026-1-13-project-day01/" data-id="cmkdskca80056ww8tflxa74na" data-title="项目结构搭建：从系统结构图到多模块 Maven 项目设计" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/maven/" rel="tag">maven</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2026/01/13/algorithms/dynamicprogramming/2026-1-13-dynamicprogramming-01%E8%83%8C%E5%8C%85%E4%B8%8E%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85%E6%A8%A1%E5%9E%8B/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          DP 模型：从回溯语义到 0-1 背包与完全背包（2026-01-13）
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2026/01/13/backend/ssm/springboot/2026-1-11-springboot-day03%20/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">Spring Boot 配置与测试实战复盘</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/ssm/">ssm</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/SpringBoot/">SpringBoot</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/01%E8%83%8C%E5%8C%85/" rel="tag">01背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring-MVC/" rel="tag">Spring MVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis-plus/" rel="tag">mybatis-plus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" rel="tag">学习计划</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" rel="tag">完全背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8E%92%E5%88%97/" rel="tag">排列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8B%E8%AF%95/" rel="tag">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" rel="tag">热部署</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E5%90%88/" rel="tag">组合</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" rel="tag">记忆化搜索</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E6%8E%A8/" rel="tag">递推</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%85%8D%E7%BD%AE/" rel="tag">配置</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/01%E8%83%8C%E5%8C%85/" style="font-size: 10px;">01背包</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/Spring/" style="font-size: 10px;">Spring</a> <a href="/tags/Spring-MVC/" style="font-size: 10px;">Spring MVC</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/jdbc/" style="font-size: 12.5px;">jdbc</a> <a href="/tags/maven/" style="font-size: 12.5px;">maven</a> <a href="/tags/mybatis/" style="font-size: 15px;">mybatis</a> <a href="/tags/mybatis-plus/" style="font-size: 10px;">mybatis-plus</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12.5px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 17.5px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 12.5px;">子集</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" style="font-size: 10px;">完全背包</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 12.5px;">总结</a> <a href="/tags/%E6%8E%92%E5%88%97/" style="font-size: 10px;">排列</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B5%8B%E8%AF%95/" style="font-size: 10px;">测试</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12.5px;">深度优先遍历</a> <a href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" style="font-size: 10px;">热部署</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E7%BB%84%E5%90%88/" style="font-size: 10px;">组合</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12.5px;">记录</a> <a href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" style="font-size: 12.5px;">记忆化搜索</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 17.5px;">递归</a> <a href="/tags/%E9%80%92%E6%8E%A8/" style="font-size: 12.5px;">递推</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">一月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/12/">十二月 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/01/14/misc/git-%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E6%95%B4%E7%90%86%E6%80%BB%E7%BB%93/">git 开发工具整理总结</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/13/algorithms/dynamicprogramming/2026-1-13-dynamicprogramming-01%E8%83%8C%E5%8C%85%E4%B8%8E%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85%E6%A8%A1%E5%9E%8B/">DP 模型：从回溯语义到 0-1 背包与完全背包（2026-01-13）</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/13/backend/project/2026-1-13-project-day01/">项目结构搭建：从系统结构图到多模块 Maven 项目设计</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/13/backend/ssm/springboot/2026-1-11-springboot-day03%20/">Spring Boot 配置与测试实战复盘</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/12/algorithms/dynamicprogramming/2026-1-12-dynamicprogramming-practice/">从回溯到记忆化搜索到递推：动态规划巩固练习</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Tingfeng Li<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

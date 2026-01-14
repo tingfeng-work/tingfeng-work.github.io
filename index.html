@@ -81,6 +81,555 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-misc/git-开发工具整理总结" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/14/misc/git-%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E6%95%B4%E7%90%86%E6%80%BB%E7%BB%93/" class="article-date">
+  <time class="dt-published" datetime="2026-01-14T06:20:00.000Z" itemprop="datePublished">2026-01-14</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2026/01/14/misc/git-%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E6%95%B4%E7%90%86%E6%80%BB%E7%BB%93/">git 开发工具整理总结</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>本文是在学习过程中，零星对 git 的学习的总结与汇总。</p>
+</blockquote>
+<h2 id="什么是-Git"><a href="#什么是-Git" class="headerlink" title="什么是 Git"></a>什么是 Git</h2><p>git 是基于 c 语言的分布式版本控制系统，与之对应的是集中式版本控制系统。这两者的不同：</p>
+<ul>
+<li>集中式版本控制系统：版本库存放在中央服务器，必须联网才能从中央服务器拉取最新版本，推送新版本到中央服务器。</li>
+<li>分布式版本控制系统：没有中央服务器，每个人的电脑都有一个完整的版本库。多人协作的实现是通过将各自修改的内容推送给对方。实际应用中，通常用一台电脑充当“中央服务器”，这个服务器只用来交换大家的修改信息，不存放版本库。</li>
+</ul>
+<p>git 的优势不单单是不必联网，还有强大的分支管理</p>
+<hr>
+<h2 id="版本库"><a href="#版本库" class="headerlink" title="版本库"></a>版本库</h2><p>版本库又名仓库（Repository），可以理解为一个目录，这个目录中的所有文件受 git 管理，每个文件的增删改，git 都能跟踪，以便根据需求还原。</p>
+<p>创建版本库非常简单，在需要交给 git 管理的目录下，执行 <code>git init</code> 命令即可。</p>
+<blockquote>
+<p>需要注意的是，目录名尽量不要包含中文。</p>
+</blockquote>
+<p>所有的版本控制系统，其实都只是跟踪文本文件的改动，例如 txt 文件、程序代码等等，不能监控图片、视频这种二进制文件（只能监控大小的改变，内容的改变不能监控）。</p>
+<h3 id="添加文件到版本库"><a href="#添加文件到版本库" class="headerlink" title="添加文件到版本库"></a>添加文件到版本库</h3><p>在 git 管理的目录下，通过 <code>git add &lt;filename&gt;</code> 添加文件到版本库，再通过 <code>git commit -m &quot;msg&quot;</code> 命令把文件提交到仓库。<code>git status</code> 命令可以查看仓库当前状态，会提示修改过的文件，以及准备提交的文件（add 的文件）。<code>git diff</code> 命令可以对比文件哪些地方变化了。</p>
+<p>注意添加和提交是两个操作。</p>
+<h3 id="小结（目前最常用命令）"><a href="#小结（目前最常用命令）" class="headerlink" title="小结（目前最常用命令）"></a>小结（目前最常用命令）</h3><ul>
+<li><code>git init</code>：将当前目录交给 git 管理</li>
+<li><code>git add &lt;filename&gt;</code>：将指定文件添加到版本库中</li>
+<li><code>git commit -m &quot;msg&quot;</code>：提交本次修改，msg 是对本次提交的说明</li>
+<li><code>git status</code>：查看仓库当前状态，哪些文件被修改了，哪些文件添加到版本库中但是还没有提交</li>
+<li><code>git diff</code>：查看文件修改内容</li>
+</ul>
+<hr>
+<h2 id="时光穿梭"><a href="#时光穿梭" class="headerlink" title="时光穿梭"></a>时光穿梭</h2><h3 id="版本回退"><a href="#版本回退" class="headerlink" title="版本回退"></a>版本回退</h3><p>同一仓库，经过多次提交后，难免记不清哪个版本修改了什么内容，所以在进行版本回退前，可以通过 <code>git log</code> 命令查看历史记录，可以看到包含了每次提交的 commit id：364… 以及谁提交的，以及日期和每次提交的说明。</p>
+<p><img src="D:/develop/tingfeng-work.github.io/source/_posts/misc/assets/1.png" alt="1"></p>
+<p>此外，我们还需要当前版本的信息，head 指向的就是当前版本，然后就可以定位需要回退的版本，通过 <code>git reset</code> 命令进行回退</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git reset --hard HEAD^</span><br></pre></td></tr></table></figure>
+
+<p>^ 表示上个版本，多个版本可用 <del>， HEAD</del>100 表示回退 100  个版本。</p>
+<p>–hard 参数表示回退上个版本的已提交状态，–soft 表示回退到上个版本的未提交状态，–mixed 回到上个版本已添加但是为提交的状态。</p>
+<p>也可以通过 <code>git reset --hard f35ed</code> 回退到具体版本，或者穿梭到未来的版本，注意这里 commit id 不用写全，只要让 git 能够找到唯一的版本即可。<code>git reflog</code> 命令显示 git 记录的每一次命令，通过这个可用查看版本号。</p>
+<blockquote>
+<p>git 的版本回退速度非常快，因为 git 内部有个指向当前版本的 HEAD 指针，回退版本时，仅仅是将 HEAD 指向指定版本</p>
+</blockquote>
+<h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><ul>
+<li><code>git reset --hard HEAD^/指定版本号</code>：回退到当前版本的上个版本或回退到指定版本号的版本</li>
+<li><code>git log</code> 与 <code>git reflog</code> ：命令查看历史记录，来找到需要回退的版本或版本号</li>
+</ul>
+<h3 id="工作区与暂存区"><a href="#工作区与暂存区" class="headerlink" title="工作区与暂存区"></a>工作区与暂存区</h3><p>工作区，就是电脑中实际操作的目录。</p>
+<p>版本库，是工作区中的隐藏目录 .git，其中存储 git 进行版本控制的很多信息，最重要的就是暂存区（stage）和 git 自动创建的 master 分支，以及指向 master 分支的 HEAD 指针。</p>
+<p><img src="D:/develop/tingfeng-work.github.io/source/_posts/misc/assets/2.png" alt="2"></p>
+<ul>
+<li><code>git add</code> 就是将<strong>文件修改</strong>添加到暂存区</li>
+<li><code>git commit</code> 就是将暂存区的所有内容添加到当前分支</li>
+</ul>
+<blockquote>
+<p>可以理解为：需要提交的文件修改通通放到暂存区，然后，一次性提交暂存区的所有修改。</p>
+</blockquote>
+<h3 id="管理修改"><a href="#管理修改" class="headerlink" title="管理修改"></a>管理修改</h3><p>git 管理的是对文件的修改而非文件，怎么理解？例如，在文件中新增一个 ‘a’ 字符，然后 <code>git add</code> 后又将字符改为了 ‘b’，暂存区中只知道你将新增了一个字符 ‘a’，而不知道它改为了 ‘b’，这是一个很好的证明 git 管理的是修改而非文件本身。</p>
+<h3 id="撤销修改"><a href="#撤销修改" class="headerlink" title="撤销修改"></a>撤销修改</h3><p>撤销修改有三种情形：</p>
+<ul>
+<li><p>只是对工作区进行了修改，还没有 add 与 commit：直接通过 <code>git restore &lt;file&gt;</code> 撤销修改</p>
+</li>
+<li><p>对工作区的修改，添加到了暂存区：通过 <code>git restore --staged &lt;file&gt;</code> 命令将文件从暂存区删除，然后通过  <code>git restore &lt;file&gt;</code> 撤销修改。 </p>
+</li>
+<li><p>对工作区的修改不仅添加到了缓存区，还提交到了分支当中：<code>git reset HEAD^</code> 进行版本回退。</p>
+</li>
+</ul>
+<blockquote>
+<p>git checkout –filename 命令是让文件回到最近一次 add 或 commit 时的状态</p>
+</blockquote>
+<h3 id="文件的删除"><a href="#文件的删除" class="headerlink" title="文件的删除"></a>文件的删除</h3><p>仓库中的文件的删除也是一次修改操作，git 会记录下来。如果想在 git 仓库中也实现文件的永久删除，可以用 <code>git rm filename</code> 命令，也可以用 <code>git add filename</code> 将这次修改提交到暂存区，然后再提交。</p>
+<p>如果要撤销这次删除操作，只需要用到上一节介绍的 <code>git checkout --filename</code> 命令</p>
+<blockquote>
+<p>这里需要注意的就是：没有被添加到仓库中的文件，git 是无法控制的</p>
+</blockquote>
+<hr>
+<h2 id="远程仓库"><a href="#远程仓库" class="headerlink" title="远程仓库"></a>远程仓库</h2><p>以上的功能，集中版本控制系统也能做到。真正体现 git 优势的是远程仓库，简单来说，就是将本地仓库托管到服务器上每天 24 小时开机，也可以从服务器中拉取别人的仓库，还能将提交推送到服务器上。</p>
+<p>GitHub 就是提供 Git 仓库托管服务的，你需要告诉远程仓库你的身份信息，谁都可以修改你的远程仓库。本地Git仓库和 GitHub 仓库之间的传输是通过 SSH 加密的，所以需要先设置 SSH 密钥。</p>
+<h3 id="添加远程库"><a href="#添加远程库" class="headerlink" title="添加远程库"></a>添加远程库</h3><p>在 github 上创建好远程仓库后，需要将它与本地仓库关联：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git remote add origin git@github.com:tingfeng-worK/project.git</span><br></pre></td></tr></table></figure>
+
+<p>如果没有设置 SSH 密钥这一步，本地推送就推送不到远程仓库，相当于没有登录。命令中的 origin 是默认的远程仓库名，将本地仓库的内容推送到远程仓库，用命令 <code>git push</code>，实际上是将当前分支 master 推送到远程库，第一次推送时需要加上 <code>-u</code> 参数，它表示 git 不但会把本地的 master 分支推送到远程库中新的 master 分支，还会将它们关联起来，以后推送或拉取时就可以简化命令。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push -u origin master</span><br></pre></td></tr></table></figure>
+
+<h3 id="从远程库克隆"><a href="#从远程库克隆" class="headerlink" title="从远程库克隆"></a>从远程库克隆</h3><p>上述添加远程库是将本地已有的仓库添加并关联到远程仓库，而将远程仓库拉取到本地用到的 git 命令是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> git@github.com:tingfeng-worK/project.git <span class="comment"># ssh 协议</span></span><br><span class="line"></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/tingfeng-work/project.git <span class="comment"># https 协议</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>Git 支持多协议，可以使用 https，但是使用 ssh 最快</p>
+</blockquote>
+<hr>
+<h2 id="分支管理"><a href="#分支管理" class="headerlink" title="分支管理"></a>分支管理</h2><p>Git 的分支管理是它的优势之一，无论创建、切换和删除分支，Git在1秒钟之内就能完成！无论你的版本库是1个文件还是1万个文件。</p>
+<p>分支管理就好比在一个项目中，你与队友并行在不同的分支上开发不同的功能，在这个分支上你想提交就提交，不会影响主分支，在功能完成后，将分支合并到主分支上，项目就同时具备了你俩开发的功能。</p>
+<h3 id="分支的创建与合并"><a href="#分支的创建与合并" class="headerlink" title="分支的创建与合并"></a>分支的创建与合并</h3><p>每次提交，git 都会 将它们串联为一条时间线，这个时间线就是一个分支，目前为止用到的都是 git 默认为我们常见的主分支 master，HEAD 严格来说不是指向提交，而是指向 master，而 master 指向每一次提交，如图所示：</p>
+<p><img src="D:/develop/tingfeng-work.github.io/source/_posts/misc/assets/3.png" alt="3"></p>
+<p>每次提交，master 分支都会向前移动一次，HEAD 指针也随之移动。</p>
+<p>当我们创建新的分支 dev 时，相当于创建了一个新的时间线，Git 会创建一个 dev 指针，指向 master 相同的提交，再把 HEAD 指向 dev，就表示当前分支在 dev 上：</p>
+<p><img src="D:/develop/tingfeng-work.github.io/source/_posts/misc/assets/4.png" alt="4"></p>
+<p>这也解释了为什么 git 新建分支很快，它只是新建了一个指针，同时更改了 HEAD 的指向。现在对工作区的修改提交之后，就是 dev 指针移动，而 master 指针不变了：</p>
+<p><img src="D:/develop/tingfeng-work.github.io/source/_posts/misc/assets/5.png" alt="5"></p>
+<p>在<code>dev</code>上的工作完成后，就可以把<code>dev</code>合并到<code>master</code>上。这种单时间线的合并最简单，就是直接把<code>master</code>指向<code>dev</code>的当前提交，就完成了合并。相关指令：</p>
+<ul>
+<li><code>git branch</code>：查看有哪些分支</li>
+<li><code>git branch &lt;name&gt;</code> ：新建分支</li>
+<li><code>git checkout &lt;name&gt;</code> 或 <code>git switch &lt;name&gt;</code>：切换分支</li>
+<li><code>git checkout -b &lt;name&gt;</code> 或 <code>git switch -c &lt;name&gt;</code>：创建并切换到新建的分支</li>
+<li><code>git merger &lt;name&gt;</code>：合并某分支到当前分支</li>
+<li><code>git branch -d &lt;name&gt;</code>：删除分支</li>
+</ul>
+<h3 id="冲突解决"><a href="#冲突解决" class="headerlink" title="冲突解决"></a>冲突解决</h3><p>上面描述最简单的单时间线的分支合并，考虑合并两个时间线的分支，这种情况下，git 无法执行快速合并，只能试着把各自的修改合并起来：</p>
+<p><img src="D:/develop/tingfeng-work.github.io/source/_posts/misc/assets/6.png" alt="6"></p>
+<p>但是，这种合并可能会有冲突，假设这两次提交针对文件的同一地方进行了修改，合并分支时就会产生冲突，这也很好理解，git 不知道到底要怎么修改，所以必须手动解决冲突后再提交，也就是明确告诉 git 要怎么改。手动解决后，再合并就会变为：</p>
+<p><img src="D:/develop/tingfeng-work.github.io/source/_posts/misc/assets/7.png" alt="7"></p>
+<p>可以看到这种合并会创建一次新的提交，这也很好理解，因为这是对文件的一次修改。</p>
+<ul>
+<li><code>git log --graph --pretty=oneline --abbrev-commit</code>：可以看到分支合并情况。</li>
+</ul>
+<h3 id="多人协作"><a href="#多人协作" class="headerlink" title="多人协作"></a>多人协作</h3><ul>
+<li>从远程仓库拉取分支进行本地修改</li>
+<li>修改后从本地推送分支，如果推送失败，说明远程仓库中已经有人对操作 1 中拉取的分支进行了修改，并提交到远程仓库了，这时需要需要进行合并。</li>
+<li>如果合并失败，就在本地解决冲突，然后再提交。</li>
+</ul>
+<p>这个过程会用到的指令：</p>
+<ul>
+<li><p><code>git remote -v</code>：查看远程仓库信息</p>
+</li>
+<li><p><code>git pull</code>：拉取并合并远程基于当前分支的提交，这个命令执行的前提是远程仓库上的分支与当前分支建立了联系。</p>
+</li>
+<li><p><code>git branch --set-upstream-to &lt;branch-name&gt; origin/&lt;branch-name&gt;</code>：将远程仓库中的分支与本地分支建立联系</p>
+</li>
+<li><p><code>git push origin &lt;branch-name&gt;</code>：从本地推送分支到远程仓库</p>
+</li>
+<li><p><code>git checkout -b branch-name origin/branch-name</code></p>
+</li>
+</ul>
+<h3 id="Rebase"><a href="#Rebase" class="headerlink" title="Rebase"></a>Rebase</h3><p>将本地未 push 的分叉提交历史整理为一条分支（一条直线）</p>
+<hr>
+<h2 id="标签"><a href="#标签" class="headerlink" title="标签"></a>标签</h2><p>标签就相当于一个有名字的不会动的指针，指向某一个 commit，方便进行版本控制。如果没有标签，想要跳转到指定的版本，需要通过 git log 找 commit 的 id，而且 id 还很长，所以标签就起到了快速找到指定版本的作用。</p>
+<h3 id="创建标签"><a href="#创建标签" class="headerlink" title="创建标签"></a>创建标签</h3><p>切换到需要打标签的提交，通过 <code>git tag &lt;name&gt;</code>，就实现打标签了，也可以指定 commit id 的方式打标签，同时指定 <code>git tag -a &lt;name&gt; -m &quot;msg&quot;</code> 参数可以对创建标签进行说明。<code>git tag</code> 查看所有标签，<code>git show &lt;tagname&gt;</code>查看指定标签。</p>
+<blockquote>
+<p>注意：标签总是和某个commit挂钩。如果这个commit既出现在master分支，又出现在dev分支，那么在这两个分支上都可以看到这个标签。</p>
+</blockquote>
+<h3 id="操作标签"><a href="#操作标签" class="headerlink" title="操作标签"></a>操作标签</h3><ul>
+<li>命令<code>git push origin &lt;tagname&gt;</code>可以推送一个本地标签；</li>
+<li>命令<code>git push origin --tags</code>可以推送全部未推送过的本地标签；</li>
+<li>命令<code>git tag -d &lt;tagname&gt;</code>可以删除一个本地标签；</li>
+<li>命令<code>git push origin :refs/tags/&lt;tagname&gt;</code>可以删除一个远程标签。</li>
+</ul>
+<hr>
+<h2 id="GitHub-开源项目"><a href="#GitHub-开源项目" class="headerlink" title="GitHub 开源项目"></a>GitHub 开源项目</h2><p>在 GitHub 上，利用 Git 强大的克隆和分支功能，可以实现自由参与各种开源项目了。</p>
+<p>对于开源项目，先 fork 到自己的远程仓库，再从自己的远程仓库中克隆到本地仓库。对本地仓库的修改，再提交到自己的远程仓库，如果希望自己的修改被项目方接受，需要在 GitHub 上发起 pull request，最终取决于对方是否接受。</p>
+<hr>
+<h2 id="学习-Git-的网站"><a href="#学习-Git-的网站" class="headerlink" title="学习 Git 的网站"></a>学习 Git 的网站</h2><p><a target="_blank" rel="noopener" href="https://learngitbranching.js.org/?locale=zh_CN">https://learngitbranching.js.org/?locale=zh_CN</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/14/misc/git-%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E6%95%B4%E7%90%86%E6%80%BB%E7%BB%93/" data-id="cmkdskc910004ww8t2dd02e9o" data-title="git 开发工具整理总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-algorithms/dynamicprogramming/2026-1-13-dynamicprogramming-01背包与完全背包模型" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/13/algorithms/dynamicprogramming/2026-1-13-dynamicprogramming-01%E8%83%8C%E5%8C%85%E4%B8%8E%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85%E6%A8%A1%E5%9E%8B/" class="article-date">
+  <time class="dt-published" datetime="2026-01-13T04:30:00.000Z" itemprop="datePublished">2026-01-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2026/01/13/algorithms/dynamicprogramming/2026-1-13-dynamicprogramming-01%E8%83%8C%E5%8C%85%E4%B8%8E%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85%E6%A8%A1%E5%9E%8B/">DP 模型：从回溯语义到 0-1 背包与完全背包（2026-01-13）</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>本文通过 494、322、2915 三道典型题目，总结 <strong>0-1 背包与完全背包的统一建模方式</strong>。重点在于<strong>如何从回溯语义自然推导出动态规划模型</strong>。</p>
+</blockquote>
+<p><strong>基础题目</strong>：01背包、完全背包</p>
+<p><strong>01背包变形</strong>：</p>
+<p>494.目标和、2915.和为目标值的最长子序列的长度</p>
+<p><strong>完全背包变形</strong>：</p>
+<p>322.零钱兑换</p>
+<hr>
+<h2 id="一、为什么要从“回溯语义”入手理解-DP？"><a href="#一、为什么要从“回溯语义”入手理解-DP？" class="headerlink" title="一、为什么要从“回溯语义”入手理解 DP？"></a>一、为什么要从“回溯语义”入手理解 DP？</h2><p>在学习动态规划的过程中，我一度陷入这样的问题：</p>
+<ul>
+<li>明明知道这是 DP 题</li>
+<li>但一到写 <code>dp[i][j]</code> 就容易：<ul>
+<li>不知道从何下手</li>
+<li>理解错误状态含义</li>
+<li>写错初始化</li>
+</ul>
+</li>
+</ul>
+<p>后来我解题循序渐进旨在加深对回溯与DP的理解：</p>
+<blockquote>
+<p><strong>所有 DP 题，先用 <code>dfs(i, j)</code> 把“语义”想清楚，再翻译成 DP。</strong></p>
+</blockquote>
+<p>这篇博客正是围绕这一方法，总结 <strong>0-1 背包与完全背包</strong> 这两类最常见的 DP 模型。</p>
+<hr>
+<h2 id="二、统一视角：什么是“背包模型”？"><a href="#二、统一视角：什么是“背包模型”？" class="headerlink" title="二、统一视角：什么是“背包模型”？"></a>二、统一视角：什么是“背包模型”？</h2><p>从抽象层面看，背包问题的本质只有一句话：</p>
+<blockquote>
+<p><strong>枚举每个输入元素，决定“选或不选”，并维护一个容量约束。</strong></p>
+</blockquote>
+<h3 id="0-1-背包模型"><a href="#0-1-背包模型" class="headerlink" title="0-1 背包模型"></a>0-1 背包模型</h3><p><strong>问题描述</strong></p>
+<ul>
+<li>有 <code>n</code> 个物品</li>
+<li>第 <code>i</code> 个物品体积 <code>w[i]</code>，价值 <code>v[i]</code></li>
+<li>每个物品最多选一次</li>
+<li>在容量 <code>capacity</code> 内，求最大价值和</li>
+</ul>
+<h3 id="回溯语义三问（非常重要）"><a href="#回溯语义三问（非常重要）" class="headerlink" title="回溯语义三问（非常重要）"></a>回溯语义三问（非常重要）</h3><ul>
+<li>当前操作：枚举第 i 个物品选或不选：不选，剩余容量不变；选，容量减少 w[i]</li>
+<li>子问题：剩余容量为 c 时，前 i 个物品中的最大价值和</li>
+<li>下一个子问题：分类讨论：<ul>
+<li>当前操作不选：剩余容量 c 从前 i-1 个物品中得到的最大价值</li>
+<li>当前操作选：剩余容量 c - w[i] 从前 i-1 个物品得到的最大价值</li>
+</ul>
+</li>
+</ul>
+<h3 id="回溯表达式"><a href="#回溯表达式" class="headerlink" title="回溯表达式"></a>回溯表达式</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">int dfs(int i, int c, int[] w, int[] v) &#123;</span><br><span class="line">    if (i &lt; 0) return 0;</span><br><span class="line">    if (w[i] &gt; c) &#123;</span><br><span class="line">        return dfs(i - 1, c, w, v);</span><br><span class="line">    &#125;</span><br><span class="line">    return Math.max(</span><br><span class="line">        dfs(i - 1, c, w, v),                 // 不选</span><br><span class="line">        dfs(i - 1, c - w[i], w, v) + v[i]    // 选</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>一旦写出这段递归，DP 就已经成功了一半。</strong></p>
+<hr>
+<h3 id="完全背包模型"><a href="#完全背包模型" class="headerlink" title="完全背包模型"></a>完全背包模型</h3><p>完全背包与 0-1 背包只有一个本质区别：</p>
+<blockquote>
+<p><strong>当前物品是否允许在同一层决策中被再次使用</strong></p>
+</blockquote>
+<h4 id="回溯表达式-1"><a href="#回溯表达式-1" class="headerlink" title="回溯表达式"></a>回溯表达式</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dfs(i, c) = max(</span><br><span class="line">    dfs(i - 1, c),          // 不选</span><br><span class="line">    dfs(i, c - w[i]) + v[i] // 选，并且还能继续选 i</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h4 id="一个非常容易困惑的问题"><a href="#一个非常容易困惑的问题" class="headerlink" title="一个非常容易困惑的问题"></a>一个非常容易困惑的问题</h4><blockquote>
+<p>为什么不需要写 <code>dfs(i - 1, c - w[i])</code>？即选了一次后不在选了</p>
+</blockquote>
+<p>原因在于：</p>
+<ul>
+<li><code>dfs(i, c - w[i])</code> 中，下一层仍然可以选择“不选”，自然会递归到 <code>dfs(i - 1, c - w[i])</code></li>
+</ul>
+<p>也就是说：</p>
+<blockquote>
+<p><strong>“选一次就不再选”这个语义，已经被递归本身隐式表达了。</strong></p>
+</blockquote>
+<p>这是我在完全背包中收获最大的一个认知点。</p>
+<hr>
+<h2 id="三、常见背包问题的分类方式"><a href="#三、常见背包问题的分类方式" class="headerlink" title="三、常见背包问题的分类方式"></a>三、常见背包问题的分类方式</h2><p>在做题时，我会优先判断两个维度：</p>
+<h3 id="1-装不装满？"><a href="#1-装不装满？" class="headerlink" title="1. 装不装满？"></a>1. 装不装满？</h3><ul>
+<li><strong>至多装 capacity</strong></li>
+<li><strong>恰好装 capacity</strong></li>
+<li><strong>至少装 capacity</strong></li>
+</ul>
+<h3 id="2-求什么？"><a href="#2-求什么？" class="headerlink" title="2. 求什么？"></a>2. 求什么？</h3><ul>
+<li>方案数</li>
+<li>最大价值</li>
+<li>最小价值</li>
+</ul>
+<blockquote>
+<p>大部分 LeetCode 背包题，都可以被放入这个二维分类表中。</p>
+</blockquote>
+<hr>
+<h2 id="四、结合具体题目分析"><a href="#四、结合具体题目分析" class="headerlink" title="四、结合具体题目分析"></a>四、结合具体题目分析</h2><h3 id="494-目标和-——-0-1-背包（恰好装满，求方案数）"><a href="#494-目标和-——-0-1-背包（恰好装满，求方案数）" class="headerlink" title="494. 目标和 —— 0-1 背包（恰好装满，求方案数）"></a>494. 目标和 —— 0-1 背包（恰好装满，求方案数）</h3><h4 id="建模思路"><a href="#建模思路" class="headerlink" title="建模思路"></a>建模思路</h4><ul>
+<li>每个数只能用一次 → <strong>0-1 背包</strong></li>
+<li>每个数选或不选 → 枚举符号</li>
+<li>本质是：<strong>恰好凑出 target 的方案数</strong></li>
+</ul>
+<h4 id="回溯语义"><a href="#回溯语义" class="headerlink" title="回溯语义"></a>回溯语义</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dfs(i, t)：使用前 i 个数，凑出和为 t 的方案数</span><br></pre></td></tr></table></figure>
+
+<h4 id="转移关系"><a href="#转移关系" class="headerlink" title="转移关系"></a>转移关系</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dfs(i, t) = dfs(i - 1, t)           // 不选 nums[i]</span><br><span class="line">          + dfs(i - 1, t - nums[i]) // 选 nums[i]</span><br></pre></td></tr></table></figure>
+
+<p>在实现时，我采用了：</p>
+<ol>
+<li>回溯 + 记忆化搜索</li>
+<li>翻译为二维 DP</li>
+<li>再做空间优化</li>
+</ol>
+<blockquote>
+<p>这道题让我深刻体会到：<br> <strong><code>dp[i][j]</code> 的含义，必须和 dfs(i, j) 的返回值一一对应。</strong></p>
+</blockquote>
+<hr>
+<h3 id="322-零钱兑换-——-完全背包（恰好装满，求最小价值）"><a href="#322-零钱兑换-——-完全背包（恰好装满，求最小价值）" class="headerlink" title="322. 零钱兑换 —— 完全背包（恰好装满，求最小价值）"></a>322. 零钱兑换 —— 完全背包（恰好装满，求最小价值）</h3><h4 id="模型映射"><a href="#模型映射" class="headerlink" title="模型映射"></a>模型映射</h4><table>
+<thead>
+<tr>
+<th>零钱兑换</th>
+<th>背包模型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>amount</td>
+<td>capacity</td>
+</tr>
+<tr>
+<td>coin 面值</td>
+<td>物品体积</td>
+</tr>
+<tr>
+<td>使用枚数</td>
+<td>价值（每次 +1）</td>
+</tr>
+</tbody></table>
+<h4 id="为什么是完全背包？"><a href="#为什么是完全背包？" class="headerlink" title="为什么是完全背包？"></a>为什么是完全背包？</h4><p>因为：<strong>同一种硬币，在同一轮决策中可以被重复使用</strong></p>
+<h4 id="转移方程（核心）——-经过回溯、空间优化的结果"><a href="#转移方程（核心）——-经过回溯、空间优化的结果" class="headerlink" title="转移方程（核心）—— 经过回溯、空间优化的结果"></a>转移方程（核心）—— 经过回溯、空间优化的结果</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dp[j] = min(</span><br><span class="line">    dp[j],              // 不使用当前硬币</span><br><span class="line">    dp[j - coin] + 1    // 使用一次当前硬币</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="2915-和为目标值的最长子序列-——-0-1-背包（恰好装满，求最大价值）"><a href="#2915-和为目标值的最长子序列-——-0-1-背包（恰好装满，求最大价值）" class="headerlink" title="2915. 和为目标值的最长子序列 —— 0-1 背包（恰好装满，求最大价值）"></a>2915. 和为目标值的最长子序列 —— 0-1 背包（恰好装满，求最大价值）</h3><h4 id="抽象方式"><a href="#抽象方式" class="headerlink" title="抽象方式"></a>抽象方式</h4><ul>
+<li>每个元素只能选一次 → <strong>0-1 背包</strong></li>
+<li>nums[i] 作为“体积”</li>
+<li>每选一个元素，价值 +1</li>
+</ul>
+<h4 id="语义定义"><a href="#语义定义" class="headerlink" title="语义定义"></a>语义定义</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[j]：和为 j 时，能得到的最大长度</span><br></pre></td></tr></table></figure>
+
+<p>这道题让我意识到：</p>
+<blockquote>
+<p><strong>“价值”不一定是题目直接给的，而可以从题目中转化。</strong></p>
+</blockquote>
+<hr>
+<h2 id="五、空间优化：理解即可，不必强求"><a href="#五、空间优化：理解即可，不必强求" class="headerlink" title="五、空间优化：理解即可，不必强求"></a>五、空间优化：理解即可，不必强求</h2><p>在这三道题中，状态转移均只依赖于：</p>
+<ul>
+<li>上一层 <code>i - 1</code></li>
+<li>或当前层更小的 <code>j</code></li>
+</ul>
+<p>因此可以：</p>
+<ol>
+<li><code>dp[n][target] → dp[2][target]</code></li>
+<li>再进一步压缩为一维数组</li>
+</ol>
+<p>但我目前的态度是：</p>
+<blockquote>
+<p><strong>空间优化属于锦上添花，优先保证语义正确。</strong></p>
+</blockquote>
+<p>如果一维 DP 的依赖方向一时想不清楚，我会选择保留二维。</p>
+<hr>
+<h2 id="六、总结与反思"><a href="#六、总结与反思" class="headerlink" title="六、总结与反思"></a>六、总结与反思</h2><p>通过这几道题，我对动态规划的理解有了一个明显转变：</p>
+<ul>
+<li>DP 的核心不在公式</li>
+<li>而在 <strong>状态含义 + 转移语义</strong></li>
+</ul>
+<p>我目前仍然习惯：<strong>先写 dfs(i, j)，再翻译成 dp</strong></p>
+<p>但我也希望，随着练习的增多，能够逐渐做到：</p>
+<ul>
+<li>直接从问题 → 状态定义 → 转移方程</li>
+<li>减少对回溯的依赖</li>
+</ul>
+<p>这是我接下来刻意训练的方向。</p>
+<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/13/algorithms/dynamicprogramming/2026-1-13-dynamicprogramming-01%E8%83%8C%E5%8C%85%E4%B8%8E%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85%E6%A8%A1%E5%9E%8B/" data-id="cmkdskca80051ww8thyrkfx74" data-title="DP 模型：从回溯语义到 0-1 背包与完全背包（2026-01-13）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/01%E8%83%8C%E5%8C%85/" rel="tag">01背包</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" rel="tag">完全背包</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-backend/project/2026-1-13-project-day01" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/13/backend/project/2026-1-13-project-day01/" class="article-date">
+  <time class="dt-published" datetime="2026-01-12T16:00:00.000Z" itemprop="datePublished">2026-01-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2026/01/13/backend/project/2026-1-13-project-day01/">项目结构搭建：从系统结构图到多模块 Maven 项目设计</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>本文记录了我在餐饮管理系统项目中，从系统结构图设计到多模块 Maven 项目搭建的完整思考过程。</p>
+</blockquote>
+<hr>
+<h2 id="一、从产品原型到系统结构图"><a href="#一、从产品原型到系统结构图" class="headerlink" title="一、从产品原型到系统结构图"></a>一、从产品原型到系统结构图</h2><p>在项目初期，我根据产品原型首先尝试绘制系统结构图，用于梳理系统的整体模块划分。</p>
+<h3 id="初版结构图的问题"><a href="#初版结构图的问题" class="headerlink" title="初版结构图的问题"></a>初版结构图的问题</h3><p>最初绘制的结构图中，各个模块是<strong>平级关系</strong>，主要关注功能划分，而忽略了：</p>
+<ul>
+<li>模块之间的 <strong>层级关系</strong></li>
+<li>模块之间的 <strong>依赖方向</strong></li>
+<li>不同模块在工程中的 <strong>关注重点</strong></li>
+</ul>
+<p>在这一阶段，我逐渐意识到：<br> <strong>系统结构图不只是“模块列表”，而是模块间关系的表达。</strong></p>
+<hr>
+<h3 id="结构图的逐步演进"><a href="#结构图的逐步演进" class="headerlink" title="结构图的逐步演进"></a>结构图的逐步演进</h3><p>在不断调整后，我对结构图提出了更明确的目标：</p>
+<ul>
+<li>能体现 <strong>调用层级</strong></li>
+<li>能反映 <strong>依赖方向</strong></li>
+<li>能提示 <strong>开发过程中的关键关注点</strong>（如高并发、事务敏感、高频读等）</li>
+</ul>
+<p>在这一原则下，结构图经历了多次迭代，最终形成了第三版系统结构图，用于指导后续的工程搭建。</p>
+<hr>
+<h2 id="二、从系统结构图到项目模块规划"><a href="#二、从系统结构图到项目模块规划" class="headerlink" title="二、从系统结构图到项目模块规划"></a>二、从系统结构图到项目模块规划</h2><p>基于最终的系统结构图，我开始尝试将设计落地为实际的项目结构。</p>
+<h3 id="初始拆分思路"><a href="#初始拆分思路" class="headerlink" title="初始拆分思路"></a>初始拆分思路</h3><p>最初的出发点是：</p>
+<ul>
+<li>结构清晰</li>
+<li>各层职责独立</li>
+</ul>
+<p>因此，我按照经典的三层架构，将项目拆分为三个 Maven Module：</p>
+<ul>
+<li>controller</li>
+<li>service</li>
+<li>dao</li>
+</ul>
+<p>从“概念理解”的角度看，这样的拆分似乎是合理的。</p>
+<hr>
+<h2 id="三、对照教学案例后的关键反思"><a href="#三、对照教学案例后的关键反思" class="headerlink" title="三、对照教学案例后的关键反思"></a>三、对照教学案例后的关键反思</h2><p>在对照教学案例（如 sky-take-out）后，我发现一个非常明显的差异：</p>
+<h3 id="教学案例的模块划分方式"><a href="#教学案例的模块划分方式" class="headerlink" title="教学案例的模块划分方式"></a>教学案例的模块划分方式</h3><p>案例项目并 <strong>没有</strong> 将 controller &#x2F; service &#x2F; dao 拆分为独立 Maven Module，而是采用了：</p>
+<ul>
+<li><strong>pojo</strong>：实体类与数据模型模块</li>
+<li><strong>common</strong>：通用常量、工具类、公共定义</li>
+<li><strong>server</strong>：业务模块（包含 controller &#x2F; service &#x2F; mapper）</li>
+</ul>
+<p>并且：<strong>所有模块由一个 parent pom 统一管理</strong></p>
+<hr>
+<h3 id="我的拆分方式存在的问题"><a href="#我的拆分方式存在的问题" class="headerlink" title="我的拆分方式存在的问题"></a>我的拆分方式存在的问题</h3><p>对比之后，我逐渐意识到自己最初的设计存在以下隐患：</p>
+<ol>
+<li>controller &#x2F; service &#x2F; dao <strong>强耦合、同步演进</strong></li>
+<li>业务变化频繁，模块边界不稳定</li>
+<li>缺少统一的实体与通用模块<ul>
+<li>实体类、常量、工具类被迫分散在不同模块</li>
+<li>不可避免地出现模块间交叉 import</li>
+</ul>
+</li>
+<li>结构复杂，但并未带来工程收益</li>
+</ol>
+<p><strong>最终结果很可能是：模块越拆越乱。</strong></p>
+<hr>
+<h2 id="四、什么该拆-Module，什么不该拆"><a href="#四、什么该拆-Module，什么不该拆" class="headerlink" title="四、什么该拆 Module，什么不该拆"></a>四、什么该拆 Module，什么不该拆</h2><h3 id="Maven-Module-≠-逻辑分层"><a href="#Maven-Module-≠-逻辑分层" class="headerlink" title="Maven Module ≠ 逻辑分层"></a>Maven Module ≠ 逻辑分层</h3><p>在这一阶段，我对 Maven Module 的角色有了更清晰的认识：</p>
+<blockquote>
+<p><strong>Maven Module 的拆分依据不是 MVC 分层，而是工程属性。</strong></p>
+</blockquote>
+<p>更合理的判断标准是：</p>
+<ul>
+<li><strong>稳定性</strong>：是否长期稳定、不易变化</li>
+<li><strong>复用性</strong>：是否会被多个模块依赖</li>
+<li><strong>变化频率</strong>：是否频繁随业务调整</li>
+</ul>
+<hr>
+<h3 id="合理的拆分原则"><a href="#合理的拆分原则" class="headerlink" title="合理的拆分原则"></a>合理的拆分原则</h3><ul>
+<li><strong>稳定、通用、可复用的内容</strong><br> → 适合拆为 Maven Module（如 common、pojo）</li>
+<li><strong>强耦合、变化频繁的业务逻辑</strong><br> → 更适合作为 package 层次存在（controller &#x2F; service &#x2F; mapper）</li>
+</ul>
+<p>这一认知也解释了为什么教学案例会选择将 MVC 分层整合在 server 模块中。</p>
+<hr>
+<h2 id="五、项目搭建：从“能跑”到“规范”"><a href="#五、项目搭建：从“能跑”到“规范”" class="headerlink" title="五、项目搭建：从“能跑”到“规范”"></a>五、项目搭建：从“能跑”到“规范”</h2><p>在统一思路后，我按照案例的工程结构重新搭建了项目，形成了如下多模块 Maven 项目：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">backend-catering-management-system</span><br><span class="line">├── common</span><br><span class="line">├── pojo</span><br><span class="line">├── server</span><br><span class="line">└── pom.xml</span><br></pre></td></tr></table></figure>
+
+<h3 id="父工程的角色"><a href="#父工程的角色" class="headerlink" title="父工程的角色"></a>父工程的角色</h3><p>父工程（parent pom）主要职责是：</p>
+<ul>
+<li>统一管理依赖版本</li>
+<li>统一插件配置</li>
+<li>管理子模块（Aggregator）</li>
+</ul>
+<p>在这一过程中，我遇到了一个典型的 Maven 报错：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Aggregator projects require &#x27;pom&#x27; as packaging</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="问题与结论"><a href="#问题与结论" class="headerlink" title="问题与结论"></a>问题与结论</h3><p>通过该问题明确了一个关键规则：</p>
+<ul>
+<li><strong>聚合父工程的 packaging 必须是 <code>pom</code></strong></li>
+<li>父工程不参与业务代码编译</li>
+<li><strong>只有子模块才是 <code>jar</code></strong></li>
+</ul>
+<p>这一细节也进一步加深了我对 Maven 多模块项目结构的理解。</p>
+<hr>
+<h2 id="六、阶段性总结"><a href="#六、阶段性总结" class="headerlink" title="六、阶段性总结"></a>六、阶段性总结</h2><p>通过从系统结构图到项目搭建的完整过程，我对后端工程结构有了更清晰的认识：</p>
+<ul>
+<li>项目结构不能自由发挥，一切为了方便开发为主</li>
+<li>复杂的结构并不一定带来更好的工程效果</li>
+<li><strong>知道“为什么不这么拆”，比“我能拆得多细”更重要</strong></li>
+</ul>
+<hr>
+<h2 id="学习资料与完整代码"><a href="#学习资料与完整代码" class="headerlink" title="学习资料与完整代码"></a>学习资料与完整代码</h2><p><strong>已整理并上传至 GitHub 仓库</strong></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/13/backend/project/2026-1-13-project-day01/" data-id="cmkdskca80056ww8tflxa74na" data-title="项目结构搭建：从系统结构图到多模块 Maven 项目设计" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/maven/" rel="tag">maven</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-backend/ssm/springboot/2026-1-11-springboot-day03 " class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2026/01/13/backend/ssm/springboot/2026-1-11-springboot-day03%20/" class="article-date">
@@ -209,7 +758,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/13/backend/ssm/springboot/2026-1-11-springboot-day03%20/" data-id="cmkbbdw2f00585w8tgv2m8wgn" data-title="Spring Boot 配置与测试实战复盘" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/13/backend/ssm/springboot/2026-1-11-springboot-day03%20/" data-id="cmkdskcab005kww8taq4d6c0z" data-title="Spring Boot 配置与测试实战复盘" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -407,7 +956,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/12/algorithms/dynamicprogramming/2026-1-12-dynamicprogramming-practice/" data-id="cmkbbdw2c004t5w8t5oj6449q" data-title="从回溯到记忆化搜索到递推：动态规划巩固练习" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/12/algorithms/dynamicprogramming/2026-1-12-dynamicprogramming-practice/" data-id="cmkdskca7004yww8t7jm0e8r9" data-title="从回溯到记忆化搜索到递推：动态规划巩固练习" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -660,7 +1209,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/11/algorithms/dynamicprogramming/2026-1-11-dynamicprogramming/" data-id="cmkbbdw2a004l5w8tcr5hatqq" data-title="动态规划：从回溯到记忆化搜索，再到递推" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/11/algorithms/dynamicprogramming/2026-1-11-dynamicprogramming/" data-id="cmkdskca6004rww8tcl6o592h" data-title="动态规划：从回溯到记忆化搜索，再到递推" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -841,7 +1390,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/10/algorithms/backtracking/2026-1-10-Permutation-backtracking/" data-id="cmkbbdw19000f5w8tb38e03zn" data-title="排列型回溯" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/10/algorithms/backtracking/2026-1-10-Permutation-backtracking/" data-id="cmkdskc920005ww8t2zub1v8f" data-title="排列型回溯" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1073,7 +1622,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/10/algorithms/backtracking/2026-1-10-backtracking-summary/" data-id="cmkbbdw1a000g5w8t4zawe1qc" data-title="回溯总结篇" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/10/algorithms/backtracking/2026-1-10-backtracking-summary/" data-id="cmkdskc920006ww8t0jos6e16" data-title="回溯总结篇" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1280,7 +1829,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/10/backend/ssm/springboot/2026-1-10-springboot-day02%20/" data-id="cmkbbdw2e00535w8taqw88bl9" data-title="Spring Boot + SSMP 基础实战与问题复盘" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/10/backend/ssm/springboot/2026-1-10-springboot-day02%20/" data-id="cmkdskcaa005gww8tbry91p2w" data-title="Spring Boot + SSMP 基础实战与问题复盘" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1482,563 +2031,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/09/algorithms/backtracking/2026-1-9-Combinatorial%20backtracking/" data-id="cmkbbdw1d000q5w8t96bwf8ld" data-title="组合型回溯 + 剪枝：从子集枚举到条件收敛" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/09/algorithms/backtracking/2026-1-9-Combinatorial%20backtracking/" data-id="cmkdskc96000gww8t7kvkaa8g" data-title="组合型回溯 + 剪枝：从子集枚举到条件收敛" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%84%E5%90%88/" rel="tag">组合</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-backend/ssm/springboot/2026-1-9-springboot-day01" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2026/01/09/backend/ssm/springboot/2026-1-9-springboot-day01/" class="article-date">
-  <time class="dt-published" datetime="2026-01-08T16:00:00.000Z" itemprop="datePublished">2026-01-09</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>►<a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/SpringBoot/">SpringBoot</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/01/09/backend/ssm/springboot/2026-1-9-springboot-day01/">Spring Boot 基础入门与整合实践</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>本文记录了我在学习 Spring Boot 基础与整合 MyBatis、Druid 过程中的核心知识点，以及一次完整、真实的排错过程。<br>重点不在于“配置怎么写”，而在于<strong>理解 Spring Boot 自动配置的工作机制</strong>。</p>
-</blockquote>
-<hr>
-<h2 id="一、Spring-Boot-简介"><a href="#一、Spring-Boot-简介" class="headerlink" title="一、Spring Boot 简介"></a>一、Spring Boot 简介</h2><p>Spring Boot 是由 Pivotal 团队提供的快速开发框架，目标是：</p>
-<ul>
-<li>简化 Spring 应用的初始搭建</li>
-<li>减少繁琐的 XML &#x2F; Java 配置</li>
-<li>通过 <strong>自动配置（Auto Configuration）+ Starter 机制</strong> 提升开发效率</li>
-</ul>
-<hr>
-<h2 id="二、Spring-Boot-入门方式"><a href="#二、Spring-Boot-入门方式" class="headerlink" title="二、Spring Boot 入门方式"></a>二、Spring Boot 入门方式</h2><h3 id="2-1-创建方式说明"><a href="#2-1-创建方式说明" class="headerlink" title="2.1 创建方式说明"></a>2.1 创建方式说明</h3><ul>
-<li>使用 IDEA &#x2F; 官网 &#x2F; 阿里云脚手架：<strong>需要联网</strong></li>
-<li>手动创建 Maven 项目：<ul>
-<li>继承 <code>spring-boot-starter-parent</code></li>
-<li>手动编写启动类</li>
-<li><strong>不需要联网</strong>（前提是本地仓库已有依赖）</li>
-</ul>
-</li>
-</ul>
-<hr>
-<h2 id="三、parent-与-starter-的作用区分"><a href="#三、parent-与-starter-的作用区分" class="headerlink" title="三、parent 与 starter 的作用区分"></a>三、<code>parent</code> 与 <code>starter</code> 的作用区分</h2><h3 id="3-1-parent：统一依赖版本管理"><a href="#3-1-parent：统一依赖版本管理" class="headerlink" title="3.1 parent：统一依赖版本管理"></a>3.1 parent：统一依赖版本管理</h3><p><code>spring-boot-starter-parent</code> 的作用是：</p>
-<ul>
-<li>统一管理常用依赖的版本</li>
-<li>避免版本冲突</li>
-<li>简化 pom 文件</li>
-</ul>
-<blockquote>
-<p><strong>注意</strong>：<br> parent 只“管理版本”，并不会实际引入任何依赖。</p>
-</blockquote>
-<hr>
-<h3 id="3-2-starter：功能级依赖集合"><a href="#3-2-starter：功能级依赖集合" class="headerlink" title="3.2 starter：功能级依赖集合"></a>3.2 starter：功能级依赖集合</h3><p>starter 的作用是：</p>
-<ul>
-<li>一次性引入某个技术栈所需的依赖</li>
-<li>通过<strong>依赖传递</strong>减少配置成本</li>
-</ul>
-<p>例如：</p>
-<ul>
-<li><code>spring-boot-starter-web</code></li>
-<li><code>spring-boot-starter-jdbc</code></li>
-<li><code>mybatis-spring-boot-starter</code></li>
-</ul>
-<blockquote>
-<p>parent + starter 解决的是 <strong>“配置复杂度”问题</strong></p>
-</blockquote>
-<hr>
-<h2 id="四、Spring-Boot-启动类"><a href="#四、Spring-Boot-启动类" class="headerlink" title="四、Spring Boot 启动类"></a>四、Spring Boot 启动类</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@SpringBootApplication</span><br><span class="line">public class Springboot01QuickstartApplication &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        SpringApplication.run(Springboot01QuickstartApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="启动类的作用"><a href="#启动类的作用" class="headerlink" title="启动类的作用"></a>启动类的作用</h3><ul>
-<li>标识这是一个 Spring Boot 应用</li>
-<li>启动 Spring 容器</li>
-<li>扫描当前包及其子包下的 Bean</li>
-<li>返回值是 <code>ApplicationContext</code></li>
-</ul>
-<hr>
-<h2 id="五、内嵌-Web-容器机制"><a href="#五、内嵌-Web-容器机制" class="headerlink" title="五、内嵌 Web 容器机制"></a>五、内嵌 Web 容器机制</h2><p>在引入 <code>spring-boot-starter-web</code> 后：</p>
-<ul>
-<li>默认内嵌 Tomcat</li>
-<li>Spring 会创建并管理一个 Tomcat 对象</li>
-<li>启动应用时自动启动 Web 服务器</li>
-</ul>
-<p>Spring Boot 也支持 Jetty、Undertow 等内嵌容器。</p>
-<hr>
-<h2 id="六、基础配置文件"><a href="#六、基础配置文件" class="headerlink" title="六、基础配置文件"></a>六、基础配置文件</h2><h3 id="6-1-配置文件类型与优先级"><a href="#6-1-配置文件类型与优先级" class="headerlink" title="6.1 配置文件类型与优先级"></a>6.1 配置文件类型与优先级</h3><p>Spring Boot 支持：</p>
-<ul>
-<li><code>application.properties</code></li>
-<li><code>application.yml</code></li>
-<li><code>application.yaml</code></li>
-</ul>
-<p>优先级（从高到低）：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">properties &gt; yml &gt; yaml</span><br></pre></td></tr></table></figure>
-
-<p>相同配置高优先级覆盖，未冲突配置全部生效。</p>
-<hr>
-<h3 id="6-2-为什么推荐-YAML"><a href="#6-2-为什么推荐-YAML" class="headerlink" title="6.2 为什么推荐 YAML"></a>6.2 为什么推荐 YAML</h3><ul>
-<li>层级清晰</li>
-<li>可读性更好</li>
-<li>更适合复杂配置</li>
-</ul>
-<h4 id="YAML-核心规则"><a href="#YAML-核心规则" class="headerlink" title="YAML 核心规则"></a>YAML 核心规则</h4><ul>
-<li>大小写敏感</li>
-<li>缩进表示层级（只能用空格）</li>
-<li><code>key: value</code> 中冒号后必须有空格</li>
-<li><code>#</code> 表示注释</li>
-</ul>
-<hr>
-<h3 id="6-3-YAML-数据绑定方式"><a href="#6-3-YAML-数据绑定方式" class="headerlink" title="6.3 YAML 数据绑定方式"></a>6.3 YAML 数据绑定方式</h3><h4 id="方式一：-Value"><a href="#方式一：-Value" class="headerlink" title="方式一：@Value"></a>方式一：<code>@Value</code></h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@Value(&quot;$&#123;enterprise.name&#125;&quot;)</span><br><span class="line">private String name;</span><br></pre></td></tr></table></figure>
-
-<h4 id="方式二：Environment"><a href="#方式二：Environment" class="headerlink" title="方式二：Environment"></a>方式二：<code>Environment</code></h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">environment.getProperty(&quot;enterprise.name&quot;);</span><br></pre></td></tr></table></figure>
-
-<h4 id="方式三（推荐）：-ConfigurationProperties"><a href="#方式三（推荐）：-ConfigurationProperties" class="headerlink" title="方式三（推荐）：@ConfigurationProperties"></a>方式三（推荐）：<code>@ConfigurationProperties</code></h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">@Component</span><br><span class="line">@ConfigurationProperties(prefix = &quot;enterprise&quot;)</span><br><span class="line">@Data</span><br><span class="line">public class Enterprise &#123;</span><br><span class="line">    private String name;</span><br><span class="line">    private int age;</span><br><span class="line">    private String tel;</span><br><span class="line">    private String[] hobby;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>本质：<br> Spring Boot 内部大量使用这种方式完成第三方组件的<strong>自动配置</strong></p>
-</blockquote>
-<hr>
-<h2 id="七、整合第三方技术"><a href="#七、整合第三方技术" class="headerlink" title="七、整合第三方技术"></a>七、整合第三方技术</h2><h3 id="7-1-Spring-Boot-整合-JUnit"><a href="#7-1-Spring-Boot-整合-JUnit" class="headerlink" title="7.1 Spring Boot 整合 JUnit"></a>7.1 Spring Boot 整合 JUnit</h3><ul>
-<li>自动引入测试 starter</li>
-<li>使用 <code>@SpringBootTest</code></li>
-<li>测试类不在启动类包下时需指定 <code>classes</code></li>
-</ul>
-<hr>
-<h3 id="7-2-Spring-Boot-整合-MyBatis"><a href="#7-2-Spring-Boot-整合-MyBatis" class="headerlink" title="7.2 Spring Boot 整合 MyBatis"></a>7.2 Spring Boot 整合 MyBatis</h3><p>MyBatis 主要涉及两类配置：</p>
-<ol>
-<li><strong>全局配置</strong>（数据源）</li>
-<li><strong>映射配置</strong>（XML &#x2F; 注解）</li>
-</ol>
-<p>基本步骤：</p>
-<ul>
-<li>引入 MyBatis Starter</li>
-<li>配置数据源</li>
-<li>定义 Mapper 接口</li>
-<li>注入 Mapper 测试</li>
-</ul>
-<hr>
-<h3 id="7-3-Spring-Boot-整合-Druid"><a href="#7-3-Spring-Boot-整合-Druid" class="headerlink" title="7.3 Spring Boot 整合 Druid"></a>7.3 Spring Boot 整合 Druid</h3><ul>
-<li>引入 Druid Starter</li>
-<li>配置 Druid 专属配置项</li>
-<li>验证 DataSource 类型</li>
-</ul>
-<hr>
-<h2 id="八、整合过程中的问题与排错总结（重点）"><a href="#八、整合过程中的问题与排错总结（重点）" class="headerlink" title="八、整合过程中的问题与排错总结（重点）"></a>八、整合过程中的问题与排错总结（重点）</h2><h3 id="问题一：UserDao-无法注入"><a href="#问题一：UserDao-无法注入" class="headerlink" title="问题一：UserDao 无法注入"></a>问题一：<code>UserDao</code> 无法注入</h3><h4 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">No qualifying bean of type &#x27;tingfeng.mapper.UserDao&#x27; available</span><br></pre></td></tr></table></figure>
-
-<h4 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h4><ul>
-<li>Mapper 接口未被 Spring 扫描</li>
-<li><code>@Mapper</code> 只对 MyBatis 生效</li>
-</ul>
-<h4 id="解决方式"><a href="#解决方式" class="headerlink" title="解决方式"></a>解决方式</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@SpringBootApplication</span><br><span class="line">@MapperScan(&quot;tingfeng.mapper&quot;)</span><br><span class="line">public class Quickstart03Application &#123; &#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="关键认知"><a href="#关键认知" class="headerlink" title="关键认知"></a>关键认知</h4><blockquote>
-<p><strong>@Mapper 是 MyBatis 的，@MapperScan 才是 Spring 的</strong></p>
-</blockquote>
-<hr>
-<h3 id="问题二：Mapper-能扫描，但报-sqlSessionFactory-缺失"><a href="#问题二：Mapper-能扫描，但报-sqlSessionFactory-缺失" class="headerlink" title="问题二：Mapper 能扫描，但报 sqlSessionFactory 缺失"></a>问题二：Mapper 能扫描，但报 <code>sqlSessionFactory</code> 缺失</h3><h4 id="现象-1"><a href="#现象-1" class="headerlink" title="现象"></a>现象</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Property &#x27;sqlSessionFactory&#x27; or &#x27;sqlSessionTemplate&#x27; are required</span><br></pre></td></tr></table></figure>
-
-<h4 id="定位结论"><a href="#定位结论" class="headerlink" title="定位结论"></a>定位结论</h4><ul>
-<li>Mapper 已创建</li>
-<li>SqlSessionFactory 未生成</li>
-<li>SqlSessionFactory 依赖 DataSource</li>
-</ul>
-<h4 id="实际解决方式"><a href="#实际解决方式" class="headerlink" title="实际解决方式"></a>实际解决方式</h4><blockquote>
-<p><strong>将 <code>mybatis-spring-boot-starter</code> 从 3.0.4 升级至 4.0.2</strong></p>
-</blockquote>
-<h4 id="根因分析（重要）"><a href="#根因分析（重要）" class="headerlink" title="根因分析（重要）"></a>根因分析（重要）</h4><p>新版本调整了：</p>
-<ul>
-<li>Mapper 初始化时机</li>
-<li>SqlSessionFactory 校验逻辑</li>
-</ul>
-<p>避免在 DataSource 尚未完全初始化时进行强校验，从而绕开了该异常路径。</p>
-<blockquote>
-<p>⚠️ 注意：<br> 这并不代表 DataSource 问题“消失”，而是<strong>校验时机发生了变化</strong></p>
-</blockquote>
-<hr>
-<h2 id="九、总结与反思"><a href="#九、总结与反思" class="headerlink" title="九、总结与反思"></a>九、总结与反思</h2><p>这次学习和排错过程中，我最大的收获不是“配置记住了多少”，而是：</p>
-<ul>
-<li>理解了 <strong>Starter 才是自动配置的触发条件</strong></li>
-<li>明白了 <strong>异常信息可能并不是根因</strong></li>
-<li>学会从 <strong>DataSource → SqlSessionFactory → Mapper</strong> 反向排查</li>
-<li>认识到 <strong>版本升级可能改变行为，而非修复根因</strong></li>
-</ul>
-<hr>
-<h2 id="十、一句话总结"><a href="#十、一句话总结" class="headerlink" title="十、一句话总结"></a>十、一句话总结</h2><blockquote>
-<p>Spring Boot 整合 MyBatis 与数据源时，<br> 问题往往不在 Mapper 本身，<br> 而在自动配置链路是否完整、以及校验时机是否合理。</p>
-</blockquote>
-<hr>
-<h2 id="学习资料与完整代码"><a href="#学习资料与完整代码" class="headerlink" title="学习资料与完整代码"></a>学习资料与完整代码</h2><p><strong>已整理并上传至 GitHub 仓库</strong></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/09/backend/ssm/springboot/2026-1-9-springboot-day01/" data-id="cmkbbdw2f005b5w8tdc8ue3ab" data-title="Spring Boot 基础入门与整合实践" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-algorithms/backtracking/2026-1-8-backtracking-subset-practice" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2026/01/08/algorithms/backtracking/2026-1-8-backtracking-subset-practice/" class="article-date">
-  <time class="dt-published" datetime="2026-01-08T04:00:00.000Z" itemprop="datePublished">2026-01-08</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/01/08/algorithms/backtracking/2026-1-8-backtracking-subset-practice/">子集型回溯方法论得应用（2026-01-08）</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="一、输入角度的子集型回溯"><a href="#一、输入角度的子集型回溯" class="headerlink" title="一、输入角度的子集型回溯"></a>一、输入角度的子集型回溯</h2><p>子集型回溯是一类<strong>通过枚举每个元素“选 or 不选”来构造答案集合</strong>的回溯问题。<br> 其核心思想是：</p>
-<blockquote>
-<p>对输入集合中的每一个元素，都做一次“是否加入当前解”的选择，通过递归枚举所有可能的子集。</p>
-</blockquote>
-<p>由于每个元素只有两种状态（选 &#x2F; 不选），因此这类问题<strong>天然覆盖所有可能情况，不会重、不漏</strong>。</p>
-<hr>
-<h2 id="二、子集型回溯的统一模板"><a href="#二、子集型回溯的统一模板" class="headerlink" title="二、子集型回溯的统一模板"></a>二、子集型回溯的统一模板</h2><p>子集型回溯的 DFS 过程通常包含三个核心要素：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> <span class="title function_">dfs</span><span class="params">(i, 输入集合，当前状态)</span>:</span><br><span class="line">	<span class="comment">// n 为输入集合长度</span></span><br><span class="line">    <span class="keyword">if</span> i == n:</span><br><span class="line">		<span class="comment">// 说明当前轮枚举完了输入集合</span></span><br><span class="line">        更新答案</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 不选第 i 个元素</span></span><br><span class="line">    dfs(i + <span class="number">1</span>, 输入集合，当前状态)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 选第 i 个元素（有条件）</span></span><br><span class="line">    <span class="keyword">if</span> <span class="title function_">check</span><span class="params">(i, 当前状态)</span>:</span><br><span class="line">        选择 i</span><br><span class="line">        <span class="title function_">dfs</span><span class="params">(i + <span class="number">1</span>, 输入集合，新状态)</span></span><br><span class="line">        撤销选择</span><br></pre></td></tr></table></figure>
-
-<p>其中：</p>
-<ul>
-<li><code>i</code>：当前处理到第 i 个元素</li>
-<li><code>当前状态</code>：路径（已选元素 &#x2F; 剩余资源 &#x2F; 当前得分等）</li>
-<li><code>check</code>：是否允许“选”的条件判断（<strong>条件回溯的关键</strong>）</li>
-</ul>
-<hr>
-<h2 id="三、扩展题目统一拆解"><a href="#三、扩展题目统一拆解" class="headerlink" title="三、扩展题目统一拆解"></a>三、扩展题目统一拆解</h2><p>下面 6 道题，本质上都可以<strong>统一为「子集型回溯 + 条件判断」</strong>。</p>
-<hr>
-<h3 id="LCP51-烹饪料理"><a href="#LCP51-烹饪料理" class="headerlink" title="LCP51. 烹饪料理"></a>LCP51. 烹饪料理</h3><p><strong>建模方式</strong>：</p>
-<ul>
-<li>枚举第 i 道料理：做 or 不做</li>
-<li>选的条件：材料足够</li>
-</ul>
-<p><strong>状态维护</strong>：</p>
-<ul>
-<li>剩余材料数组</li>
-</ul>
-<p>典型的「<strong>资源约束型子集回溯</strong>」</p>
-<hr>
-<h3 id="2397-被列覆盖的最多行数"><a href="#2397-被列覆盖的最多行数" class="headerlink" title="2397. 被列覆盖的最多行数"></a>2397. 被列覆盖的最多行数</h3><p><strong>建模方式</strong>：</p>
-<ul>
-<li>枚举第 i 列：选 or 不选</li>
-<li>选的条件：已选列数 ≤ numSelect</li>
-</ul>
-<p><strong>关键剪枝</strong>：</p>
-<ul>
-<li>如果 <code>剩余列数 ≤ 剩余可选数</code> → <strong>必须全选</strong></li>
-</ul>
-<p>子集型回溯 + <strong>强剪枝</strong></p>
-<hr>
-<h3 id="1239-串联字符串的最大长度"><a href="#1239-串联字符串的最大长度" class="headerlink" title="1239. 串联字符串的最大长度"></a>1239. 串联字符串的最大长度</h3><p><strong>建模方式</strong>：</p>
-<ul>
-<li>枚举每个字符串：选 or 不选</li>
-</ul>
-<p><strong>选的条件</strong>：</p>
-<ol>
-<li>字符串内部不能有重复字符</li>
-<li>与当前已选字符串字符集不能冲突</li>
-</ol>
-<p><strong>状态设计</strong>：</p>
-<ul>
-<li>使用 boolean[26] 维护字符占用情况</li>
-</ul>
-<p> 典型的「<strong>集合冲突约束型回溯</strong>」</p>
-<hr>
-<h3 id="2212-射箭比赛中的最大得分"><a href="#2212-射箭比赛中的最大得分" class="headerlink" title="2212. 射箭比赛中的最大得分"></a>2212. 射箭比赛中的最大得分</h3><p><strong>建模方式</strong>：</p>
-<ul>
-<li>枚举每个得分区间是否争夺</li>
-</ul>
-<p><strong>选的条件</strong>：</p>
-<ul>
-<li>剩余箭数 ≥ alice[i] + 1</li>
-</ul>
-<p><strong>状态维护</strong>：</p>
-<ul>
-<li>剩余箭数</li>
-<li>当前得分</li>
-</ul>
-<p>本质是 <strong>资源分配 + 子集枚举</strong></p>
-<hr>
-<h3 id="2698-求一个整数的惩罚数"><a href="#2698-求一个整数的惩罚数" class="headerlink" title="2698. 求一个整数的惩罚数"></a>2698. 求一个整数的惩罚数</h3><p><strong>建模方式</strong>：</p>
-<ul>
-<li>对 <code>i²</code> 的字符串进行切割</li>
-<li>每一刀：切 or 不切</li>
-</ul>
-<p><strong>选的条件</strong>：</p>
-<ul>
-<li>当前分割出的数字之和 ≤ i</li>
-</ul>
-<p>本质是 <strong>字符串分割型子集回溯</strong></p>
-<hr>
-<h3 id="93-复原-IP-地址（从答案角度分析）"><a href="#93-复原-IP-地址（从答案角度分析）" class="headerlink" title="93. 复原 IP 地址（从答案角度分析）"></a>93. 复原 IP 地址（从答案角度分析）</h3><p><strong>建模方式</strong>：</p>
-<ul>
-<li>字符串分割，一共分割为 4 段</li>
-</ul>
-<ul>
-<li>枚举第 i 段从哪里分割</li>
-</ul>
-<p><strong>隐含条件（关键）</strong>：</p>
-<ol>
-<li>必须切成 <strong>4 段</strong></li>
-<li>每段 ∈ [0,255]</li>
-<li>不能有前导 0</li>
-</ol>
-<p>带<strong>分割约束</strong>的字符串回溯</p>
-<hr>
-<h2 id="五、子集型回溯的优化与剪枝"><a href="#五、子集型回溯的优化与剪枝" class="headerlink" title="五、子集型回溯的优化与剪枝"></a>五、子集型回溯的优化与剪枝</h2><h3 id="条件剪枝（最常见）"><a href="#条件剪枝（最常见）" class="headerlink" title="条件剪枝（最常见）"></a>条件剪枝（最常见）</h3><ul>
-<li>选之前判断是否合法</li>
-<li>不合法直接跳过</li>
-</ul>
-<h3 id="提前终止（上界剪枝）"><a href="#提前终止（上界剪枝）" class="headerlink" title="提前终止（上界剪枝）"></a>提前终止（上界剪枝）</h3><ul>
-<li>剩余元素即使全选，也不可能更优</li>
-<li>直接 return</li>
-</ul>
-<h3 id="强制选择"><a href="#强制选择" class="headerlink" title="强制选择"></a>强制选择</h3><ul>
-<li>剩余元素数 ≤ 剩余配额</li>
-<li>不再分支，直接全选</li>
-</ul>
-<hr>
-<h2 id="六、心得体会与方法论总结"><a href="#六、心得体会与方法论总结" class="headerlink" title="六、心得体会与方法论总结"></a>六、心得体会与方法论总结</h2><ul>
-<li>子集型回溯本质是一种<strong>暴力但系统的枚举方法</strong></li>
-<li>通过“选 &#x2F; 不选”两条分支，可以<strong>完整覆盖解空间</strong></li>
-<li>时间复杂度通常为 <code>O(2^n)</code>，但<strong>剪枝决定了实际性能</strong></li>
-<li>带条件的子集回溯，核心是：<ul>
-<li><strong>把“是否能选”的逻辑抽离成 check</strong></li>
-<li>让 DFS 结构保持干净、统一</li>
-</ul>
-</li>
-<li>很多看似不同的题（资源分配、字符串切割、组合选择），<strong>在建模层面是同一类问题</strong></li>
-</ul>
-<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/08/algorithms/backtracking/2026-1-8-backtracking-subset-practice/" data-id="cmkbbdw1c000m5w8tesxvad3t" data-title="子集型回溯方法论得应用（2026-01-08）" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-algorithms/backtracking/2026-1-6-backtracking-subset" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2026/01/06/algorithms/backtracking/2026-1-6-backtracking-subset/" class="article-date">
-  <time class="dt-published" datetime="2026-01-06T05:00:00.000Z" itemprop="datePublished">2026-01-06</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/01/06/algorithms/backtracking/2026-1-6-backtracking-subset/">子集型回溯（2026-01-06）</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>子集型回溯应用范围：子集&#x2F;组合&#x2F;切分字符串&#x2F;按位选择等“枚举所有可能”的题。</p>
-</blockquote>
-<h3 id="基础题目"><a href="#基础题目" class="headerlink" title="基础题目"></a>基础题目</h3><ul>
-<li>子集</li>
-<li>电话号码字母组合</li>
-<li>分割回文串</li>
-</ul>
-<h3 id="扩展题目"><a href="#扩展题目" class="headerlink" title="扩展题目"></a>扩展题目</h3><ul>
-<li>二叉树的所有路径</li>
-<li>路径总和 II </li>
-<li>字母大小写全排列</li>
-</ul>
-<hr>
-<h2 id="1-什么是回溯？"><a href="#1-什么是回溯？" class="headerlink" title="1. 什么是回溯？"></a>1. 什么是回溯？</h2><p>以集合 <code>(1,2,3)</code> 的子集为例：我们可以选择 <code>1</code>，也可以“退回去”不选 <code>1</code> 改选 <code>2</code>，再选 <code>3</code>。<br> 这种<strong>在构造答案的过程中回退到上一步、去探索其它分支</strong>的现象就是回溯。</p>
-<p>回溯通常伴随递归，而不是循环：</p>
-<ul>
-<li>循环适合固定层数（例如 2 层、3 层嵌套）。</li>
-<li>但回溯题的“层数”往往<strong>未知或很深</strong>（例如字符串切分、树路径、排列组合），循环表达能力有限。</li>
-<li>递归天然对应一棵“决策树”的深度优先遍历（DFS），更适合回溯。</li>
-</ul>
-<hr>
-<h2 id="2-用“树”和“路径”理解回溯"><a href="#2-用“树”和“路径”理解回溯" class="headerlink" title="2. 用“树”和“路径”理解回溯"></a>2. 用“树”和“路径”理解回溯</h2><p>把回溯理解成 <strong>DFS 遍历一棵决策树</strong>最直观：</p>
-<ul>
-<li>每走到一个节点，我们都处于一条“根 → 当前节点”的路径上</li>
-<li>用 <code>path</code> 维护这条路径</li>
-<li>当到达满足条件的位置（通常是叶子，或某些题的节点），把 <code>path</code> 记录到 <code>ans</code></li>
-</ul>
-<p>关键点：<strong>回溯 &#x3D; 递归返回 + 恢复现场</strong></p>
-<hr>
-<h2 id="3-恢复现场：为什么必须做？"><a href="#3-恢复现场：为什么必须做？" class="headerlink" title="3. 恢复现场：为什么必须做？"></a>3. 恢复现场：为什么必须做？</h2><p>在 DFS 过程中我们经常会：</p>
-<ol>
-<li>把一个选择加入 <code>path</code></li>
-<li>递归深入</li>
-<li>返回时必须撤销这个选择，否则 <code>path</code> 会“污染”后续分支</li>
-</ol>
-<p>常见的两种恢复方式：</p>
-<ul>
-<li><strong>数据覆盖</strong>：适用于“固定长度答案”（常用数组保存）</li>
-<li><strong>回滚（removeLast）</strong>：适用于 <code>List</code> &#x2F; <code>StringBuilder</code> 这种动态结构</li>
-</ul>
-<blockquote>
-<p><strong>add → dfs → removeLast</strong><br> 只要你“改变了状态”，回来的时候就要“撤销状态”。</p>
-</blockquote>
-<hr>
-<h2 id="4-子集型回溯的两大思路"><a href="#4-子集型回溯的两大思路" class="headerlink" title="4. 子集型回溯的两大思路"></a>4. 子集型回溯的两大思路</h2><p>回溯题通常两种建模方式：</p>
-<h3 id="思路-A：从输入角度——“当前元素选不选”"><a href="#思路-A：从输入角度——“当前元素选不选”" class="headerlink" title="思路 A：从输入角度——“当前元素选不选”"></a>思路 A：从输入角度——“当前元素选不选”</h3><ul>
-<li>每个输入元素对应一层决策：<strong>选 &#x2F; 不选</strong></li>
-<li>决策树通常是二叉树</li>
-<li><strong>答案通常在叶子节点收集</strong></li>
-</ul>
-<h3 id="思路-B：从答案角度——“当前位置选哪个元素”"><a href="#思路-B：从答案角度——“当前位置选哪个元素”" class="headerlink" title="思路 B：从答案角度——“当前位置选哪个元素”"></a>思路 B：从答案角度——“当前位置选哪个元素”</h3><ul>
-<li>每一层表示“答案的当前位选什么元素”</li>
-<li>用 <code>startIndex</code> 控制下一层枚举起点，避免重复</li>
-<li><strong>答案通常在节点收集</strong>（因为走到任意节点都代表一个合法子集）</li>
-</ul>
-<blockquote>
-<p>两种思路都能做 78 子集；<br> 哪个更顺手取决于题型，有时“答案角度”的树更小，有时“选不选”更直观。</p>
-</blockquote>
-<hr>
-<h2 id="5-画树：回溯卡住时最有效的解法"><a href="#5-画树：回溯卡住时最有效的解法" class="headerlink" title="5. 画树：回溯卡住时最有效的解法"></a>5. 画树：回溯卡住时最有效的解法</h2><p>当你对“递归参数是什么、何时收集答案、怎么剪枝”不明确时：</p>
-<ul>
-<li>先画出<strong>决策树</strong></li>
-<li>每一层代表什么？</li>
-<li>每条边代表什么选择？</li>
-<li>哪些节点是合法答案？</li>
-</ul>
-<blockquote>
-<p><strong>画树能直接定位：答案在哪里收集 + 哪一步需要回溯。</strong></p>
-</blockquote>
-<hr>
-<h2 id="6-结合题目：78-子集（两种思路）"><a href="#6-结合题目：78-子集（两种思路）" class="headerlink" title="6. 结合题目：78 子集（两种思路）"></a>6. 结合题目：78 子集（两种思路）</h2><h3 id="6-1-解法-1：枚举输入元素选不选（叶子收集答案）"><a href="#6-1-解法-1：枚举输入元素选不选（叶子收集答案）" class="headerlink" title="6.1 解法 1：枚举输入元素选不选（叶子收集答案）"></a>6.1 解法 1：枚举输入元素选不选（叶子收集答案）</h3><blockquote>
-<p>特点：二叉决策树；当 <code>i == nums.length</code> 才表示一条路径完全确定，因此在叶子收集。</p>
-</blockquote>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">void dfs(int i, int[] nums, List&lt;Integer&gt; path, List&lt;List&lt;Integer&gt;&gt; ans) &#123;</span><br><span class="line">    // 递归边界：输入枚举完了，path 是一种完整选择</span><br><span class="line">    if (i == nums.length) &#123;</span><br><span class="line">        ans.add(new ArrayList&lt;&gt;(path)); // 注意要拷贝</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 1) 不选 nums[i]</span><br><span class="line">    dfs(i + 1, nums, path, ans);</span><br><span class="line"></span><br><span class="line">    // 2) 选 nums[i]</span><br><span class="line">    path.add(nums[i]);</span><br><span class="line">    dfs(i + 1, nums, path, ans);</span><br><span class="line">    path.removeLast(); // 恢复现场</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>注意：</strong></p>
-<ul>
-<li><strong>叶子收集</strong>：因为只有到 <code>i==n</code> 才能确定“每个元素选没选”</li>
-<li><strong>必须拷贝 path</strong>：否则 ans 里存的是同一个引用，后续回滚会影响已保存答案</li>
-<li><strong>恢复现场</strong>：每次 add 后都要 removeLast</li>
-</ul>
-<hr>
-<h3 id="6-2-解法-2：枚举第-i-个答案选哪个元素（节点收集答案）"><a href="#6-2-解法-2：枚举第-i-个答案选哪个元素（节点收集答案）" class="headerlink" title="6.2 解法 2：枚举第 i 个答案选哪个元素（节点收集答案）"></a>6.2 解法 2：枚举第 i 个答案选哪个元素（节点收集答案）</h3><blockquote>
-<p>特点：每个节点都是一个子集，因此走到节点就可记录；用 <code>startIndex</code> 防止重复。</p>
-</blockquote>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">void dfs(int start, int[] nums, List&lt;List&lt;Integer&gt;&gt; ans, List&lt;Integer&gt; path) &#123;</span><br><span class="line">    // 由于每个节点都是一个合法子集，所以直接记录当前 path</span><br><span class="line">    ans.add(new ArrayList&lt;&gt;(path));</span><br><span class="line"></span><br><span class="line">    // 枚举下一位选哪个元素：只能从 start 往后选，保证不出现 (2,1) 这种重复顺序</span><br><span class="line">    for (int j = start; j &lt; nums.length; j++) &#123;</span><br><span class="line">        path.add(nums[j]);</span><br><span class="line">        dfs(j + 1, nums, ans, path);</span><br><span class="line">        path.removeLast(); // 回滚</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>你需要牢记的点：</strong></p>
-<ul>
-<li><strong>节点收集</strong>：因为任何时刻的 <code>path</code> 都是一个合法子集</li>
-<li><strong>startIndex 是去重本质</strong>：规定递增选取顺序，避免同一组合的不同排列</li>
-<li>这类写法也是“组合类题”通用模板（如组合总和、组合数等）</li>
-</ul>
-<hr>
-<h2 id="7-String-join：在回溯里怎么用？和-StringBuilder-有什么关系？"><a href="#7-String-join：在回溯里怎么用？和-StringBuilder-有什么关系？" class="headerlink" title="7. String.join：在回溯里怎么用？和 StringBuilder 有什么关系？"></a>7. String.join：在回溯里怎么用？和 StringBuilder 有什么关系？</h2><p>在题解中看到有人用了 <code>String.join()</code>，它很适合把结果“输出成字符串”：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; path = List.of(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;);</span><br><span class="line">String s = String.join(&quot;-&quot;, path); // &quot;a-b-c&quot;</span><br></pre></td></tr></table></figure>
-
-<p>但需要注意它和 <code>StringBuilder / StringJoiner</code> 的定位不同：</p>
-<ul>
-<li><strong>String.join</strong>：一次性把已有的字符串集合拼起来（更像“格式化输出”）</li>
-<li><strong>StringBuilder</strong>：回溯过程中不断 append &#x2F; delete（更像“构造过程中的状态”）</li>
-<li><strong>StringJoiner</strong>：更偏“带前后缀的 join”，比如 <code>&quot;[a,b,c]&quot;</code></li>
-</ul>
-<p>在回溯题中一般推荐：</p>
-<ul>
-<li>构造过程：用 <strong>StringBuilder</strong>（append + deleteCharAt 回滚）</li>
-<li>输出阶段：需要展示路径时用 <strong>String.join</strong>（更清爽）</li>
-</ul>
-<hr>
-<h2 id="8-总结"><a href="#8-总结" class="headerlink" title="8. 总结"></a>8. 总结</h2><h3 id="模板-1（选不选，叶子收集）"><a href="#模板-1（选不选，叶子收集）" class="headerlink" title="模板 1（选不选，叶子收集）"></a>模板 1（选不选，叶子收集）</h3><ul>
-<li>参数：<code>i</code></li>
-<li>收集：<code>i == n</code></li>
-<li>结构：先不选，再选（选完要回滚）</li>
-</ul>
-<h3 id="模板-2（答案角度，节点收集）"><a href="#模板-2（答案角度，节点收集）" class="headerlink" title="模板 2（答案角度，节点收集）"></a>模板 2（答案角度，节点收集）</h3><ul>
-<li>参数：<code>start</code></li>
-<li>收集：进入 dfs 就收集</li>
-<li>结构：for 从 start 枚举，递归 dfs(start +1)，回滚</li>
-</ul>
-<hr>
-<h2 id="9-心得体会"><a href="#9-心得体会" class="headerlink" title="9. 心得体会"></a>9. 心得体会</h2><ul>
-<li>回溯的本质是<strong>DFS 遍历决策树</strong>，<code>path</code> 记录当前路径，<code>ans</code> 收集答案。</li>
-<li>回溯一定伴随<strong>恢复现场</strong>：add → dfs → removeLast。</li>
-<li>子集型题最常用两种建模：<ul>
-<li><strong>选不选（叶子收集）</strong></li>
-<li><strong>选哪个（节点收集 + startIndex 去重）</strong></li>
-</ul>
-</li>
-<li>思路不清楚时，<strong>画树是最高效的破局方法</strong>。</li>
-<li><code>String.join</code> 更适合输出拼接；回溯构造过程更推荐 <code>StringBuilder</code> 做状态并回滚。</li>
-</ul>
-<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/06/algorithms/backtracking/2026-1-6-backtracking-subset/" data-id="cmkbbdw1b000k5w8tgt0a8h94" data-title="子集型回溯（2026-01-06）" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li></ul>
 
     </footer>
   </div>
@@ -2063,7 +2060,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/ssm/">ssm</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/SpringBoot/">SpringBoot</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/ssm/">ssm</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/SpringBoot/">SpringBoot</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a></li></ul>
     </div>
   </div>
 
@@ -2073,7 +2070,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring-MVC/" rel="tag">Spring MVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis-plus/" rel="tag">mybatis-plus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" rel="tag">学习计划</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8E%92%E5%88%97/" rel="tag">排列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8B%E8%AF%95/" rel="tag">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" rel="tag">热部署</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E5%90%88/" rel="tag">组合</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" rel="tag">记忆化搜索</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E6%8E%A8/" rel="tag">递推</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%85%8D%E7%BD%AE/" rel="tag">配置</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/01%E8%83%8C%E5%8C%85/" rel="tag">01背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring-MVC/" rel="tag">Spring MVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis-plus/" rel="tag">mybatis-plus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" rel="tag">学习计划</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" rel="tag">完全背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8E%92%E5%88%97/" rel="tag">排列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8B%E8%AF%95/" rel="tag">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" rel="tag">热部署</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E5%90%88/" rel="tag">组合</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" rel="tag">记忆化搜索</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E6%8E%A8/" rel="tag">递推</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%85%8D%E7%BD%AE/" rel="tag">配置</a></li></ul>
     </div>
   </div>
 
@@ -2083,7 +2080,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/Spring/" style="font-size: 10px;">Spring</a> <a href="/tags/Spring-MVC/" style="font-size: 10px;">Spring MVC</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/jdbc/" style="font-size: 12.5px;">jdbc</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mybatis/" style="font-size: 15px;">mybatis</a> <a href="/tags/mybatis-plus/" style="font-size: 10px;">mybatis-plus</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12.5px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 17.5px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 12.5px;">子集</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 10px;">总结</a> <a href="/tags/%E6%8E%92%E5%88%97/" style="font-size: 10px;">排列</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B5%8B%E8%AF%95/" style="font-size: 10px;">测试</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12.5px;">深度优先遍历</a> <a href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" style="font-size: 10px;">热部署</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E7%BB%84%E5%90%88/" style="font-size: 10px;">组合</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12.5px;">记录</a> <a href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" style="font-size: 12.5px;">记忆化搜索</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 17.5px;">递归</a> <a href="/tags/%E9%80%92%E6%8E%A8/" style="font-size: 12.5px;">递推</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a>
+      <a href="/tags/01%E8%83%8C%E5%8C%85/" style="font-size: 10px;">01背包</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/Spring/" style="font-size: 10px;">Spring</a> <a href="/tags/Spring-MVC/" style="font-size: 10px;">Spring MVC</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/jdbc/" style="font-size: 12.5px;">jdbc</a> <a href="/tags/maven/" style="font-size: 12.5px;">maven</a> <a href="/tags/mybatis/" style="font-size: 15px;">mybatis</a> <a href="/tags/mybatis-plus/" style="font-size: 10px;">mybatis-plus</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12.5px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 17.5px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 12.5px;">子集</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" style="font-size: 10px;">完全背包</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 12.5px;">总结</a> <a href="/tags/%E6%8E%92%E5%88%97/" style="font-size: 10px;">排列</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B5%8B%E8%AF%95/" style="font-size: 10px;">测试</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12.5px;">深度优先遍历</a> <a href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" style="font-size: 10px;">热部署</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E7%BB%84%E5%90%88/" style="font-size: 10px;">组合</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12.5px;">记录</a> <a href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" style="font-size: 12.5px;">记忆化搜索</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 17.5px;">递归</a> <a href="/tags/%E9%80%92%E6%8E%A8/" style="font-size: 12.5px;">递推</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a>
     </div>
   </div>
 
@@ -2105,23 +2102,23 @@
       <ul>
         
           <li>
+            <a href="/2026/01/14/misc/git-%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E6%95%B4%E7%90%86%E6%80%BB%E7%BB%93/">git 开发工具整理总结</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/13/algorithms/dynamicprogramming/2026-1-13-dynamicprogramming-01%E8%83%8C%E5%8C%85%E4%B8%8E%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85%E6%A8%A1%E5%9E%8B/">DP 模型：从回溯语义到 0-1 背包与完全背包（2026-01-13）</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/13/backend/project/2026-1-13-project-day01/">项目结构搭建：从系统结构图到多模块 Maven 项目设计</a>
+          </li>
+        
+          <li>
             <a href="/2026/01/13/backend/ssm/springboot/2026-1-11-springboot-day03%20/">Spring Boot 配置与测试实战复盘</a>
           </li>
         
           <li>
             <a href="/2026/01/12/algorithms/dynamicprogramming/2026-1-12-dynamicprogramming-practice/">从回溯到记忆化搜索到递推：动态规划巩固练习</a>
-          </li>
-        
-          <li>
-            <a href="/2026/01/11/algorithms/dynamicprogramming/2026-1-11-dynamicprogramming/">动态规划：从回溯到记忆化搜索，再到递推</a>
-          </li>
-        
-          <li>
-            <a href="/2026/01/10/algorithms/backtracking/2026-1-10-Permutation-backtracking/">排列型回溯</a>
-          </li>
-        
-          <li>
-            <a href="/2026/01/10/algorithms/backtracking/2026-1-10-backtracking-summary/">回溯总结篇</a>
           </li>
         
       </ul>
