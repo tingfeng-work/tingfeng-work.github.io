@@ -98,12 +98,12 @@ git 管理的是对文件的修改而非文件，怎么理解？例如，在文�
 
 撤销修改有三种情形：
 
-* 只是对工作区进行了修改，还没有 add 与 commit：直接通过 `git checkout --filename` 撤销修改
-* 对工作区的修改，添加到了暂存区：通过 `git reset HEAD <file>` 命令回到上一个版本，然后通过  `git checkout --filename` 撤销修改。 
+* 只是对工作区进行了修改，还没有 add 与 commit：直接通过 `git restore <file>` 撤销修改
+* 对工作区的修改，添加到了暂存区：通过 `git restore --staged <file>` 命令将文件从暂存区删除，然后通过  `git restore <file>` 撤销修改。 
 
 * 对工作区的修改不仅添加到了缓存区，还提交到了分支当中：`git reset HEAD^` 进行版本回退。
 
-> git checkout --filename：让文件回到最近一次 add 或 commit 时的状态
+> git checkout --filename 命令是让文件回到最近一次 add 或 commit 时的状态
 
 ### 文件的删除
 
