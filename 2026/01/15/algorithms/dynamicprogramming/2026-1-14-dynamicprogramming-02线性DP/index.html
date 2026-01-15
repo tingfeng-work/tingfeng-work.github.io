@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>线性 DP：字符串问题2026-01-15） | 廷风的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="本文通过 1143、72、583 三道典型题目，总结出线性 DP 的核心不在于「一维还是二维」，而在于当前状态只依赖于“更小规模的历史状态”，并且状态推进顺序是线性的；字符串 DP 与背包 DP 在模型上是统一的，只是状态含义不同。   一、什么是「线性 DP」——不是维度，而是递推方向最初我把“线性 DP”理解为一维数组，但这其实是结果，不是本质。 1. 状态只依赖于“过去” dp[i] 或">
+<meta property="og:type" content="article">
+<meta property="og:title" content="线性 DP：字符串问题2026-01-15）">
+<meta property="og:url" content="http://example.com/2026/01/15/algorithms/dynamicprogramming/2026-1-14-dynamicprogramming-02%E7%BA%BF%E6%80%A7DP/index.html">
+<meta property="og:site_name" content="廷风的技术博客">
+<meta property="og:description" content="本文通过 1143、72、583 三道典型题目，总结出线性 DP 的核心不在于「一维还是二维」，而在于当前状态只依赖于“更小规模的历史状态”，并且状态推进顺序是线性的；字符串 DP 与背包 DP 在模型上是统一的，只是状态含义不同。   一、什么是「线性 DP」——不是维度，而是递推方向最初我把“线性 DP”理解为一维数组，但这其实是结果，不是本质。 1. 状态只依赖于“过去” dp[i] 或">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-01-15T04:30:00.000Z">
+<meta property="article:modified_time" content="2026-01-15T11:05:11.335Z">
+<meta property="article:author" content="Tingfeng Li">
+<meta property="article:tag" content="线性DP">
+<meta property="article:tag" content="字符串">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="廷风的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">廷风的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Java 后端开发</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-algorithms/dynamicprogramming/2026-1-14-dynamicprogramming-02线性DP" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/15/algorithms/dynamicprogramming/2026-1-14-dynamicprogramming-02%E7%BA%BF%E6%80%A7DP/" class="article-date">
+  <time class="dt-published" datetime="2026-01-15T04:30:00.000Z" itemprop="datePublished">2026-01-15</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      线性 DP：字符串问题2026-01-15）
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>本文通过 1143、72、583 三道典型题目，总结出线性 DP 的核心不在于「一维还是二维」，而在于<strong>当前状态只依赖于“更小规模的历史状态”，并且状态推进顺序是线性的</strong>；字符串 DP 与背包 DP 在模型上是统一的，只是状态含义不同。</p>
+</blockquote>
+<hr>
+<h2 id="一、什么是「线性-DP」——不是维度，而是递推方向"><a href="#一、什么是「线性-DP」——不是维度，而是递推方向" class="headerlink" title="一、什么是「线性 DP」——不是维度，而是递推方向"></a>一、什么是「线性 DP」——不是维度，而是递推方向</h2><p>最初我把“线性 DP”理解为<strong>一维数组</strong>，但这其实是结果，不是本质。</p>
+<h3 id="1-状态只依赖于“过去”"><a href="#1-状态只依赖于“过去”" class="headerlink" title="1. 状态只依赖于“过去”"></a>1. 状态只依赖于“过去”</h3><ul>
+<li><code>dp[i]</code> 或 <code>dp[i][j]</code> <strong>只从更小的 i &#x2F; j 推导</strong></li>
+<li>不存在回头依赖、环形依赖</li>
+</ul>
+<h3 id="2-状态推进顺序是线性的"><a href="#2-状态推进顺序是线性的" class="headerlink" title="2. 状态推进顺序是线性的"></a>2. 状态推进顺序是线性的</h3><ul>
+<li>一维：<code>i = 1 → n</code></li>
+<li>二维：固定一个维度，另一个维度线性推进<br> （例如先枚举 <code>i</code>，再枚举 <code>j</code>）</li>
+</ul>
+<h3 id="3-可以被空间优化（但不是必须）"><a href="#3-可以被空间优化（但不是必须）" class="headerlink" title="3. 可以被空间优化（但不是必须）"></a>3. 可以被空间优化（但不是必须）</h3><ul>
+<li>如果 <code>dp[i]</code> 只依赖 <code>dp[i-1]</code>，就能压缩</li>
+<li>如果 <code>dp[i][j]</code> 只依赖上一行或左侧，也可以压缩</li>
+</ul>
+<p><strong>是否能压缩 ≠ 是否是线性 DP</strong></p>
+<hr>
+<h2 id="二、统一视角：字符串-DP-与背包-DP-本质相同"><a href="#二、统一视角：字符串-DP-与背包-DP-本质相同" class="headerlink" title="二、统一视角：字符串 DP 与背包 DP 本质相同"></a>二、统一视角：字符串 DP 与背包 DP 本质相同</h2><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>背包问题</th>
+<th>字符串问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>输入</td>
+<td>数组</td>
+<td>字符串</td>
+</tr>
+<tr>
+<td>状态含义</td>
+<td>前 i 个物品</td>
+<td>前 i &#x2F; j 个字符</td>
+</tr>
+<tr>
+<td>决策</td>
+<td>选 &#x2F; 不选</td>
+<td>保留 &#x2F; 删除 &#x2F; 替换</td>
+</tr>
+<tr>
+<td>本质</td>
+<td>枚举当前位置的决策</td>
+<td>枚举当前位置的操作</td>
+</tr>
+</tbody></table>
+<p><strong>01 背包、完全背包、LCS、编辑距离，本质上都是“位置 + 决策”的线性 DP。</strong></p>
+<hr>
+<h2 id="三、经典模型一：1143-最长公共子序列（LCS）"><a href="#三、经典模型一：1143-最长公共子序列（LCS）" class="headerlink" title="三、经典模型一：1143 最长公共子序列（LCS）"></a>三、经典模型一：1143 最长公共子序列（LCS）</h2><h3 id="状态定义"><a href="#状态定义" class="headerlink" title="状态定义"></a>状态定义</h3><blockquote>
+<p><code>dp[i][j]</code>：<br> <strong>word1 前 i 个字符</strong> 与 <strong>word2 前 j 个字符</strong> 的最长公共子序列长度</p>
+</blockquote>
+<p>注意：</p>
+<ul>
+<li>是「前 i 个」，不是「第 i 个」</li>
+<li>这是为了让 <code>dp[0][*]</code> 成为合法边界</li>
+</ul>
+<hr>
+<h3 id="决策拆解（从-DFS-到-DP）"><a href="#决策拆解（从-DFS-到-DP）" class="headerlink" title="决策拆解（从 DFS 到 DP）"></a>决策拆解（从 DFS 到 DP）</h3><p>站在回溯角度：</p>
+<ul>
+<li>当前考察 <code>word1[i-1]</code> 和 <code>word2[j-1]</code></li>
+<li>两种情况：<ul>
+<li>相等 → 一起加入子序列</li>
+<li>不等 → 放弃其中一个</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="状态转移（核心）"><a href="#状态转移（核心）" class="headerlink" title="状态转移（核心）"></a>状态转移（核心）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">if word1[i-1] == word2[j-1]:</span><br><span class="line">    dp[i][j] = dp[i-1][j-1] + 1</span><br><span class="line">else:</span><br><span class="line">    dp[i][j] = max(dp[i-1][j], dp[i][j-1])</span><br></pre></td></tr></table></figure>
+
+<p><strong>这是一个非常“干净”的线性 DP：</strong></p>
+<ul>
+<li>依赖方向：左、上、左上</li>
+<li>遍历顺序：i 从小到大，j 从小到大</li>
+</ul>
+<hr>
+<h2 id="四、经典模型二：72-编辑距离（Edit-Distance）"><a href="#四、经典模型二：72-编辑距离（Edit-Distance）" class="headerlink" title="四、经典模型二：72 编辑距离（Edit Distance）"></a>四、经典模型二：72 编辑距离（Edit Distance）</h2><h3 id="状态定义-1"><a href="#状态定义-1" class="headerlink" title="状态定义"></a>状态定义</h3><blockquote>
+<p><code>dp[i][j]</code>：<br> <strong>word1 前 i 个字符</strong> 转换为 <strong>word2 前 j 个字符</strong> 的最少操作数</p>
+</blockquote>
+<hr>
+<h3 id="为什么它和-LCS-是同一类问题？"><a href="#为什么它和-LCS-是同一类问题？" class="headerlink" title="为什么它和 LCS 是同一类问题？"></a>为什么它和 LCS 是同一类问题？</h3><p>可以从“操作视角”统一理解：</p>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>对应状态变化</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>删除 word1[i-1]</td>
+<td><code>dp[i-1][j] + 1</code></td>
+</tr>
+<tr>
+<td>插入的字符与 word2[j] 相同，所以递归到 word2[j-1]</td>
+<td><code>dp[i][j-1] + 1</code></td>
+</tr>
+<tr>
+<td>替换 &#x2F; 保留</td>
+<td><code>dp[i-1][j-1] + cost</code></td>
+</tr>
+</tbody></table>
+<p>其中：</p>
+<ul>
+<li><code>cost = 0</code>（字符相等）</li>
+<li><code>cost = 1</code>（字符不等）</li>
+</ul>
+<hr>
+<h3 id="状态转移方程"><a href="#状态转移方程" class="headerlink" title="状态转移方程"></a>状态转移方程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">if word1[i-1] == word2[j-1]:</span><br><span class="line">    dp[i][j] = dp[i-1][j-1]</span><br><span class="line">else:</span><br><span class="line">    dp[i][j] = min(</span><br><span class="line">        dp[i-1][j],     // 删除</span><br><span class="line">        dp[i][j-1],     // 插入</span><br><span class="line">        dp[i-1][j-1]    // 替换</span><br><span class="line">    ) + 1</span><br></pre></td></tr></table></figure>
+
+<p>和 LCS 的区别不在于 DP 框架，而在于：</p>
+<ul>
+<li><strong>相等时是否“奖励 +1”</strong></li>
+<li><strong>不等时是取 max 还是 min</strong></li>
+</ul>
+<hr>
+<h2 id="五、模型变形：583-两个字符串的删除操作"><a href="#五、模型变形：583-两个字符串的删除操作" class="headerlink" title="五、模型变形：583 两个字符串的删除操作"></a>五、模型变形：583 两个字符串的删除操作</h2><blockquote>
+<p>这道题是 <strong>编辑距离的特例</strong>：</p>
+<ul>
+<li>只能删除</li>
+<li>允许对两个字符串都删除</li>
+</ul>
+</blockquote>
+<hr>
+<h3 id="两种等价解法（体现思维深度）"><a href="#两种等价解法（体现思维深度）" class="headerlink" title="两种等价解法（体现思维深度）"></a>两种等价解法（体现思维深度）</h3><h4 id="解法一：直接-DP（编辑距离删减版）"><a href="#解法一：直接-DP（编辑距离删减版）" class="headerlink" title="解法一：直接 DP（编辑距离删减版）"></a>解法一：直接 DP（编辑距离删减版）</h4><ul>
+<li>只保留「删除」相关转移</li>
+<li>不允许插入和替换</li>
+</ul>
+<h4 id="解法二：LCS-转化（更优雅）"><a href="#解法二：LCS-转化（更优雅）" class="headerlink" title="解法二：LCS 转化（更优雅）"></a>解法二：LCS 转化（更优雅）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">最少删除次数 =</span><br><span class="line">    len(word1) + len(word2) - 2 * LCS(word1, word2)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="六、字符串-DP-vs-背包-DP：本质对比总结"><a href="#六、字符串-DP-vs-背包-DP：本质对比总结" class="headerlink" title="六、字符串 DP vs 背包 DP：本质对比总结"></a>六、字符串 DP vs 背包 DP：本质对比总结</h2><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>背包</th>
+<th>字符串 DP</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>状态</td>
+<td><code>dp[i][j] </code></td>
+<td><code>dp[i][j] </code></td>
+</tr>
+<tr>
+<td>i 的含义</td>
+<td>前 i 个物品</td>
+<td>前 i 个字符</td>
+</tr>
+<tr>
+<td>j 的含义</td>
+<td>容量 &#x2F; 价值</td>
+<td>另一个字符串长度</td>
+</tr>
+<tr>
+<td>决策</td>
+<td>选 &#x2F; 不选</td>
+<td>删除 &#x2F; 插入 &#x2F; 替换</td>
+</tr>
+<tr>
+<td>共同点</td>
+<td>线性推进、局部最优构成全局最优</td>
+<td></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="七、总结"><a href="#七、总结" class="headerlink" title="七、总结"></a>七、总结</h2><ul>
+<li>线性 DP 的核心是 <strong>“状态规模单调变小 + 线性遍历顺序”</strong></li>
+<li>LCS、编辑距离、字符串删除问题 <strong>本质是一套 DP 模型</strong></li>
+<li>能从 DFS → 状态定义 → 转移方程 → 空间优化，是完整 DP 能力的体现</li>
+<li><strong>理解状态含义，比记公式重要得多</strong></li>
+</ul>
+<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/15/algorithms/dynamicprogramming/2026-1-14-dynamicprogramming-02%E7%BA%BF%E6%80%A7DP/" data-id="cmkfcgxin0016e48t68s6dgo8" data-title="线性 DP：字符串问题2026-01-15）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="tag">字符串</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BA%BF%E6%80%A7DP/" rel="tag">线性DP</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2026/01/14/misc/git-%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E6%95%B4%E7%90%86%E6%80%BB%E7%BB%93/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">git 开发工具整理总结</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/ssm/">ssm</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/SpringBoot/">SpringBoot</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/01%E8%83%8C%E5%8C%85/" rel="tag">01背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring-MVC/" rel="tag">Spring MVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis-plus/" rel="tag">mybatis-plus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="tag">字符串</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" rel="tag">学习计划</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" rel="tag">完全背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8E%92%E5%88%97/" rel="tag">排列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8B%E8%AF%95/" rel="tag">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" rel="tag">热部署</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BA%BF%E6%80%A7DP/" rel="tag">线性DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E5%90%88/" rel="tag">组合</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" rel="tag">记忆化搜索</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E6%8E%A8/" rel="tag">递推</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%85%8D%E7%BD%AE/" rel="tag">配置</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/01%E8%83%8C%E5%8C%85/" style="font-size: 10px;">01背包</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/Spring/" style="font-size: 10px;">Spring</a> <a href="/tags/Spring-MVC/" style="font-size: 10px;">Spring MVC</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/jdbc/" style="font-size: 12.5px;">jdbc</a> <a href="/tags/maven/" style="font-size: 12.5px;">maven</a> <a href="/tags/mybatis/" style="font-size: 15px;">mybatis</a> <a href="/tags/mybatis-plus/" style="font-size: 10px;">mybatis-plus</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12.5px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 17.5px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 12.5px;">子集</a> <a href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" style="font-size: 10px;">字符串</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" style="font-size: 10px;">完全背包</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 12.5px;">总结</a> <a href="/tags/%E6%8E%92%E5%88%97/" style="font-size: 10px;">排列</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B5%8B%E8%AF%95/" style="font-size: 10px;">测试</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12.5px;">深度优先遍历</a> <a href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" style="font-size: 10px;">热部署</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E7%BA%BF%E6%80%A7DP/" style="font-size: 10px;">线性DP</a> <a href="/tags/%E7%BB%84%E5%90%88/" style="font-size: 10px;">组合</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12.5px;">记录</a> <a href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" style="font-size: 12.5px;">记忆化搜索</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 17.5px;">递归</a> <a href="/tags/%E9%80%92%E6%8E%A8/" style="font-size: 12.5px;">递推</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">一月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/12/">十二月 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/01/15/algorithms/dynamicprogramming/2026-1-14-dynamicprogramming-02%E7%BA%BF%E6%80%A7DP/">线性 DP：字符串问题2026-01-15）</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/14/misc/git-%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E6%95%B4%E7%90%86%E6%80%BB%E7%BB%93/">git 开发工具整理总结</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/13/algorithms/dynamicprogramming/2026-1-13-dynamicprogramming-01%E8%83%8C%E5%8C%85%E4%B8%8E%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85%E6%A8%A1%E5%9E%8B/">DP 模型：从回溯语义到 0-1 背包与完全背包（2026-01-13）</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/13/backend/project/2026-1-13-project-day01/">项目结构搭建：从系统结构图到多模块 Maven 项目设计</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/13/backend/ssm/springboot/2026-1-11-springboot-day03%20/">Spring Boot 配置与测试实战复盘</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Tingfeng Li<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
