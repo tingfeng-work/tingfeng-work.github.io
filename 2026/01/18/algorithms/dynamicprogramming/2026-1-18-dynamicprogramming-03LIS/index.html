@@ -4,16 +4,20 @@
   <meta charset="utf-8">
   
   
-  <title>标签: mybatis-plus | 廷风的技术博客</title>
+  <title>线性 DP · 最长递增子序列（LIS）专题总结 | 廷风的技术博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="记录 Java 后端学习与项目实践的技术博客">
-<meta property="og:type" content="website">
-<meta property="og:title" content="廷风的技术博客">
-<meta property="og:url" content="http://example.com/tags/mybatis-plus/index.html">
+  <meta name="description" content="基础题目：300. 最长递增子序列 扩展题目：  将三个组排序 找出到每个位置为止最长的有效障碍赛跑路线 得到山型数组的最少删除次数 使数组 K 递增的最少操作次数   一、概述：为什么 LIS 是一种“新的线性 DP”这两天的题目有一个非常鲜明的共同点：  都是「单数组 + 子序列 + 有序性」问题  它们与之前接触的模型（如 0&#x2F;1 背包、完全背包、双序列 DP）有本质区别：  不是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="线性 DP · 最长递增子序列（LIS）专题总结">
+<meta property="og:url" content="http://example.com/2026/01/18/algorithms/dynamicprogramming/2026-1-18-dynamicprogramming-03LIS/index.html">
 <meta property="og:site_name" content="廷风的技术博客">
-<meta property="og:description" content="记录 Java 后端学习与项目实践的技术博客">
+<meta property="og:description" content="基础题目：300. 最长递增子序列 扩展题目：  将三个组排序 找出到每个位置为止最长的有效障碍赛跑路线 得到山型数组的最少删除次数 使数组 K 递增的最少操作次数   一、概述：为什么 LIS 是一种“新的线性 DP”这两天的题目有一个非常鲜明的共同点：  都是「单数组 + 子序列 + 有序性」问题  它们与之前接触的模型（如 0&#x2F;1 背包、完全背包、双序列 DP）有本质区别：  不是">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-01-18T12:56:51.834Z">
+<meta property="article:modified_time" content="2026-01-18T13:22:34.382Z">
 <meta property="article:author" content="Tingfeng Li">
+<meta property="article:tag" content="线性DP">
+<meta property="article:tag" content="LIS">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternate" href="/atom.xml" title="廷风的技术博客" type="application/atom+xml">
@@ -79,39 +83,256 @@
 </header>
 
       <div class="outer">
-        <section id="main">
-  
-  
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2026" class="archive-year">2026</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2026/01/10/backend/ssm/springboot/2026-1-10-springboot-day02%20/" class="archive-article-date">
-  <time class="dt-published" datetime="2026-01-09T16:00:00.000Z" itemprop="datePublished">1月 10</time>
+        <section id="main"><article id="post-algorithms/dynamicprogramming/2026-1-18-dynamicprogramming-03LIS" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/18/algorithms/dynamicprogramming/2026-1-18-dynamicprogramming-03LIS/" class="article-date">
+  <time class="dt-published" datetime="2026-01-18T12:56:51.834Z" itemprop="datePublished">2026-01-18</time>
 </a>
-      
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2026/01/10/backend/ssm/springboot/2026-1-10-springboot-day02%20/">Spring Boot + SSMP 基础实战与问题复盘</a>
+    <h1 class="p-name article-title" itemprop="headline name">
+      线性 DP · 最长递增子序列（LIS）专题总结
     </h1>
   
 
-    </header>
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><strong>基础题目</strong>：300. 最长递增子序列</p>
+<p><strong>扩展题目</strong>：</p>
+<ul>
+<li>将三个组排序</li>
+<li>找出到每个位置为止最长的有效障碍赛跑路线</li>
+<li>得到山型数组的最少删除次数</li>
+<li>使数组 K 递增的最少操作次数</li>
+</ul>
+<hr>
+<h2 id="一、概述：为什么-LIS-是一种“新的线性-DP”"><a href="#一、概述：为什么-LIS-是一种“新的线性-DP”" class="headerlink" title="一、概述：为什么 LIS 是一种“新的线性 DP”"></a>一、概述：为什么 LIS 是一种“新的线性 DP”</h2><p>这两天的题目有一个非常鲜明的共同点：</p>
+<blockquote>
+<p><strong>都是「单数组 + 子序列 + 有序性」问题</strong></p>
+</blockquote>
+<p>它们与之前接触的模型（如 0&#x2F;1 背包、完全背包、双序列 DP）有本质区别：</p>
+<ul>
+<li><strong>不是选容量 &#x2F; 次数</strong></li>
+<li><strong>不是两个序列之间的匹配</strong></li>
+<li>而是：<strong>在保持原相对顺序的前提下，选出一个“有序的子序列”</strong></li>
+</ul>
+<p>这类问题的核心关键词是：</p>
+<ul>
+<li><strong>子序列（Subsequence）</strong></li>
+<li><strong>递增 &#x2F; 不降（有序性约束）</strong></li>
+<li><strong>最长 &#x2F; 最少删除（等价转化）</strong></li>
+</ul>
+<p>而这一整类问题，几乎都可以归约到一个经典母题：</p>
+<blockquote>
+<p><strong>最长递增子序列（LIS）</strong></p>
+</blockquote>
+<h2 id="二、300-最长递增子序列（LIS）"><a href="#二、300-最长递增子序列（LIS）" class="headerlink" title="二、300. 最长递增子序列（LIS）"></a>二、300. 最长递增子序列（LIS）</h2><h3 id="从回溯到-O-n²-线性-DP"><a href="#从回溯到-O-n²-线性-DP" class="headerlink" title="从回溯到 O(n²) 线性 DP"></a>从回溯到 O(n²) 线性 DP</h3><h4 id="思维起点：子序列-子集的一种"><a href="#思维起点：子序列-子集的一种" class="headerlink" title="思维起点：子序列 &#x3D; 子集的一种"></a>思维起点：子序列 &#x3D; 子集的一种</h4><p>LIS 本质是一个「选或不选」的问题，可以有两种回溯视角：</p>
+<ul>
+<li><strong>枚举元素选不选</strong><br> → 需要额外维护「上一个选了谁」</li>
+<li><strong>枚举答案以谁结尾</strong>（更适合 DP）<br> → 只关心：<em>以 nums[i] 结尾的 LIS 最长是多少</em></li>
+</ul>
+<h4 id="状态定义"><a href="#状态定义" class="headerlink" title="状态定义"></a>状态定义</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i]：以 nums[i] 结尾的最长严格递增子序列长度</span><br></pre></td></tr></table></figure>
+
+<h4 id="状态转移"><a href="#状态转移" class="headerlink" title="状态转移"></a>状态转移</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i] = max(dp[j] + 1)  (j &lt; i 且 nums[j] &lt; nums[i])</span><br></pre></td></tr></table></figure>
+
+<h4 id="复杂度"><a href="#复杂度" class="headerlink" title="复杂度"></a>复杂度</h4><ul>
+<li>状态数：n</li>
+<li>转移代价：n</li>
+<li><strong>时间复杂度：O(n²)</strong></li>
+</ul>
+<p>考虑优化时间复杂度。</p>
+<hr>
+<h3 id="贪心-二分：从-O-n²-到-O-n-log-n"><a href="#贪心-二分：从-O-n²-到-O-n-log-n" class="headerlink" title="贪心 + 二分：从 O(n²) 到 O(n log n)"></a>贪心 + 二分：从 O(n²) 到 O(n log n)</h3><p>当 n 上到 10⁵ 时，O(n²) 就不够用了，需要进一步优化。</p>
+<p>核心技巧只有一句话：</p>
+<blockquote>
+<p><strong>将 dp 的「状态」和「状态值」进行交</strong></p>
+</blockquote>
+<h4 id="关键构造：g-数组"><a href="#关键构造：g-数组" class="headerlink" title="关键构造：g 数组"></a>关键构造：<code>g</code> 数组</h4><p>我们不再显式记录「每个位置的 LIS 长度」，而是维护一个数组：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g[k]：长度为 k+1 的递增子序列，其末尾元素的最小可能值</span><br></pre></td></tr></table></figure>
+
+<p>它有两个重要性质：</p>
+<ul>
+<li><code>g</code> <strong>始终是单调递增的</strong></li>
+<li><code>g.size()</code> 就是当前 LIS 的长度</li>
+</ul>
+<h4 id="遍历过程（贪心本质）"><a href="#遍历过程（贪心本质）" class="headerlink" title="遍历过程（贪心本质）"></a>遍历过程（贪心本质）</h4><p>对每个元素 <code>x = nums[i]</code>：</p>
+<ol>
+<li>在 <code>g</code> 中二分查找：<ul>
+<li><strong>严格递增 LIS</strong>：找第一个 <code>&gt;= x</code> 的位置</li>
+</ul>
+</li>
+<li>分两种情况：<ul>
+<li><strong>找不到</strong>（位置 &#x3D;&#x3D; g.size）<br> → 说明可以扩展长度，<code>g.add(x)</code></li>
+<li><strong>找到了</strong><br> → 用 <code>x</code> 替换该位置，<code>g[pos] = x</code></li>
+</ul>
+</li>
+</ol>
+<h4 id="为什么可以替换-为什么要替换"><a href="#为什么可以替换-为什么要替换" class="headerlink" title="为什么可以替换+为什么要替换"></a>为什么可以替换+为什么要替换</h4><p>因为：</p>
+<ul>
+<li>我们只关心 <strong>在固定长度下，末尾元素越小越好</strong></li>
+<li>更小的末尾元素，能给后续元素留下更大的扩展空间</li>
+</ul>
+<p>这就是贪心正确性的核心。</p>
+<p><strong>时间复杂度：O(n log n)</strong></p>
+<hr>
+<h2 id="三、LIS-的“模型迁移”：扩展题统一视角"><a href="#三、LIS-的“模型迁移”：扩展题统一视角" class="headerlink" title="三、LIS 的“模型迁移”：扩展题统一视角"></a>三、LIS 的“模型迁移”：扩展题统一视角</h2><h3 id="2826-将三个组排序"><a href="#2826-将三个组排序" class="headerlink" title="2826. 将三个组排序"></a>2826. 将三个组排序</h3><p><strong>核心转化</strong>：</p>
+<ul>
+<li>不要求严格递增</li>
+<li>只要求 <strong>非递减子序列</strong></li>
+</ul>
+<p>问题等价于：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">最少操作数 = n - 最长非递减子序列长度</span><br></pre></td></tr></table></figure>
+
+<p>实现细节：</p>
+<ul>
+<li>二分时找 <strong>第一个 &gt; x 的位置</strong></li>
+</ul>
+<hr>
+<h3 id="1964-有效障碍赛跑路线"><a href="#1964-有效障碍赛跑路线" class="headerlink" title="1964. 有效障碍赛跑路线"></a>1964. 有效障碍赛跑路线</h3><p>题目要求的是：</p>
+<blockquote>
+<p><strong>到每个位置为止的最长非递减子序列长度</strong></p>
+</blockquote>
+<p>关键点：</p>
+<ul>
+<li><code>g</code> 数组的维护方式不变</li>
+<li>每次插入 &#x2F; 替换后：当前 <code>g.size()</code> 就是答案，因为遍历nums的过程，每个数都对应一次操作。</li>
+</ul>
+<p>本质是 <strong>LIS 贪心过程的“在线版本”</strong></p>
+<hr>
+<h3 id="1671-得到山型数组的最少删除次数"><a href="#1671-得到山型数组的最少删除次数" class="headerlink" title="1671. 得到山型数组的最少删除次数"></a>1671. 得到山型数组的最少删除次数</h3><p>标准「山型数组」模型：</p>
+<ul>
+<li>枚举 <code>i</code> 作为峰顶</li>
+<li>左边：<strong>最长严格递增子序列</strong></li>
+<li>右边：<strong>最长严格递减子序列</strong></li>
+</ul>
+<p>处理技巧：</p>
+<ul>
+<li>右侧「严格递减」<br> → 倒序遍历，等价于再做一次 LIS</li>
+</ul>
+<p>答案计算：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">n - (len_left + len_right - 1)</span><br></pre></td></tr></table></figure>
+
+<p>注意边界：</p>
+<ul>
+<li>峰顶左右必须至少有一个元素 → <code>len_left &gt;= 2 &amp;&amp; len_right &gt;= 2</code></li>
+</ul>
+<hr>
+<h3 id="2111-使数组-K-递增的最少操作次数"><a href="#2111-使数组-K-递增的最少操作次数" class="headerlink" title="2111. 使数组 K 递增的最少操作次数"></a>2111. 使数组 K 递增的最少操作次数</h3><p>核心拆解：</p>
+<ol>
+<li>按下标 <code>i % k</code> 分成 k 组</li>
+<li>每一组 <strong>互不影响</strong></li>
+<li>对每一组：<ul>
+<li>求最长非递减子序列长度</li>
+</ul>
+</li>
+</ol>
+<p>最终答案：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">总长度 - 各组 LNDS 之和</span><br></pre></td></tr></table></figure>
+
+<p>这是一个非常经典的：</p>
+<blockquote>
+<p><strong>“全局问题 → 独立子问题 → LIS 统一求解”</strong></p>
+</blockquote>
+<hr>
+<h2 id="四、方法论总结"><a href="#四、方法论总结" class="headerlink" title="四、方法论总结"></a>四、方法论总结</h2><h3 id="子序列-最少操作-最长子序列"><a href="#子序列-最少操作-最长子序列" class="headerlink" title="子序列 + 最少操作 &#x3D; 最长子序列"></a>子序列 + 最少操作 &#x3D; 最长子序列</h3><p>只要题目满足：</p>
+<ul>
+<li>只能删除 &#x2F; 修改</li>
+<li>不改变相对顺序</li>
+</ul>
+<p>几乎都可以转化为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">最少操作 = n - 最长满足条件的子序列长度</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="严格递增-vs-非递减（二分差异）"><a href="#严格递增-vs-非递减（二分差异）" class="headerlink" title="严格递增 vs 非递减（二分差异）"></a>严格递增 vs 非递减（二分差异）</h3><table>
+<thead>
+<tr>
+<th>子序列类型</th>
+<th>二分查找条件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>严格递增 LIS</td>
+<td>找第一个 <code>&gt;= x</code></td>
+</tr>
+<tr>
+<td>非递减 LNDS</td>
+<td>找第一个 <code>&gt; x</code></td>
+</tr>
+</tbody></table>
+<p>这是 LIS 题中<strong>最容易写错的点</strong></p>
+<hr>
+<h3 id="为什么-LIS-属于线性-DP"><a href="#为什么-LIS-属于线性-DP" class="headerlink" title="为什么 LIS 属于线性 DP"></a>为什么 LIS 属于线性 DP</h3><ul>
+<li>本质仍是 DP</li>
+<li>只是通过：<ul>
+<li><strong>贪心</strong></li>
+<li><strong>有序结构</strong></li>
+<li><strong>二分查找</strong></li>
+</ul>
+</li>
+<li>将状态转移从 <code>O(n)</code> 优化成 <code>O(log n)</code></li>
+</ul>
+<p>这个优化的关键技巧只有一句话：</p>
+<blockquote>
+<p><strong>交换 dp 的“状态”和“状态值”</strong></p>
+</blockquote>
+<hr>
+<h2 id="五、结语"><a href="#五、结语" class="headerlink" title="五、结语"></a>五、结语</h2><p><strong>300. 最长递增子序列（LIS）是一个“母题”</strong>：</p>
+<ul>
+<li><p>它不是一题，而是一整类题型的统一入口</p>
+</li>
+<li><p>一旦 LIS 的 <strong>O(n²)</strong> 与 <strong>O(n log n)</strong> 两套思路真正吃透：</p>
+<ul>
+<li><p>山型数组</p>
+</li>
+<li><p>非递减序列</p>
+</li>
+<li><p>分组 LIS</p>
+</li>
+<li><p>最少删除 &#x2F; 修改问题</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>都可以自然转化、快速识别</p>
+<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/18/algorithms/dynamicprogramming/2026-1-18-dynamicprogramming-03LIS/" data-id="cmkjti2kn0016748tcp0p64ly" data-title="线性 DP · 最长递增子序列（LIS）专题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/LIS/" rel="tag">LIS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BA%BF%E6%80%A7DP/" rel="tag">线性DP</a></li></ul>
+
+    </footer>
   </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2026/01/15/algorithms/dynamicprogramming/2026-1-14-dynamicprogramming-02%E7%BA%BF%E6%80%A7DP/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">线性 DP：字符串问题2026-01-15）</div>
+    </a>
+  
+</nav>
+
+  
 </article>
-  
-  
-    </div></section>
-  
 
 
 </section>
