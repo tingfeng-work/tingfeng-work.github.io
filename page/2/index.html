@@ -81,6 +81,187 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-algorithms/backtracking/2026-1-10-Permutation-backtracking" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/10/algorithms/backtracking/2026-1-10-Permutation-backtracking/" class="article-date">
+  <time class="dt-published" datetime="2026-01-10T05:00:00.000Z" itemprop="datePublished">2026-01-10</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2026/01/10/algorithms/backtracking/2026-1-10-Permutation-backtracking/">排列型回溯</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>排列型回溯的本质是「<strong>每一层都可以从所有未使用的元素中重新选择</strong>」，顺序不同即视为不同答案，通常通过 <strong>used &#x2F; flag 数组</strong> 来记录当前路径中已使用的元素。</p>
+</blockquote>
+<hr>
+<h2 id="一、什么是排列型回溯？"><a href="#一、什么是排列型回溯？" class="headerlink" title="一、什么是排列型回溯？"></a>一、什么是排列型回溯？</h2><p>在回溯问题中，<strong>排列型问题</strong>有一个非常鲜明的特征：</p>
+<ul>
+<li><strong>元素相同，但顺序不同，算作不同答案</strong></li>
+<li>例如：<ul>
+<li><code>[1, 2]</code> 和 <code>[2, 1]</code> 是 <strong>两个不同的解</strong></li>
+</ul>
+</li>
+</ul>
+<p>这与我们之前做过的两类问题形成了清晰对比：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>是否关心顺序</th>
+<th>是否允许重复选</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>子集型</td>
+<td>❌ 不关心</td>
+<td>每个元素只选 &#x2F; 不选</td>
+</tr>
+<tr>
+<td>组合型</td>
+<td>❌ 不关心</td>
+<td>对于选或不选有约束条件</td>
+</tr>
+<tr>
+<td><strong>排列型</strong></td>
+<td>✅ 关心</td>
+<td><strong>每一轮可选任意当前轮次未使用元素</strong></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="二、排列型回溯的核心思想"><a href="#二、排列型回溯的核心思想" class="headerlink" title="二、排列型回溯的核心思想"></a>二、排列型回溯的核心思想</h2><p>从「<strong>枚举答案的角度</strong>」来看，排列型回溯有两个关键点：</p>
+<h3 id="每一层都在“选位置”，而不是“选元素范围”"><a href="#每一层都在“选位置”，而不是“选元素范围”" class="headerlink" title="每一层都在“选位置”，而不是“选元素范围”"></a>每一层都在“选位置”，而不是“选元素范围”</h3><ul>
+<li>第 0 位选谁？</li>
+<li>第 1 位选谁？</li>
+<li>第 2 位选谁？</li>
+</ul>
+<p>每一层都可以从 <strong>当前轮所有尚未使用的元素中选择</strong></p>
+<hr>
+<h3 id="必须显式记录「当前路径中已使用的元素」"><a href="#必须显式记录「当前路径中已使用的元素」" class="headerlink" title="必须显式记录「当前路径中已使用的元素」"></a>必须显式记录「当前路径中已使用的元素」</h3><p>因此，排列型回溯 <strong>一定需要</strong> 一个 <code>used / flag</code> 数组：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">used[i] = true  → nums[i] 已经在当前排列中使用过</span><br><span class="line">used[i] = false → 当前轮次仍可选择 nums[i]</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="三、基础题目分析"><a href="#三、基础题目分析" class="headerlink" title="三、基础题目分析"></a>三、基础题目分析</h2><h3 id="46-全排列（Permutations）"><a href="#46-全排列（Permutations）" class="headerlink" title="46. 全排列（Permutations）"></a>46. 全排列（Permutations）</h3><h4 id="问题特征"><a href="#问题特征" class="headerlink" title="问题特征"></a>问题特征</h4><ul>
+<li>目标：生成数组的所有排列</li>
+<li>终止条件：<strong>当前路径长度 &#x3D;&#x3D; nums.length</strong></li>
+<li>每一层：从所有 <code>used[i] == false</code> 的元素中选一个</li>
+</ul>
+<hr>
+<h4 id="核心实现思路"><a href="#核心实现思路" class="headerlink" title="核心实现思路"></a>核心实现思路</h4><ol>
+<li>使用 <code>path</code> 记录当前排列</li>
+<li>使用 <code>used[]</code> 标记哪些元素已被选</li>
+<li>当 <code>path.size() == nums.length</code> 时，记录答案</li>
+<li>回溯时恢复现场（<code>used[i] = false</code>）</li>
+</ol>
+<hr>
+<h4 id="关键点总结"><a href="#关键点总结" class="headerlink" title="关键点总结"></a>关键点总结</h4><ul>
+<li><strong>排列的深度 &#x3D; nums.length</strong></li>
+<li><strong>叶子节点数量 &#x3D; n!</strong></li>
+<li><code>used[]</code> 的作用是：<strong>保证每个元素在同一条路径中只出现一次</strong></li>
+</ul>
+<hr>
+<h3 id="51-N-皇后（N-Queens）"><a href="#51-N-皇后（N-Queens）" class="headerlink" title="51. N 皇后（N-Queens）"></a>51. N 皇后（N-Queens）</h3><p>这是一个<strong>非常经典的“受限排列问题”</strong>。</p>
+<hr>
+<h4 id="问题拆解"><a href="#问题拆解" class="headerlink" title="问题拆解"></a>问题拆解</h4><ul>
+<li>每一行只能放一个皇后</li>
+<li>每一列只能放一个皇后</li>
+<li>皇后不能在同一条对角线上</li>
+</ul>
+<hr>
+<h4 id="建模方式（非常关键）"><a href="#建模方式（非常关键）" class="headerlink" title="建模方式（非常关键）"></a>建模方式（非常关键）</h4><p>用一个一维数组 <code>queens</code> 表示棋盘状态：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">queens[row] = col</span><br></pre></td></tr></table></figure>
+
+<p>含义是：</p>
+<ul>
+<li>第 <code>row</code> 行</li>
+<li>第 <code>col</code> 列</li>
+<li>放置了一个皇后</li>
+</ul>
+<hr>
+<h4 id="为什么这是一个排列问题？"><a href="#为什么这是一个排列问题？" class="headerlink" title="为什么这是一个排列问题？"></a>为什么这是一个排列问题？</h4><ul>
+<li>行天然不重复（递归层数保证）</li>
+<li>列不能重复 → <code>queens</code> 本质是一个 <strong>列索引的全排列</strong></li>
+<li>对角线限制 → 给这个全排列 <strong>增加合法性约束</strong></li>
+</ul>
+<hr>
+<h4 id="对角线判断条件"><a href="#对角线判断条件" class="headerlink" title="对角线判断条件"></a>对角线判断条件</h4><p>若两个皇后在 <code>(r1, c1)</code> 和 <code>(r2, c2)</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">|r1 - r2| == |c1 - c2| → 在同一对角线</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="本质总结"><a href="#本质总结" class="headerlink" title="本质总结"></a>本质总结</h4><blockquote>
+<p><strong>N 皇后 &#x3D; 带约束条件的全排列问题</strong></p>
+</blockquote>
+<hr>
+<h2 id="四、扩展题目"><a href="#四、扩展题目" class="headerlink" title="四、扩展题目"></a>四、扩展题目</h2><h3 id="357-统计各位数字都不同的数字个数"><a href="#357-统计各位数字都不同的数字个数" class="headerlink" title="357. 统计各位数字都不同的数字个数"></a>357. 统计各位数字都不同的数字个数</h3><p>这道题虽然形式不同，但本质仍然是：</p>
+<ul>
+<li>在每一位上选数字</li>
+<li>同一个数字不能重复使用</li>
+<li>位数不同，形成不同答案</li>
+</ul>
+<p>本质是 <strong>多层排列 + 剪枝计数</strong>，而不是生成具体排列。</p>
+<hr>
+<h2 id="五、排列型回溯的时间复杂度"><a href="#五、排列型回溯的时间复杂度" class="headerlink" title="五、排列型回溯的时间复杂度"></a>五、排列型回溯的时间复杂度</h2><p>排列问题的时间复杂度通常非常直观：</p>
+<ul>
+<li><p><strong>等于叶子节点数量</strong></p>
+</li>
+<li><p>对于 n 个元素的全排列：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">时间复杂度 = O(n!) // 画树分析节点数量得到</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>这是排列问题不可避免的代价，因此：</p>
+<ul>
+<li>剪枝尤为重要</li>
+<li>约束条件越多，搜索空间越小</li>
+</ul>
+<hr>
+<h2 id="六、心得体会与方法论总结"><a href="#六、心得体会与方法论总结" class="headerlink" title="六、心得体会与方法论总结"></a>六、心得体会与方法论总结</h2><h3 id="排列型回溯的固定模板"><a href="#排列型回溯的固定模板" class="headerlink" title="排列型回溯的固定模板"></a>排列型回溯的固定模板</h3><ol>
+<li>路径长度固定（通常等于元素个数）</li>
+<li>每一层从 <strong>所有未使用元素中选择</strong></li>
+<li>使用 <code>used[] / flag[]</code> 记录使用状态</li>
+<li>回溯时一定要 <strong>恢复现场</strong></li>
+</ol>
+<hr>
+<h3 id="与前两类回溯的根本区别"><a href="#与前两类回溯的根本区别" class="headerlink" title="与前两类回溯的根本区别"></a>与前两类回溯的根本区别</h3><blockquote>
+<p><strong>是否允许在下一层重新选择之前没选过的元素</strong></p>
+</blockquote>
+<ul>
+<li>子集 &#x2F; 组合：「之前轮次选过，就不能再选」</li>
+<li>排列：「只要当前路径没用过，就可以选」</li>
+</ul>
+<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/10/algorithms/backtracking/2026-1-10-Permutation-backtracking/" data-id="cmklbs4ij000l048tfue8fpxd" data-title="排列型回溯" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8E%92%E5%88%97/" rel="tag">排列</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-algorithms/backtracking/2026-1-10-backtracking-summary" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2026/01/10/algorithms/backtracking/2026-1-10-backtracking-summary/" class="article-date">
@@ -299,7 +480,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/10/algorithms/backtracking/2026-1-10-backtracking-summary/" data-id="cmkkn3hao000lgw8t0vgx7n7m" data-title="回溯总结篇" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/10/algorithms/backtracking/2026-1-10-backtracking-summary/" data-id="cmklbs4il000s048tdsll7oaa" data-title="回溯总结篇" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -506,7 +687,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/10/backend/ssm/springboot/2026-1-10-springboot-day02%20/" data-id="cmkkn3hbr005ogw8t1tg14qhh" data-title="Spring Boot + SSMP 基础实战与问题复盘" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/10/backend/ssm/springboot/2026-1-10-springboot-day02%20/" data-id="cmklbs4jq005a048tgi433sog" data-title="Spring Boot + SSMP 基础实战与问题复盘" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -708,7 +889,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/09/algorithms/backtracking/2026-1-9-Combinatorial%20backtracking/" data-id="cmkkn3har000ygw8t7r193tb5" data-title="组合型回溯 + 剪枝：从子集枚举到条件收敛" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/09/algorithms/backtracking/2026-1-9-Combinatorial%20backtracking/" data-id="cmklbs4io0010048tb6qz82vm" data-title="组合型回溯 + 剪枝：从子集枚举到条件收敛" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -918,7 +1099,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/09/backend/ssm/springboot/2026-1-9-springboot-day01/" data-id="cmkkn3hbs005rgw8t5ma6er6y" data-title="Spring Boot 基础入门与整合实践" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/09/backend/ssm/springboot/2026-1-9-springboot-day01/" data-id="cmklbs4js005e048t2magfczf" data-title="Spring Boot 基础入门与整合实践" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1083,7 +1264,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/08/algorithms/backtracking/2026-1-8-backtracking-subset-practice/" data-id="cmkkn3haq000sgw8t1xs3hvrr" data-title="子集型回溯方法论得应用（2026-01-08）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/08/algorithms/backtracking/2026-1-8-backtracking-subset-practice/" data-id="cmklbs4il000q048tch75flxw" data-title="子集型回溯方法论得应用（2026-01-08）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1260,7 +1441,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/06/algorithms/backtracking/2026-1-6-backtracking-subset/" data-id="cmkkn3hao000mgw8t1n0p1nsx" data-title="子集型回溯（2026-01-06）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/06/algorithms/backtracking/2026-1-6-backtracking-subset/" data-id="cmklbs4ik000m048t818n9snx" data-title="子集型回溯（2026-01-06）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1375,7 +1556,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/06/misc/Spring%20+%20Redis%20%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92%20V3.1%EF%BC%887%E5%A4%A9%E9%97%AD%E7%8E%AF%EF%BC%8C%E5%9F%BA%E4%BA%8EAI%EF%BC%89/" data-id="cmkkn3haa0000gw8tflyw5640" data-title="Spring + Redis 学习计划 V3.1（7天闭环，基于AI）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/06/misc/Spring%20+%20Redis%20%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92%20V3.1%EF%BC%887%E5%A4%A9%E9%97%AD%E7%8E%AF%EF%BC%8C%E5%9F%BA%E4%BA%8EAI%EF%BC%89/" data-id="cmklbs4i50000048tgpthhz1n" data-title="Spring + Redis 学习计划 V3.1（7天闭环，基于AI）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1552,7 +1733,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/05/algorithms/binary-tree/2026-1-5-binary-tree-level-order-traversal/" data-id="cmkkn3hap000qgw8t84cedu8b" data-title="二叉树的层序遍历总结（2026-01-05）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/05/algorithms/binary-tree/2026-1-5-binary-tree-level-order-traversal/" data-id="cmklbs4ii000g048tda782gyx" data-title="二叉树的层序遍历总结（2026-01-05）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1790,248 +1971,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/04/algorithms/binary-tree/2026-1-4-lowestCommonAncestor/" data-id="cmkkn3hal000agw8t4wtl8a0e" data-title="二叉树的最近公共祖先（LCA）问题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/04/algorithms/binary-tree/2026-1-4-lowestCommonAncestor/" data-id="cmklbs4ih000a048tb3cf9od1" data-title="二叉树的最近公共祖先（LCA）问题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-backend/ssm/MyBatis/2026-1-4-mybatis-day07" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2026/01/04/backend/ssm/MyBatis/2026-1-4-mybatis-day07/" class="article-date">
-  <time class="dt-published" datetime="2026-01-03T16:00:00.000Z" itemprop="datePublished">2026-01-04</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>►<a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/01/04/backend/ssm/MyBatis/2026-1-4-mybatis-day07/">MyBatis XML 映射器学习复盘：结合实践 Bug</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>在学习 MyBatis XML 映射器之前，我以为这部分内容只是“把 SQL 写进 XML”。<br> 但真正动手后，我发现：</p>
-<p><strong>我遇到的大多数问题，都不是 SQL 写错，而是「我并不知道 MyBatis 在什么时候、用什么规则去解析这些 XML」。</strong></p>
-<p>这篇文章并不是官方文档的复述，而是<strong>我在学习过程中真实遇到的问题、修复的 Bug，以及最终形成理解总结。</strong></p>
-</blockquote>
-<hr>
-<h2 id="Bug-：为什么必须用-Param，不然-XML-对不上？"><a href="#Bug-：为什么必须用-Param，不然-XML-对不上？" class="headerlink" title="Bug ：为什么必须用 @Param，不然 XML 对不上？"></a>Bug ：为什么必须用 <code>@Param</code>，不然 XML 对不上？</h2><h3 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">query(String name, String status);</span><br><span class="line">#&#123;name&#125;  // 报错</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h3 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h3><ul>
-<li>方法传入的形参名不保存，MyBatis 默认参数名为 <code>param1 / param2</code></li>
-</ul>
-<hr>
-<h3 id="正确做法"><a href="#正确做法" class="headerlink" title="正确做法"></a>正确做法</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">query(@Param(&quot;name&quot;) String name,</span><br><span class="line">      @Param(&quot;status&quot;) String status);</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h3 id="最终结论"><a href="#最终结论" class="headerlink" title="最终结论"></a>最终结论</h3><blockquote>
-<p><strong>多参数方法，一律使用 <code>@Param</code>，及规范又易读</strong></p>
-</blockquote>
-<hr>
-<h2 id="XML-映射器整体结构认知"><a href="#XML-映射器整体结构认知" class="headerlink" title="XML 映射器整体结构认知"></a>XML 映射器整体结构认知</h2><p>一个 SQL 映射文件中，真正重要的顶级元素并不多（按推荐顺序）：</p>
-<ul>
-<li><code>resultMap</code>：结果集到对象的映射规则（最强大、最复杂）</li>
-<li><code>sql</code>：可复用的 SQL 片段</li>
-<li><code>select</code></li>
-<li><code>insert</code></li>
-<li><code>update</code></li>
-<li><code>delete</code></li>
-</ul>
-<p><strong>核心思想只有一个：</strong></p>
-<blockquote>
-<p><strong>Mapper XML 的职责是：定义 SQL + 描述 SQL 执行结果如何映射成 Java 对象。</strong></p>
-</blockquote>
-<hr>
-<h2 id="select：最常用，也最容易被“想简单”的地方"><a href="#select：最常用，也最容易被“想简单”的地方" class="headerlink" title="select：最常用，也最容易被“想简单”的地方"></a>select：最常用，也最容易被“想简单”的地方</h2><p>一个最基本的查询如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;select id=&quot;selectById&quot; resultType=&quot;com.tingfeng.mybatis.pojo.User&quot;&gt;</span><br><span class="line">  select * from tb_user where id = #&#123;id&#125;</span><br><span class="line">&lt;/select&gt;</span><br></pre></td></tr></table></figure>
-
-<h3 id="的本质理解"><a href="#的本质理解" class="headerlink" title="#{} 的本质理解"></a><code>#&#123;&#125;</code> 的本质理解</h3><p><code>#&#123;id&#125;</code> 并不是字符串拼接，而是 <strong>预编译参数占位符</strong>，底层等价于 JDBC：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String sql = &quot;select * from tb_user where id = ?&quot;;</span><br><span class="line">PreparedStatement ps = conn.prepareStatement(sql);</span><br><span class="line">ps.setInt(1, id);</span><br></pre></td></tr></table></figure>
-
-<p><strong>结论</strong>：</p>
-<ul>
-<li><code>#&#123;&#125;</code> 安全（防 SQL 注入）</li>
-<li><code>#&#123;&#125;</code> 会使用 <code>PreparedStatement</code></li>
-</ul>
-<hr>
-<h3 id="select-的核心属性"><a href="#select-的核心属性" class="headerlink" title="select 的核心属性"></a>select 的核心属性</h3><table>
-<thead>
-<tr>
-<th>属性</th>
-<th>工程级理解</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>parameterType</code></td>
-<td>可省略，MyBatis 可通过参数类型推断</td>
-</tr>
-<tr>
-<td><code>resultType</code></td>
-<td>适合字段名与属性名一致的简单映射</td>
-</tr>
-<tr>
-<td><code>resultMap</code></td>
-<td>字段名不一致 &#x2F; 复杂映射时使用（二选一）</td>
-</tr>
-<tr>
-<td><code>statementType</code></td>
-<td>默认 PREPARED，几乎不用改</td>
-</tr>
-<tr>
-<td><code>resultOrdered</code></td>
-<td>针对嵌套结果集的内存优化（进阶）</td>
-</tr>
-</tbody></table>
-<blockquote>
-<p><strong>resultType 和 resultMap 永远只能选一个</strong></p>
-</blockquote>
-<hr>
-<h2 id="insert-update-delete：关注事务与主键"><a href="#insert-update-delete：关注事务与主键" class="headerlink" title="insert &#x2F; update &#x2F; delete：关注事务与主键"></a>insert &#x2F; update &#x2F; delete：关注事务与主键</h2><h3 id="修改语句的共同点"><a href="#修改语句的共同点" class="headerlink" title="修改语句的共同点"></a>修改语句的共同点</h3><ul>
-<li>insert &#x2F; update &#x2F; delete <strong>都会修改数据库</strong></li>
-<li><strong>必须提交事务</strong>（<code>sqlSession.commit()</code>）</li>
-</ul>
-<p>这是我忽略了很多次的一点。</p>
-<hr>
-<h3 id="useGeneratedKeys：主键回填"><a href="#useGeneratedKeys：主键回填" class="headerlink" title="useGeneratedKeys：主键回填"></a>useGeneratedKeys：主键回填</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;insert id=&quot;insertUser&quot;</span><br><span class="line">        useGeneratedKeys=&quot;true&quot;</span><br><span class="line">        keyProperty=&quot;id&quot;&gt;</span><br><span class="line">  insert into tb_user(name, phone)</span><br><span class="line">  values(#&#123;name&#125;, #&#123;phone&#125;)</span><br><span class="line">&lt;/insert&gt;</span><br></pre></td></tr></table></figure>
-
-<p>执行完成后：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">user.getId(); // 已自动回填</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p><strong>最常用的主键获取方式</strong></p>
-</blockquote>
-<hr>
-<h3 id="selectKey：数据库不支持自增时的备用方案"><a href="#selectKey：数据库不支持自增时的备用方案" class="headerlink" title="selectKey：数据库不支持自增时的备用方案"></a>selectKey：数据库不支持自增时的备用方案</h3><ul>
-<li><code>BEFORE</code>：先生成 key，再 insert</li>
-<li><code>AFTER</code>：先 insert，再查询 key（类似 Oracle）</li>
-</ul>
-<hr>
-<h2 id="sql-标签：SQL-复用的本质是字符串拼接"><a href="#sql-标签：SQL-复用的本质是字符串拼接" class="headerlink" title="sql 标签：SQL 复用的本质是字符串拼接"></a>sql 标签：SQL 复用的本质是字符串拼接</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;sql id=&quot;userColumns&quot;&gt;</span><br><span class="line">  $&#123;alias&#125;.id, $&#123;alias&#125;.username</span><br><span class="line">&lt;/sql&gt;</span><br><span class="line">&lt;select id=&quot;selectUsers&quot; resultType=&quot;map&quot;&gt;</span><br><span class="line">  select</span><br><span class="line">    &lt;include refid=&quot;userColumns&quot;&gt;</span><br><span class="line">      &lt;property name=&quot;alias&quot; value=&quot;t1&quot;/&gt;</span><br><span class="line">    &lt;/include&gt;</span><br><span class="line">  from tb_user t1</span><br><span class="line">&lt;/select&gt;</span><br></pre></td></tr></table></figure>
-
-<h3 id="关键理解"><a href="#关键理解" class="headerlink" title="关键理解"></a>关键理解</h3><ul>
-<li><code>&lt;sql&gt;</code> 本质是 <strong>字符串模板</strong></li>
-<li>所以只能使用 <code>$&#123;&#125;</code>（字符串替换）</li>
-<li><strong>不能用于接收用户输入</strong></li>
-</ul>
-<p><strong>结论</strong>：</p>
-<ul>
-<li><code>$&#123;&#125;</code> 只用于 SQL 结构</li>
-<li><code>#&#123;&#125;</code> 只用于业务参数</li>
-</ul>
-<hr>
-<h2 id="参数传递机制：最容易踩坑，踩坑后要通过-sql-日志来分析"><a href="#参数传递机制：最容易踩坑，踩坑后要通过-sql-日志来分析" class="headerlink" title="参数传递机制：最容易踩坑，踩坑后要通过 sql 日志来分析"></a>参数传递机制：最容易踩坑，踩坑后要通过 sql 日志来分析</h2><h3 id="一个关键前提"><a href="#一个关键前提" class="headerlink" title="一个关键前提"></a>一个关键前提</h3><blockquote>
-<p><strong>Mapper 方法的形参名默认不会被保留下来！</strong></p>
-</blockquote>
-<p>编译后，参数名变成：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">param1 / param2 / arg0 / arg1</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h3 id="单参数为什么“随便写都能用”"><a href="#单参数为什么“随便写都能用”" class="headerlink" title="单参数为什么“随便写都能用”"></a>单参数为什么“随便写都能用”</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">User selectUser(int id);</span><br><span class="line">where id = #&#123;id&#125;</span><br></pre></td></tr></table></figure>
-
-<p>因为 <strong>只有一个参数，不存在歧义</strong>。</p>
-<hr>
-<h3 id="多参数的真实规则"><a href="#多参数的真实规则" class="headerlink" title="多参数的真实规则"></a>多参数的真实规则</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">User select(String name, String status);</span><br></pre></td></tr></table></figure>
-
-<p>错误写法：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">where name = #&#123;name&#125; and status = #&#123;status&#125;</span><br></pre></td></tr></table></figure>
-
-<p>正确写法（不推荐）：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">where name = #&#123;param1&#125; and status = #&#123;param2&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>推荐写法</strong>（易读，明确）：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">User select(@Param(&quot;name&quot;) String name,</span><br><span class="line">            @Param(&quot;status&quot;) String status);</span><br><span class="line">where name = #&#123;name&#125; and status = #&#123;status&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h3 id="foreach-中-collection-的真相"><a href="#foreach-中-collection-的真相" class="headerlink" title="foreach 中 collection 的真相"></a>foreach 中 collection 的真相</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">int batchInsert(@Param(&quot;users&quot;) List&lt;User&gt; users);</span><br><span class="line">&lt;foreach collection=&quot;users&quot; item=&quot;user&quot;&gt;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p><strong>collection 指的是映射过程中的“参数名”，不是 Java 变量名</strong></p>
-</blockquote>
-<hr>
-<h2 id="结果映射：自动映射-vs-resultMap"><a href="#结果映射：自动映射-vs-resultMap" class="headerlink" title="结果映射：自动映射 vs resultMap"></a>结果映射：自动映射 vs resultMap</h2><h3 id="自动映射的前提"><a href="#自动映射的前提" class="headerlink" title="自动映射的前提"></a>自动映射的前提</h3><ul>
-<li>列名 &#x3D;&#x3D; 属性名（忽略大小写）</li>
-<li>或开启下划线转驼峰：</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;setting name=&quot;mapUnderscoreToCamelCase&quot; value=&quot;true&quot;/&gt;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h3 id="resultMap-的使用场景"><a href="#resultMap-的使用场景" class="headerlink" title="resultMap 的使用场景"></a>resultMap 的使用场景</h3><ul>
-<li>列名与属性名完全不一致</li>
-<li>多表查询（列名冲突）</li>
-<li>嵌套对象 &#x2F; 集合映射</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;resultMap id=&quot;userMap&quot; type=&quot;User&quot;&gt;</span><br><span class="line">  &lt;id column=&quot;user_id&quot; property=&quot;id&quot;/&gt;</span><br><span class="line">  &lt;result column=&quot;user_name&quot; property=&quot;username&quot;/&gt;</span><br><span class="line">&lt;/resultMap&gt;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p><code>&lt;id&gt;</code> 与 <code>&lt;result&gt;</code> 的区别在于：<br> <strong>id 会被标记为对象标识，对缓存和嵌套映射有优化作用</strong></p>
-</blockquote>
-<hr>
-<h2 id="自动映射的工作机制"><a href="#自动映射的工作机制" class="headerlink" title="自动映射的工作机制"></a>自动映射的工作机制</h2><ul>
-<li>自动映射先执行</li>
-<li>手动 resultMap 后执行（可覆盖）</li>
-</ul>
-<p>自动映射等级：</p>
-<ul>
-<li><code>NONE</code></li>
-<li><code>PARTIAL</code>（默认）</li>
-<li><code>FULL</code></li>
-</ul>
-<hr>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h3 id="动态-SQL-XML-映射的实践原则"><a href="#动态-SQL-XML-映射的实践原则" class="headerlink" title="动态 SQL &#x2F; XML 映射的实践原则"></a>动态 SQL &#x2F; XML 映射的实践原则</h3><ol>
-<li>参数永远用 <code>#&#123;&#125;</code>，结构才用 <code>$&#123;&#125;</code></li>
-<li>多参数一律使用 <code>@Param</code></li>
-<li>字段不一致优先用别名，其次 resultMap</li>
-<li>insert&#x2F;update&#x2F;delete 记得提交事务</li>
-<li>通过 <strong>SQL 日志反推问题</strong>，而不是盯 XML 发呆</li>
-<li>MyBatis 并不“智能”，它只是<strong>严格执行规则</strong></li>
-</ol>
-<hr>
-<h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h2><p>通过这一阶段对 <strong>XML 映射器</strong> 的系统学习，我最大的收获不是记住了多少标签，而是：</p>
-<blockquote>
-<p><strong>真正理解了 MyBatis 是如何把 SQL、参数和 Java 对象串联起来的</strong></p>
-</blockquote>
-<p>回头看这些 Bug，我发现它们有一个共同点：</p>
-<blockquote>
-<p><strong>不是我不会写 SQL，而是我不知道 MyBatis 在“什么时候、用什么身份”去解析这些 XML。</strong></p>
-</blockquote>
-<p>当我开始用“框架视角”理解 MyBatis，而不是“语法视角”，这些问题才真正消失。</p>
-<hr>
-<h2 id="学习资料与完整代码"><a href="#学习资料与完整代码" class="headerlink" title="学习资料与完整代码"></a>学习资料与完整代码</h2><ul>
-<li>XML 映射器理论学习笔记</li>
-<li>可运行的 MyBatis Demo</li>
-</ul>
-<p><strong>已整理并上传至 GitHub 仓库（含 README 说明）</strong></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/04/backend/ssm/MyBatis/2026-1-4-mybatis-day07/" data-id="cmkkn3hbq005lgw8t491r3axs" data-title="MyBatis XML 映射器学习复盘：结合实践 Bug" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li></ul>
 
     </footer>
   </div>
@@ -2066,7 +2010,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/01%E8%83%8C%E5%8C%85/" rel="tag">01背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LIS/" rel="tag">LIS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring-MVC/" rel="tag">Spring MVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis-plus/" rel="tag">mybatis-plus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="tag">字符串</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" rel="tag">学习计划</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" rel="tag">完全背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8E%92%E5%88%97/" rel="tag">排列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8B%E8%AF%95/" rel="tag">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" rel="tag">热部署</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BA%BF%E6%80%A7DP/" rel="tag">线性DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E5%90%88/" rel="tag">组合</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" rel="tag">记忆化搜索</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E6%8E%A8/" rel="tag">递推</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%85%8D%E7%BD%AE/" rel="tag">配置</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/01%E8%83%8C%E5%8C%85/" rel="tag">01背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LIS/" rel="tag">LIS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring-MVC/" rel="tag">Spring MVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis-plus/" rel="tag">mybatis-plus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="tag">字符串</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" rel="tag">学习计划</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" rel="tag">完全背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8E%92%E5%88%97/" rel="tag">排列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8B%E8%AF%95/" rel="tag">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" rel="tag">热部署</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BA%BF%E6%80%A7DP/" rel="tag">线性DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E5%90%88/" rel="tag">组合</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" rel="tag">记忆化搜索</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E6%8E%A8/" rel="tag">递推</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%85%8D%E7%BD%AE/" rel="tag">配置</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A4%90%E9%A5%AE%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" rel="tag">餐饮管理系统</a></li></ul>
     </div>
   </div>
 
@@ -2076,7 +2020,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/01%E8%83%8C%E5%8C%85/" style="font-size: 10px;">01背包</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LIS/" style="font-size: 12px;">LIS</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/Spring/" style="font-size: 10px;">Spring</a> <a href="/tags/Spring-MVC/" style="font-size: 10px;">Spring MVC</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/jdbc/" style="font-size: 12px;">jdbc</a> <a href="/tags/maven/" style="font-size: 12px;">maven</a> <a href="/tags/mybatis/" style="font-size: 16px;">mybatis</a> <a href="/tags/mybatis-plus/" style="font-size: 10px;">mybatis-plus</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 18px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 12px;">子集</a> <a href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" style="font-size: 10px;">字符串</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" style="font-size: 10px;">完全背包</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 12px;">总结</a> <a href="/tags/%E6%8E%92%E5%88%97/" style="font-size: 10px;">排列</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B5%8B%E8%AF%95/" style="font-size: 10px;">测试</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12px;">深度优先遍历</a> <a href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" style="font-size: 10px;">热部署</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E7%BA%BF%E6%80%A7DP/" style="font-size: 14px;">线性DP</a> <a href="/tags/%E7%BB%84%E5%90%88/" style="font-size: 10px;">组合</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12px;">记录</a> <a href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" style="font-size: 12px;">记忆化搜索</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 18px;">递归</a> <a href="/tags/%E9%80%92%E6%8E%A8/" style="font-size: 12px;">递推</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a>
+      <a href="/tags/01%E8%83%8C%E5%8C%85/" style="font-size: 10px;">01背包</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LIS/" style="font-size: 12px;">LIS</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/Spring/" style="font-size: 10px;">Spring</a> <a href="/tags/Spring-MVC/" style="font-size: 10px;">Spring MVC</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/jdbc/" style="font-size: 12px;">jdbc</a> <a href="/tags/maven/" style="font-size: 12px;">maven</a> <a href="/tags/mybatis/" style="font-size: 16px;">mybatis</a> <a href="/tags/mybatis-plus/" style="font-size: 10px;">mybatis-plus</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 18px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 12px;">子集</a> <a href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" style="font-size: 10px;">字符串</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" style="font-size: 10px;">完全背包</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 12px;">总结</a> <a href="/tags/%E6%8E%92%E5%88%97/" style="font-size: 10px;">排列</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B5%8B%E8%AF%95/" style="font-size: 10px;">测试</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12px;">深度优先遍历</a> <a href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" style="font-size: 10px;">热部署</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E7%BA%BF%E6%80%A7DP/" style="font-size: 14px;">线性DP</a> <a href="/tags/%E7%BB%84%E5%90%88/" style="font-size: 10px;">组合</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12px;">记录</a> <a href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" style="font-size: 12px;">记忆化搜索</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 18px;">递归</a> <a href="/tags/%E9%80%92%E6%8E%A8/" style="font-size: 12px;">递推</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a> <a href="/tags/%E9%A4%90%E9%A5%AE%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" style="font-size: 10px;">餐饮管理系统</a>
     </div>
   </div>
 
@@ -2102,6 +2046,10 @@
           </li>
         
           <li>
+            <a href="/2026/01/19/backend/project/2026-1-19-project-day02/">后端环境搭建与核心模块实战复盘</a>
+          </li>
+        
+          <li>
             <a href="/2026/01/18/algorithms/dynamicprogramming/2026-1-18-dynamicprogramming-03LIS/">线性 DP · 最长递增子序列（LIS）专题总结</a>
           </li>
         
@@ -2111,10 +2059,6 @@
         
           <li>
             <a href="/2026/01/14/misc/git-%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E6%95%B4%E7%90%86%E6%80%BB%E7%BB%93/">git 开发工具整理总结</a>
-          </li>
-        
-          <li>
-            <a href="/2026/01/13/algorithms/dynamicprogramming/2026-1-13-dynamicprogramming-01%E8%83%8C%E5%8C%85%E4%B8%8E%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85%E6%A8%A1%E5%9E%8B/">DP 模型：从回溯语义到 0-1 背包与完全背包（2026-01-13）</a>
           </li>
         
       </ul>
