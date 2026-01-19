@@ -4,16 +4,20 @@
   <meta charset="utf-8">
   
   
-  <title>目录: 项目 | 廷风的技术博客</title>
+  <title>线性 DP 总结与最长递增子序列（LIS）与二维扩展 | 廷风的技术博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="记录 Java 后端学习与项目实践的技术博客">
-<meta property="og:type" content="website">
-<meta property="og:title" content="廷风的技术博客">
-<meta property="og:url" content="http://example.com/categories/%E9%A1%B9%E7%9B%AE/index.html">
+  <meta name="description" content="基础题目：300. 最长递增子序列扩展题目：354. 俄罗斯套娃信封问题  一、引言：LIS 在「线性 DP」中的位置在完整学习了：  打家劫舍（选 &#x2F; 不选） 爬楼梯（排列计数） 背包问题（容量约束） 双序列线性 DP（公共子序列）  之后，最长递增子序列（LIS）是线性 DP 中最后、也是最容易“升维”的一种模型。 它的核心特征非常明确：  单序列 + 子序列 + 有序性约束  一旦">
+<meta property="og:type" content="article">
+<meta property="og:title" content="线性 DP 总结与最长递增子序列（LIS）与二维扩展">
+<meta property="og:url" content="http://example.com/2026/01/19/algorithms/dynamicprogramming/2026-1-19-dynamicprogramming-04%E7%BA%BF%E6%80%A7DP%E6%80%BB%E7%BB%93/index.html">
 <meta property="og:site_name" content="廷风的技术博客">
-<meta property="og:description" content="记录 Java 后端学习与项目实践的技术博客">
+<meta property="og:description" content="基础题目：300. 最长递增子序列扩展题目：354. 俄罗斯套娃信封问题  一、引言：LIS 在「线性 DP」中的位置在完整学习了：  打家劫舍（选 &#x2F; 不选） 爬楼梯（排列计数） 背包问题（容量约束） 双序列线性 DP（公共子序列）  之后，最长递增子序列（LIS）是线性 DP 中最后、也是最容易“升维”的一种模型。 它的核心特征非常明确：  单序列 + 子序列 + 有序性约束  一旦">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-01-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-01-19T03:59:43.053Z">
 <meta property="article:author" content="Tingfeng Li">
+<meta property="article:tag" content="线性DP">
+<meta property="article:tag" content="LIS">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternate" href="/atom.xml" title="廷风的技术博客" type="application/atom+xml">
@@ -79,39 +83,239 @@
 </header>
 
       <div class="outer">
-        <section id="main">
-  
-  
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2026" class="archive-year">2026</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2026/01/13/backend/project/2026-1-13-project-day01/" class="archive-article-date">
-  <time class="dt-published" datetime="2026-01-12T16:00:00.000Z" itemprop="datePublished">1月 13</time>
+        <section id="main"><article id="post-algorithms/dynamicprogramming/2026-1-19-dynamicprogramming-04线性DP总结" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/19/algorithms/dynamicprogramming/2026-1-19-dynamicprogramming-04%E7%BA%BF%E6%80%A7DP%E6%80%BB%E7%BB%93/" class="article-date">
+  <time class="dt-published" datetime="2026-01-18T16:00:00.000Z" itemprop="datePublished">2026-01-19</time>
 </a>
-      
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2026/01/13/backend/project/2026-1-13-project-day01/">项目结构搭建：从系统结构图到多模块 Maven 项目设计</a>
+    <h1 class="p-name article-title" itemprop="headline name">
+      线性 DP 总结与最长递增子序列（LIS）与二维扩展
     </h1>
   
 
-    </header>
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><strong>基础题目</strong>：300. 最长递增子序列<br><strong>扩展题目</strong>：354. 俄罗斯套娃信封问题</p>
+<hr>
+<h2 id="一、引言：LIS-在「线性-DP」中的位置"><a href="#一、引言：LIS-在「线性-DP」中的位置" class="headerlink" title="一、引言：LIS 在「线性 DP」中的位置"></a>一、引言：LIS 在「线性 DP」中的位置</h2><p>在完整学习了：</p>
+<ul>
+<li>打家劫舍（选 &#x2F; 不选）</li>
+<li>爬楼梯（排列计数）</li>
+<li>背包问题（容量约束）</li>
+<li>双序列线性 DP（公共子序列）</li>
+</ul>
+<p>之后，<strong>最长递增子序列（LIS）是线性 DP 中最后、也是最容易“升维”的一种模型</strong>。</p>
+<p>它的核心特征非常明确：</p>
+<blockquote>
+<p><strong>单序列 + 子序列 + 有序性约束</strong></p>
+</blockquote>
+<p>一旦理解 LIS，不仅可以解决一维问题，还可以通过<strong>排序 + 降维</strong>，解决看似更复杂的二维、分组问题。</p>
+<hr>
+<h2 id="二、354-俄罗斯套娃信封问题"><a href="#二、354-俄罗斯套娃信封问题" class="headerlink" title="二、354. 俄罗斯套娃信封问题"></a>二、354. 俄罗斯套娃信封问题</h2><h3 id="问题本质与第一直觉"><a href="#问题本质与第一直觉" class="headerlink" title="问题本质与第一直觉"></a>问题本质与第一直觉</h3><p>每个信封用 <code>(w, h)</code> 表示，若：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">w1 &lt; w2 且 h1 &lt; h2</span><br></pre></td></tr></table></figure>
+
+<p>则信封 1 可以嵌套进信封 2。</p>
+<p>直觉思路是：</p>
+<blockquote>
+<p>把每个信封当成一个“元素”，求最长递增子序列</p>
+</blockquote>
+<p>但这里<strong>存在一个关键陷阱</strong>：</p>
+<p><strong>题目允许任意重排信封顺序</strong><br> → 原数组顺序是无意义的<br> → 直接在二维数组上做 LIS 会<strong>漏解</strong></p>
+<hr>
+<h3 id="正确建模：二维-→-一维的关键转化"><a href="#正确建模：二维-→-一维的关键转化" class="headerlink" title="正确建模：二维 → 一维的关键转化"></a>正确建模：二维 → 一维的关键转化</h3><p>要想使用 LIS，必须满足：</p>
+<blockquote>
+<p><strong>只在一个维度上递增</strong></p>
+</blockquote>
+<p>因此需要先消除一个维度的干扰。</p>
+<h4 id="核心转化步骤"><a href="#核心转化步骤" class="headerlink" title="核心转化步骤"></a>核心转化步骤</h4><p><strong>Step 1：排序</strong></p>
+<ul>
+<li>宽度 <code>w</code>：<strong>升序</strong></li>
+<li>高度 <code>h</code>：<strong>降序（当 w 相同）</strong></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// 双关键字排序：宽度升序，高度降序</span><br><span class="line">Arrays.sort(envelopes, (a, b) -&gt; &#123;</span><br><span class="line">    if (a[0] == b[0]) &#123;</span><br><span class="line">        return b[1] - a[1]; // 高度降序</span><br><span class="line">    &#125;</span><br><span class="line">    return a[0] - b[0];     // 宽度升序</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h4 id="为什么-w-相同时要按-h-降序？"><a href="#为什么-w-相同时要按-h-降序？" class="headerlink" title="为什么 w 相同时要按 h 降序？"></a>为什么 w 相同时要按 h 降序？</h4><p>这是本题<strong>最容易被忽略、也是面试最常考的点</strong>。</p>
+<p>如果：</p>
+<ul>
+<li><code>w</code> 相同</li>
+<li><code>h</code> 也按升序排</li>
+</ul>
+<p>那么在之后对 <code>h</code> 求 LIS 时，会错误地把<strong>同一宽度的信封选进子序列</strong>，违反题意（宽度必须严格递增）。</p>
+<p>而 <strong>h 降序</strong> 的作用是：</p>
+<blockquote>
+<p>在 LIS（严格递增）中，<strong>相同 w 的信封不可能同时被选中</strong></p>
+</blockquote>
+<hr>
+<h3 id="问题彻底降维：只看高度-h"><a href="#问题彻底降维：只看高度-h" class="headerlink" title="问题彻底降维：只看高度 h"></a>问题彻底降维：只看高度 h</h3><p>排序完成后：</p>
+<ul>
+<li>宽度已经隐式满足递增约束</li>
+<li>只需要在高度数组上求 <strong>严格递增 LIS</strong></li>
+</ul>
+<p>问题就完全转化为：</p>
+<blockquote>
+<p><strong>300. 最长递增子序列</strong></p>
+</blockquote>
+<hr>
+<h3 id="算法复杂度分析"><a href="#算法复杂度分析" class="headerlink" title="算法复杂度分析"></a>算法复杂度分析</h3><ul>
+<li>排序：<code>O(n log n)</code></li>
+<li>LIS（贪心 + 二分）：<code>O(n log n)</code></li>
+</ul>
+<p>整体复杂度：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">O(n log n)</span><br></pre></td></tr></table></figure>
+
+<p>满足 <code>n ≤ 10^5</code> 的数据规模要求。</p>
+<h2 id="三、心得体会（俄罗斯套娃-→-LIS）"><a href="#三、心得体会（俄罗斯套娃-→-LIS）" class="headerlink" title="三、心得体会（俄罗斯套娃 → LIS）"></a>三、心得体会（俄罗斯套娃 → LIS）</h2><p>这道题<strong>真正考察的不是 LIS 本身，而是问题转化能力</strong>：</p>
+<ol>
+<li><strong>是否意识到原顺序无意义</strong></li>
+<li><strong>是否能通过排序消掉一个维度</strong></li>
+<li><strong>是否处理了“相等元素”的边界情况</strong></li>
+</ol>
+<p>本质模型可以总结为一句话：</p>
+<blockquote>
+<p><strong>二维严格递增问题 &#x3D; 排序 + 一维 LIS</strong></p>
+</blockquote>
+<hr>
+<h2 id="四、线性-DP-模型全景总结"><a href="#四、线性-DP-模型全景总结" class="headerlink" title="四、线性 DP 模型全景总结"></a>四、线性 DP 模型全景总结</h2><p>回顾整个线性 DP 学习路径，可以清晰地分为 <strong>五大模型</strong>。</p>
+<hr>
+<h3 id="打家劫舍模型（选-不选-相邻约束）"><a href="#打家劫舍模型（选-不选-相邻约束）" class="headerlink" title="打家劫舍模型（选 &#x2F; 不选 + 相邻约束）"></a>打家劫舍模型（选 &#x2F; 不选 + 相邻约束）</h3><p><strong>核心特征</strong></p>
+<ul>
+<li>枚举元素选或不选</li>
+<li>相邻元素不能同时选</li>
+</ul>
+<p><strong>典型变形</strong></p>
+<ul>
+<li>打家劫舍 II（成环）<br> → 拆成「选第一个 &#x2F; 不选第一个」</li>
+<li>删除并获得点数<br> → 构造值域数组，转化为打家劫舍</li>
+</ul>
+<hr>
+<h3 id="爬楼梯模型（排列型-DP）"><a href="#爬楼梯模型（排列型-DP）" class="headerlink" title="爬楼梯模型（排列型 DP）"></a>爬楼梯模型（排列型 DP）</h3><p><strong>核心特征</strong></p>
+<ul>
+<li>顺序不同 &#x3D; 不同方案</li>
+<li>每一步选择不同“动作”</li>
+</ul>
+<p><strong>常见变形</strong></p>
+<ul>
+<li>最小代价爬楼梯</li>
+<li>目标字符串构造方案数</li>
+<li>组合总和（顺序相关）</li>
+<li>分组 + 爬楼梯</li>
+</ul>
+<hr>
+<h3 id="背包模型（容量约束）"><a href="#背包模型（容量约束）" class="headerlink" title="背包模型（容量约束）"></a>背包模型（容量约束）</h3><p><strong>分类</strong></p>
+<ul>
+<li>01 背包（不能重复选）</li>
+<li>完全背包（可以重复选）</li>
+</ul>
+<p><strong>常见问法</strong></p>
+<ul>
+<li>至多 &#x2F; 恰好 &#x2F; 至少装满</li>
+<li>求最大值 &#x2F; 最小值 &#x2F; 方案数</li>
+</ul>
+<p><strong>重要收获</strong></p>
+<ul>
+<li><p>空间优化的本质：</p>
+<p>明确当前状态依赖哪些旧状态</p>
+<p>是否会发生状态覆盖</p>
+<p>必要时引入 <code>pre</code></p>
+</li>
+</ul>
+<hr>
+<h3 id="双序列线性-DP"><a href="#双序列线性-DP" class="headerlink" title="双序列线性 DP"></a>双序列线性 DP</h3><p><strong>核心特征</strong></p>
+<ul>
+<li>操作两个序列</li>
+<li>关注“公共部分”</li>
+</ul>
+<p><strong>典型问题</strong></p>
+<ul>
+<li>最长公共子序列（LCS）</li>
+<li>最短公共超序列（SCS）</li>
+<li>编辑距离</li>
+</ul>
+<hr>
+<h3 id="最长递增子序列（LIS）"><a href="#最长递增子序列（LIS）" class="headerlink" title="最长递增子序列（LIS）"></a>最长递增子序列（LIS）</h3><p><strong>核心特征</strong></p>
+<ul>
+<li>单序列</li>
+<li>子序列</li>
+<li>有序性约束（递增 &#x2F; 非递减）</li>
+</ul>
+<p><strong>两种解法层级</strong></p>
+<table>
+<thead>
+<tr>
+<th>解法</th>
+<th>时间复杂度</th>
+<th>适用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>经典 DP</td>
+<td>O(n²)</td>
+<td>理解模型</td>
+</tr>
+<tr>
+<td>贪心 + 二分</td>
+<td>O(n log n)</td>
+<td>大规模数据</td>
+</tr>
+</tbody></table>
+<h4 id="关键技巧"><a href="#关键技巧" class="headerlink" title="关键技巧"></a>关键技巧</h4><blockquote>
+<p><strong>交换 dp 的“状态”与“状态值”</strong></p>
+</blockquote>
+<ul>
+<li>用 <code>g[k]</code> 表示：<ul>
+<li>长度为 <code>k+1</code> 的递增子序列</li>
+<li>其末尾元素的最小值</li>
+</ul>
+</li>
+</ul>
+<p>严格来说：</p>
+<ul>
+<li><code>g</code> 不存在状态覆盖</li>
+<li>已不再是传统 DP</li>
+<li>而是 <strong>贪心 + 有序结构 + 二分查找</strong></li>
+</ul>
+<hr>
+<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/19/algorithms/dynamicprogramming/2026-1-19-dynamicprogramming-04%E7%BA%BF%E6%80%A7DP%E6%80%BB%E7%BB%93/" data-id="cmkkn3hbl004ugw8t68x6cxfl" data-title="线性 DP 总结与最长递增子序列（LIS）与二维扩展" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/LIS/" rel="tag">LIS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BA%BF%E6%80%A7DP/" rel="tag">线性DP</a></li></ul>
+
+    </footer>
   </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2026/01/18/algorithms/dynamicprogramming/2026-1-18-dynamicprogramming-03LIS/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">线性 DP · 最长递增子序列（LIS）专题总结</div>
+    </a>
+  
+</nav>
+
+  
 </article>
-  
-  
-    </div></section>
-  
 
 
 </section>
