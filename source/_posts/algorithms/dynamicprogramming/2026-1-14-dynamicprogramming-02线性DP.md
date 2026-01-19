@@ -1,5 +1,5 @@
 ---
-title: 线性 DP：字符串问题2026-01-15）
+title: 线性 DP：字符串问题
 date: 2026-01-15 12:30
 author: tingfeng
 categories:
