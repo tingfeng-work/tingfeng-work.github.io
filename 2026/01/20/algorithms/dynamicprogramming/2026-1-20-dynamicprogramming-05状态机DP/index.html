@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>状态机 DP：从股票问题理解「有限状态 + 决策转移」 | 廷风的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="状态机 DP 的本质是：在时间线推进的过程中，用有限个状态描述系统所处阶段，并在状态之间进行合法转移，求全局最优解。股票系列问题是状态机 DP 最经典、也最具迁移价值的模型。   一、什么是状态机 DP不是“多维 DP”这么简单 状态机 DP 的核心特征 时间维度是线性的（天数 &#x2F; 下标 i） 状态集合是有限且很小的（通常 2～5 个） 每一天的最优解，只依赖于： 前一天（或前几天）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="状态机 DP：从股票问题理解「有限状态 + 决策转移」">
+<meta property="og:url" content="http://example.com/2026/01/20/algorithms/dynamicprogramming/2026-1-20-dynamicprogramming-05%E7%8A%B6%E6%80%81%E6%9C%BADP/index.html">
+<meta property="og:site_name" content="廷风的技术博客">
+<meta property="og:description" content="状态机 DP 的本质是：在时间线推进的过程中，用有限个状态描述系统所处阶段，并在状态之间进行合法转移，求全局最优解。股票系列问题是状态机 DP 最经典、也最具迁移价值的模型。   一、什么是状态机 DP不是“多维 DP”这么简单 状态机 DP 的核心特征 时间维度是线性的（天数 &#x2F; 下标 i） 状态集合是有限且很小的（通常 2～5 个） 每一天的最优解，只依赖于： 前一天（或前几天）">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-01-19T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-01-20T04:05:39.985Z">
+<meta property="article:author" content="Tingfeng Li">
+<meta property="article:tag" content="状态机DP">
+<meta property="article:tag" content="股票问题">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="廷风的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">廷风的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Java 后端开发</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-algorithms/dynamicprogramming/2026-1-20-dynamicprogramming-05状态机DP" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/20/algorithms/dynamicprogramming/2026-1-20-dynamicprogramming-05%E7%8A%B6%E6%80%81%E6%9C%BADP/" class="article-date">
+  <time class="dt-published" datetime="2026-01-19T16:00:00.000Z" itemprop="datePublished">2026-01-20</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      状态机 DP：从股票问题理解「有限状态 + 决策转移」
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>状态机 DP 的本质是：<strong>在时间线推进的过程中，用有限个状态描述系统所处阶段，并在状态之间进行合法转移，求全局最优解</strong>。股票系列问题是状态机 DP 最经典、也最具迁移价值的模型。</p>
+</blockquote>
+<hr>
+<h2 id="一、什么是状态机-DP"><a href="#一、什么是状态机-DP" class="headerlink" title="一、什么是状态机 DP"></a>一、什么是状态机 DP</h2><p>不是“多维 DP”这么简单</p>
+<h3 id="状态机-DP-的核心特征"><a href="#状态机-DP-的核心特征" class="headerlink" title="状态机 DP 的核心特征"></a>状态机 DP 的核心特征</h3><ul>
+<li><strong>时间维度是线性的</strong>（天数 &#x2F; 下标 i）</li>
+<li><strong>状态集合是有限且很小的</strong>（通常 2～5 个）</li>
+<li>每一天的最优解，只依赖于：<ul>
+<li>前一天（或前几天）</li>
+<li>合法状态之间的转移</li>
+</ul>
+</li>
+</ul>
+<p>典型形式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dp[i][state] = max / min &#123;</span><br><span class="line">    dp[i-1][prev_state] + cost</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="为什么股票问题天然适合状态机-DP？"><a href="#为什么股票问题天然适合状态机-DP？" class="headerlink" title="为什么股票问题天然适合状态机 DP？"></a>为什么股票问题天然适合状态机 DP？</h3><p>因为每天的行为是有限的：</p>
+<ul>
+<li>买</li>
+<li>卖</li>
+<li>什么都不做</li>
+</ul>
+<p>而这些行为，<strong>本质上只会改变“是否持有股票”这一状态</strong>。</p>
+<hr>
+<h2 id="二、股票问题的统一状态定义"><a href="#二、股票问题的统一状态定义" class="headerlink" title="二、股票问题的统一状态定义"></a>二、股票问题的统一状态定义</h2><p>不管题目怎么变，本质都围绕这两个基础状态：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">state = 0 → 当前不持有股票</span><br><span class="line">state = 1 → 当前持有股票</span><br></pre></td></tr></table></figure>
+
+<p>因此最基础的定义是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i][j] 表示：第 i 天结束后，处于状态 j 时的最大利润</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="三、基础模型：122-买卖股票的最佳时机-II（无限次交易）"><a href="#三、基础模型：122-买卖股票的最佳时机-II（无限次交易）" class="headerlink" title="三、基础模型：122 买卖股票的最佳时机 II（无限次交易）"></a>三、基础模型：122 买卖股票的最佳时机 II（无限次交易）</h2><h3 id="状态定义"><a href="#状态定义" class="headerlink" title="状态定义"></a>状态定义</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dp[i][0]：第 i 天结束后，不持股的最大利润</span><br><span class="line">dp[i][1]：第 i 天结束后，持股的最大利润</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="状态转移（状态机视角）"><a href="#状态转移（状态机视角）" class="headerlink" title="状态转移（状态机视角）"></a>状态转移（状态机视角）</h3><h4 id="不持股（state-0）"><a href="#不持股（state-0）" class="headerlink" title="不持股（state &#x3D; 0）"></a>不持股（state &#x3D; 0）</h4><ul>
+<li>昨天就不持股，今天什么都不做</li>
+<li>昨天持股，今天卖出</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dp[i][0] = max(</span><br><span class="line">    dp[i-1][0],</span><br><span class="line">    dp[i-1][1] + prices[i]</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h4 id="持股（state-1）"><a href="#持股（state-1）" class="headerlink" title="持股（state &#x3D; 1）"></a>持股（state &#x3D; 1）</h4><ul>
+<li>昨天就持股，今天继续持有</li>
+<li>昨天不持股，今天买入</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dp[i][1] = max(</span><br><span class="line">    dp[i-1][1],</span><br><span class="line">    dp[i-1][0] - prices[i]</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>这是<strong>最纯粹的状态机 DP 模型</strong>，后续所有变形都在此基础上增加约束。</p>
+<hr>
+<h2 id="四、加入约束一：冷冻期（309）"><a href="#四、加入约束一：冷冻期（309）" class="headerlink" title="四、加入约束一：冷冻期（309）"></a>四、加入约束一：冷冻期（309）</h2><blockquote>
+<p><strong>买入操作不再只依赖前一天</strong>。</p>
+</blockquote>
+<p>卖出后，下一天不能立刻买入，因此：</p>
+<ul>
+<li>买入只能从 <strong>前两天的不持股状态</strong> 转移</li>
+</ul>
+<hr>
+<h3 id="状态转移变化"><a href="#状态转移变化" class="headerlink" title="状态转移变化"></a>状态转移变化</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">dp[i][0] = max(</span><br><span class="line">    dp[i-1][0],</span><br><span class="line">    dp[i-1][1] + prices[i]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">dp[i][1] = max(</span><br><span class="line">    dp[i-1][1],</span><br><span class="line">    dp[i-2][0] - prices[i]</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p> 这类题的本质不是“新增状态”，而是：<strong>转移来源发生了变化</strong></p>
+<hr>
+<h2 id="五、加入约束二：交易次数限制（188-123）"><a href="#五、加入约束二：交易次数限制（188-123）" class="headerlink" title="五、加入约束二：交易次数限制（188 &#x2F; 123）"></a>五、加入约束二：交易次数限制（188 &#x2F; 123）</h2><h3 id="为什么要引入「交易次数」维度？"><a href="#为什么要引入「交易次数」维度？" class="headerlink" title="为什么要引入「交易次数」维度？"></a>为什么要引入「交易次数」维度？</h3><p>因为一次完整交易 &#x3D; 买入 + 卖出<br>限制交易次数，意味着 <strong>dp 数组中必须记录“还剩几次卖出的机会”</strong>。</p>
+<hr>
+<h3 id="状态定义（标准三维状态机）"><a href="#状态定义（标准三维状态机）" class="headerlink" title="状态定义（标准三维状态机）"></a>状态定义（标准三维状态机）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">dp[i][k][j]</span><br><span class="line">表示：第 i 天结束后，</span><br><span class="line">      还剩 k 次交易机会，</span><br><span class="line">      当前状态为 j（0 不持股 / 1 持股）</span><br><span class="line">      的最大利润</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="核心转移逻辑（只在卖出时消耗交易次数）"><a href="#核心转移逻辑（只在卖出时消耗交易次数）" class="headerlink" title="核心转移逻辑（只在卖出时消耗交易次数）"></a>核心转移逻辑（只在卖出时消耗交易次数）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">dp[i][k][0] = max(</span><br><span class="line">    dp[i-1][k][0],</span><br><span class="line">    dp[i-1][k-1][1] + prices[i]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">dp[i][k][1] = max(</span><br><span class="line">    dp[i-1][k][1],</span><br><span class="line">    dp[i-1][k][0] - prices[i]</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>为什么是卖出时 k-1，而不是买入？</strong><br>因为一次交易以“完成卖出”为标志。理论上由于最后一天不持有股票的价值一定最高，所以买入时进行 k-1 也可以。</p>
+</blockquote>
+<hr>
+<h3 id="121-123-与-188-的关系"><a href="#121-123-与-188-的关系" class="headerlink" title="121 &#x2F; 123 与 188 的关系"></a>121 &#x2F; 123 与 188 的关系</h3><table>
+<thead>
+<tr>
+<th>题目</th>
+<th>本质</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>121</td>
+<td>k &#x3D; 1 的特例（可用贪心优化）</td>
+</tr>
+<tr>
+<td>123</td>
+<td>k &#x3D; 2 的特例</td>
+</tr>
+<tr>
+<td>188</td>
+<td>任意 k 的通用模型</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="六、加入约束三：手续费（714）"><a href="#六、加入约束三：手续费（714）" class="headerlink" title="六、加入约束三：手续费（714）"></a>六、加入约束三：手续费（714）</h2><h3 id="本质变化"><a href="#本质变化" class="headerlink" title="本质变化"></a>本质变化</h3><blockquote>
+<p>每一笔交易都会多付出一个固定成本。</p>
+</blockquote>
+<p>手续费只影响 <strong>买入或卖出其中一个时机</strong>，常见处理方式：</p>
+<h4 id="在买入时扣手续费"><a href="#在买入时扣手续费" class="headerlink" title="在买入时扣手续费"></a>在买入时扣手续费</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dp[i][1] = max(</span><br><span class="line">    dp[i-1][1],</span><br><span class="line">    dp[i-1][0] - prices[i] - fee</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h4 id="或在卖出时扣手续费（等价）"><a href="#或在卖出时扣手续费（等价）" class="headerlink" title="或在卖出时扣手续费（等价）"></a>或在卖出时扣手续费（等价）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dp[i][0] = max(</span><br><span class="line">    dp[i-1][0],</span><br><span class="line">    dp[i-1][1] + prices[i] - fee</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="七、状态机-DP-的工程级总结"><a href="#七、状态机-DP-的工程级总结" class="headerlink" title="七、状态机 DP 的工程级总结"></a>七、状态机 DP 的工程级总结</h2><h3 id="建模顺序"><a href="#建模顺序" class="headerlink" title="建模顺序"></a>建模顺序</h3><ol>
+<li><strong>时间轴是什么？</strong>（天数 &#x2F; 下标）</li>
+<li><strong>系统有哪些有限状态？</strong>（股票的持有与否）</li>
+<li><strong>哪些状态之间可以互相转移？</strong>（持有股票通过当天卖出转化为未持有）</li>
+<li><strong>哪些转移有额外约束？</strong>（手续费、交易次数限制）</li>
+</ol>
+<hr>
+<h3 id="股票状态机的通用模板"><a href="#股票状态机的通用模板" class="headerlink" title="股票状态机的通用模板"></a>股票状态机的通用模板</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">for i in [0..n):</span><br><span class="line">    for state in States:</span><br><span class="line">        dp[i][state] = max(</span><br><span class="line">            from all valid prev_state</span><br><span class="line">        )</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="状态机-DP-变形"><a href="#状态机-DP-变形" class="headerlink" title="状态机 DP 变形"></a>状态机 DP 变形</h3><ul>
+<li>可迁移到时机开发中：订单状态流转、流控 &#x2F; 限流、工作流引擎、资源占用 &#x2F; 释放建模</li>
+</ul>
+<p><strong>这是后端系统里“时间 + 状态”的通用建模方式。</strong></p>
+<hr>
+<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/20/algorithms/dynamicprogramming/2026-1-20-dynamicprogramming-05%E7%8A%B6%E6%80%81%E6%9C%BADP/" data-id="cmkwqzczc006t4o8tfrag0u5l" data-title="状态机 DP：从股票问题理解「有限状态 + 决策转移」" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BADP/" rel="tag">状态机DP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%82%A1%E7%A5%A8%E9%97%AE%E9%A2%98/" rel="tag">股票问题</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2026/01/22/algorithms/dynamicprogramming/2026-1-22-dynamicprogramming-06%E5%8C%BA%E9%97%B4DP/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          区间 DP：从「区间划分」理解最优子结构
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2026/01/19/backend/project/2026-1-19-project-day02/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">后端环境搭建与核心模块实战复盘</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/ssm/">ssm</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/SpringBoot/">SpringBoot</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/01%E8%83%8C%E5%8C%85/" rel="tag">01背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LIS/" rel="tag">LIS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring-MVC/" rel="tag">Spring MVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis-plus/" rel="tag">mybatis-plus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8C%BA%E9%97%B4-DP/" rel="tag">区间 DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="tag">字符串</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" rel="tag">学习计划</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" rel="tag">完全背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8E%92%E5%88%97/" rel="tag">排列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8B%E8%AF%95/" rel="tag">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" rel="tag">热部署</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BADP/" rel="tag">状态机DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BA%BF%E6%80%A7DP/" rel="tag">线性DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E5%90%88/" rel="tag">组合</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%82%A1%E7%A5%A8%E9%97%AE%E9%A2%98/" rel="tag">股票问题</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" rel="tag">记忆化搜索</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E6%8E%A8/" rel="tag">递推</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%85%8D%E7%BD%AE/" rel="tag">配置</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A4%90%E9%A5%AE%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" rel="tag">餐饮管理系统</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/01%E8%83%8C%E5%8C%85/" style="font-size: 10px;">01背包</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LIS/" style="font-size: 12px;">LIS</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/Spring/" style="font-size: 10px;">Spring</a> <a href="/tags/Spring-MVC/" style="font-size: 10px;">Spring MVC</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/jdbc/" style="font-size: 12px;">jdbc</a> <a href="/tags/maven/" style="font-size: 12px;">maven</a> <a href="/tags/mybatis/" style="font-size: 16px;">mybatis</a> <a href="/tags/mybatis-plus/" style="font-size: 10px;">mybatis-plus</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8C%BA%E9%97%B4-DP/" style="font-size: 10px;">区间 DP</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 18px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 12px;">子集</a> <a href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" style="font-size: 10px;">字符串</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" style="font-size: 10px;">完全背包</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 12px;">总结</a> <a href="/tags/%E6%8E%92%E5%88%97/" style="font-size: 10px;">排列</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B5%8B%E8%AF%95/" style="font-size: 10px;">测试</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12px;">深度优先遍历</a> <a href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" style="font-size: 10px;">热部署</a> <a href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BADP/" style="font-size: 10px;">状态机DP</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E7%BA%BF%E6%80%A7DP/" style="font-size: 14px;">线性DP</a> <a href="/tags/%E7%BB%84%E5%90%88/" style="font-size: 10px;">组合</a> <a href="/tags/%E8%82%A1%E7%A5%A8%E9%97%AE%E9%A2%98/" style="font-size: 10px;">股票问题</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12px;">记录</a> <a href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" style="font-size: 12px;">记忆化搜索</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 18px;">递归</a> <a href="/tags/%E9%80%92%E6%8E%A8/" style="font-size: 12px;">递推</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a> <a href="/tags/%E9%A4%90%E9%A5%AE%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" style="font-size: 12px;">餐饮管理系统</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">一月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/12/">十二月 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/01/22/algorithms/dynamicprogramming/2026-1-22-dynamicprogramming-06%E5%8C%BA%E9%97%B4DP/">区间 DP：从「区间划分」理解最优子结构</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/20/algorithms/dynamicprogramming/2026-1-20-dynamicprogramming-05%E7%8A%B6%E6%80%81%E6%9C%BADP/">状态机 DP：从股票问题理解「有限状态 + 决策转移」</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/19/backend/project/2026-1-19-project-day02/">后端环境搭建与核心模块实战复盘</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/19/backend/project/2026-1-27-project-day03/">后端工程实践总结公共字段自动填充、文件上传与多表业务设计</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/19/algorithms/dynamicprogramming/2026-1-19-dynamicprogramming-04%E7%BA%BF%E6%80%A7DP%E6%80%BB%E7%BB%93/">线性 DP 总结与最长递增子序列（LIS）与二维扩展</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Tingfeng Li<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

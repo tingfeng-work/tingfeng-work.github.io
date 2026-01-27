@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>后端工程实践总结公共字段自动填充、文件上传与多表业务设计 | 廷风的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="本文基于一个真实后端业务系统（Spring Boot + MyBatis）的实现过程，系统性总结了三个实际开发中遇到的问题：公共字段填充、文件上传服务设计、多表业务模块实现。   一、公共字段自动填充：用 AOP 解耦“横切逻辑”问题背景（Why）在一个标准的后端系统中，几乎所有业务表都会包含以下公共字段：    字段 含义    create_time 创建时间   create_user 创">
+<meta property="og:type" content="article">
+<meta property="og:title" content="后端工程实践总结公共字段自动填充、文件上传与多表业务设计">
+<meta property="og:url" content="http://example.com/2026/01/19/backend/project/2026-1-27-project-day03/index.html">
+<meta property="og:site_name" content="廷风的技术博客">
+<meta property="og:description" content="本文基于一个真实后端业务系统（Spring Boot + MyBatis）的实现过程，系统性总结了三个实际开发中遇到的问题：公共字段填充、文件上传服务设计、多表业务模块实现。   一、公共字段自动填充：用 AOP 解耦“横切逻辑”问题背景（Why）在一个标准的后端系统中，几乎所有业务表都会包含以下公共字段：    字段 含义    create_time 创建时间   create_user 创">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/assets/2.png">
+<meta property="article:published_time" content="2026-01-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-01-27T15:20:23.149Z">
+<meta property="article:author" content="Tingfeng Li">
+<meta property="article:tag" content="餐饮管理系统">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/assets/2.png">
+  
+    <link rel="alternate" href="/atom.xml" title="廷风的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">廷风的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Java 后端开发</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-backend/project/2026-1-27-project-day03" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/19/backend/project/2026-1-27-project-day03/" class="article-date">
+  <time class="dt-published" datetime="2026-01-18T16:00:00.000Z" itemprop="datePublished">2026-01-19</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      后端工程实践总结公共字段自动填充、文件上传与多表业务设计
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>本文基于一个真实后端业务系统（Spring Boot + MyBatis）的实现过程，系统性总结了三个实际开发中遇到的问题：<strong>公共字段填充、文件上传服务设计、多表业务模块实现</strong>。</p>
+</blockquote>
+<hr>
+<h2 id="一、公共字段自动填充：用-AOP-解耦“横切逻辑”"><a href="#一、公共字段自动填充：用-AOP-解耦“横切逻辑”" class="headerlink" title="一、公共字段自动填充：用 AOP 解耦“横切逻辑”"></a>一、公共字段自动填充：用 AOP 解耦“横切逻辑”</h2><h3 id="问题背景（Why）"><a href="#问题背景（Why）" class="headerlink" title="问题背景（Why）"></a>问题背景（Why）</h3><p>在一个标准的后端系统中，<strong>几乎所有业务表</strong>都会包含以下公共字段：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>create_time</td>
+<td>创建时间</td>
+</tr>
+<tr>
+<td>create_user</td>
+<td>创建人</td>
+</tr>
+<tr>
+<td>update_time</td>
+<td>修改时间</td>
+</tr>
+<tr>
+<td>update_user</td>
+<td>修改人</td>
+</tr>
+</tbody></table>
+<p>如果在每个 <code>insert / update</code> 的 Mapper 方法中<strong>手写赋值逻辑</strong>，会带来三个问题：</p>
+<ol>
+<li><strong>重复代码严重</strong></li>
+<li><strong>业务代码被污染</strong></li>
+<li><strong>容易遗漏或写错</strong></li>
+</ol>
+<p>这是一个非常典型的 <strong>横切关注点（Cross-Cutting Concern）</strong>。</p>
+<hr>
+<h3 id="设计目标"><a href="#设计目标" class="headerlink" title="设计目标"></a>设计目标</h3><p>从工程角度，我希望这个功能满足：</p>
+<ul>
+<li>业务代码 <strong>零侵入</strong></li>
+<li>插入 &#x2F; 更新行为 <strong>语义清晰</strong></li>
+<li>能够 <strong>统一治理、集中维护</strong></li>
+</ul>
+<p>因此选择方案是：</p>
+<blockquote>
+<p><strong>Spring AOP + 自定义注解</strong></p>
+</blockquote>
+<hr>
+<h3 id="实现方案概述"><a href="#实现方案概述" class="headerlink" title="实现方案概述"></a>实现方案概述</h3><p>整体设计拆分为三层职责：</p>
+<ol>
+<li><strong>注解层</strong>：声明“这个方法需要自动填充”</li>
+<li><strong>切面层</strong>：统一拦截、统一处理</li>
+<li><strong>实体层</strong>：通过反射注入公共字段</li>
+</ol>
+<hr>
+<h3 id="核心实现解析"><a href="#核心实现解析" class="headerlink" title="核心实现解析"></a>核心实现解析</h3><h4 id="（1）自定义注解：表达“意图”"><a href="#（1）自定义注解：表达“意图”" class="headerlink" title="（1）自定义注解：表达“意图”"></a>（1）自定义注解：表达“意图”</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Target(ElementType.METHOD)</span><br><span class="line">@Retention(RetentionPolicy.RUNTIME)</span><br><span class="line">public @interface AutoFill &#123;</span><br><span class="line">    OperationType value(); // INSERT / UPDATE</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键点：</strong></p>
+<ul>
+<li>不关心“填充什么字段”</li>
+<li>只关心“这是一次什么操作”</li>
+<li>将 <strong>业务语义</strong> 与 <strong>实现细节</strong> 完全解耦</li>
+</ul>
+<hr>
+<h4 id="（2）切面设计：拦截-分类处理"><a href="#（2）切面设计：拦截-分类处理" class="headerlink" title="（2）切面设计：拦截 + 分类处理"></a>（2）切面设计：拦截 + 分类处理</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@Pointcut(&quot;execution(* com.sky.mapper.*.*(..)) &amp;&amp; @annotation(com.sky.annotation.AutoFill)&quot;)</span><br><span class="line">public void autoFillPoinCut() &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>只拦截 Mapper 层</li>
+<li>只拦截显式声明了 <code>@AutoFill</code> 的方法</li>
+<li>避免 <strong>误伤 &#x2F; 全局污染</strong></li>
+</ul>
+<hr>
+<h4 id="（3）前置通知：为什么是-Before？"><a href="#（3）前置通知：为什么是-Before？" class="headerlink" title="（3）前置通知：为什么是 @Before？"></a>（3）前置通知：为什么是 @Before？</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@Before(&quot;autoFillPoinCut()&quot;)</span><br><span class="line">public void autoFill(JoinPoint joinPoint) &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>原因很简单但很关键：</strong></p>
+<blockquote>
+<p>公共字段必须在 SQL 执行之前完成赋值，否则 ORM 层拿到的是脏数据。</p>
+</blockquote>
+<hr>
+<h4 id="（4）反射注入字段"><a href="#（4）反射注入字段" class="headerlink" title="（4）反射注入字段"></a>（4）反射注入字段</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Method setCreateTime = entity.getClass()</span><br><span class="line">    .getDeclaredMethod(&quot;setCreateTime&quot;, LocalDateTime.class);</span><br></pre></td></tr></table></figure>
+
+<h3 id="拓展问题"><a href="#拓展问题" class="headerlink" title="拓展问题"></a>拓展问题</h3><ul>
+<li>为什么不用接口？</li>
+<li>为什么不用父类？</li>
+<li>如果实体不包含这些字段怎么办？</li>
+</ul>
+<blockquote>
+<p>答：</p>
+<ul>
+<li>因为这是<strong>内部约定型的横切逻辑</strong>，不需要多态，接口会增加侵入性和实现成本。如果做成通用框架或给第三方用，才会考虑接口约束。</li>
+<li>父类会强制所有实体继承，<strong>破坏领域模型独立性</strong>，而 AOP + 反射只对“需要的地方”生效，更灵活。</li>
+<li>可以加字段存在性校验并抛异常。</li>
+</ul>
+</blockquote>
+<hr>
+<h2 id="二、文件上传服务：从“能用”到“可扩展”"><a href="#二、文件上传服务：从“能用”到“可扩展”" class="headerlink" title="二、文件上传服务：从“能用”到“可扩展”"></a>二、文件上传服务：从“能用”到“可扩展”</h2><h3 id="存储方案对比（Why）"><a href="#存储方案对比（Why）" class="headerlink" title="存储方案对比（Why）"></a>存储方案对比（Why）</h3><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>本地磁盘</td>
+<td>简单</td>
+<td>扩容困难</td>
+</tr>
+<tr>
+<td>分布式文件系统</td>
+<td>可扩展</td>
+<td>运维复杂</td>
+</tr>
+<tr>
+<td>第三方 OSS</td>
+<td>易用、稳定</td>
+<td>成本</td>
+</tr>
+</tbody></table>
+<p>在实际项目中，选择的是：</p>
+<blockquote>
+<p><strong>云厂商 OSS（阿里云 OSS ）</strong></p>
+</blockquote>
+<hr>
+<h3 id="OSS-上传整体流程"><a href="#OSS-上传整体流程" class="headerlink" title="OSS 上传整体流程"></a>OSS 上传整体流程</h3><p><img src="/assets/2.png" alt="2"></p>
+<hr>
+<h3 id="实现关键点"><a href="#实现关键点" class="headerlink" title="实现关键点"></a>实现关键点</h3><h4 id="（1）密钥安全"><a href="#（1）密钥安全" class="headerlink" title="（1）密钥安全"></a>（1）密钥安全</h4><ul>
+<li>使用 <strong>RAM 子账号</strong></li>
+<li>通过 <strong>环境变量</strong> 注入 AccessKey</li>
+<li><strong>不写死、不提交到仓库</strong></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">setx OSS_ACCESS_KEY_ID &quot;xxx&quot;</span><br><span class="line">setx OSS_ACCESS_KEY_SECRET &quot;xxx&quot;👉 面试官会非常在意这一点。</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="（2）配置解耦"><a href="#（2）配置解耦" class="headerlink" title="（2）配置解耦"></a>（2）配置解耦</h4><ul>
+<li>YAML 配置</li>
+<li><code>@ConfigurationProperties</code> 注入</li>
+<li>工具类 + Spring 管理</li>
+</ul>
+<p>这说明你理解：</p>
+<blockquote>
+<p><strong>配置 ≠ 代码</strong></p>
+</blockquote>
+<hr>
+<h4 id="（3）上传核心逻辑"><a href="#（3）上传核心逻辑" class="headerlink" title="（3）上传核心逻辑"></a>（3）上传核心逻辑</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ossClient.putObject(</span><br><span class="line">    bucketName,</span><br><span class="line">    objectName,</span><br><span class="line">    new ByteArrayInputStream(bytes)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>在这里你做的是：</p>
+<ul>
+<li>将 I&#x2F;O 细节 <strong>封装在基础设施层</strong></li>
+<li>Controller 只负责 <strong>接收请求与返回结果</strong></li>
+</ul>
+<hr>
+<h3 id="拓展问题-1"><a href="#拓展问题-1" class="headerlink" title="拓展问题"></a>拓展问题</h3><ul>
+<li>如何避免文件名冲突？</li>
+<li>如何做断点续传？</li>
+<li>如何限制文件类型 &#x2F; 大小？</li>
+</ul>
+<blockquote>
+<p>答：</p>
+<ul>
+<li>UUID+随机数</li>
+<li>采用 <strong>分片上传</strong>，每个分片单独上传并记录状态，失败只重传缺失分片，最终由 OSS 合并。</li>
+<li>后端校验 <code>Content-Type</code>、文件大小，并做必要的内容校验</li>
+</ul>
+</blockquote>
+<hr>
+<h2 id="三、菜品管理模块：典型多表业务设计"><a href="#三、菜品管理模块：典型多表业务设计" class="headerlink" title="三、菜品管理模块：典型多表业务设计"></a>三、菜品管理模块：典型多表业务设计</h2><hr>
+<h3 id="DTO-VO-分离"><a href="#DTO-VO-分离" class="headerlink" title="DTO &#x2F; VO 分离"></a>DTO &#x2F; VO 分离</h3><ul>
+<li>DTO：接收请求</li>
+<li>Entity：数据库映射</li>
+<li>VO：返回前端</li>
+</ul>
+<p>当实体类与请求参数相差较大时，需要引入 DTO；同时返回数据与实体类相差较大时，引入 VO</p>
+<hr>
+<h3 id="主从表插入"><a href="#主从表插入" class="headerlink" title="主从表插入"></a>主从表插入</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;insert useGeneratedKeys=&quot;true&quot; keyProperty=&quot;id&quot;&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>先插主表</li>
+<li>拿主键</li>
+<li>再批量插从表</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;foreach collection=&quot;flavors&quot; item=&quot;df&quot; separator=&quot;,&quot;&gt;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="删除逻辑：业务约束优先于数据库"><a href="#删除逻辑：业务约束优先于数据库" class="headerlink" title="删除逻辑：业务约束优先于数据库"></a>删除逻辑：业务约束优先于数据库</h3><ul>
+<li>起售中的菜品不能删除</li>
+<li>不是靠外键</li>
+<li>而是靠 <strong>业务校验 + 自定义异常</strong></li>
+</ul>
+<blockquote>
+<p><strong>数据库外键 ≠ 业务约束</strong></p>
+</blockquote>
+<hr>
+<h3 id="更新策略：先删后插"><a href="#更新策略：先删后插" class="headerlink" title="更新策略：先删后插"></a>更新策略：先删后插</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">update dish</span><br><span class="line">delete flavors</span><br><span class="line">insert flavors</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>简化逻辑</li>
+<li>保证一致性</li>
+<li>配合事务使用</li>
+</ul>
+<hr>
+<h2 id="学习资料与完整代码"><a href="#学习资料与完整代码" class="headerlink" title="学习资料与完整代码"></a>学习资料与完整代码</h2><p><strong>已整理并上传至 GitHub 仓库</strong></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/19/backend/project/2026-1-27-project-day03/" data-id="cmkwqzcy5000l4o8t41nw151i" data-title="后端工程实践总结公共字段自动填充、文件上传与多表业务设计" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%A4%90%E9%A5%AE%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" rel="tag">餐饮管理系统</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2026/01/19/backend/project/2026-1-19-project-day02/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          后端环境搭建与核心模块实战复盘
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2026/01/19/algorithms/dynamicprogramming/2026-1-19-dynamicprogramming-04%E7%BA%BF%E6%80%A7DP%E6%80%BB%E7%BB%93/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">线性 DP 总结与最长递增子序列（LIS）与二维扩展</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/ssm/">ssm</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/SpringBoot/">SpringBoot</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/01%E8%83%8C%E5%8C%85/" rel="tag">01背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LIS/" rel="tag">LIS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring-MVC/" rel="tag">Spring MVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis-plus/" rel="tag">mybatis-plus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8C%BA%E9%97%B4-DP/" rel="tag">区间 DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="tag">字符串</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" rel="tag">学习计划</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" rel="tag">完全背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8E%92%E5%88%97/" rel="tag">排列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8B%E8%AF%95/" rel="tag">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" rel="tag">热部署</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BADP/" rel="tag">状态机DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BA%BF%E6%80%A7DP/" rel="tag">线性DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E5%90%88/" rel="tag">组合</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%82%A1%E7%A5%A8%E9%97%AE%E9%A2%98/" rel="tag">股票问题</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" rel="tag">记忆化搜索</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E6%8E%A8/" rel="tag">递推</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%85%8D%E7%BD%AE/" rel="tag">配置</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A4%90%E9%A5%AE%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" rel="tag">餐饮管理系统</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/01%E8%83%8C%E5%8C%85/" style="font-size: 10px;">01背包</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LIS/" style="font-size: 12px;">LIS</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/Spring/" style="font-size: 10px;">Spring</a> <a href="/tags/Spring-MVC/" style="font-size: 10px;">Spring MVC</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/jdbc/" style="font-size: 12px;">jdbc</a> <a href="/tags/maven/" style="font-size: 12px;">maven</a> <a href="/tags/mybatis/" style="font-size: 16px;">mybatis</a> <a href="/tags/mybatis-plus/" style="font-size: 10px;">mybatis-plus</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8C%BA%E9%97%B4-DP/" style="font-size: 10px;">区间 DP</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 18px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 12px;">子集</a> <a href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" style="font-size: 10px;">字符串</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" style="font-size: 10px;">完全背包</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 12px;">总结</a> <a href="/tags/%E6%8E%92%E5%88%97/" style="font-size: 10px;">排列</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B5%8B%E8%AF%95/" style="font-size: 10px;">测试</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12px;">深度优先遍历</a> <a href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" style="font-size: 10px;">热部署</a> <a href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BADP/" style="font-size: 10px;">状态机DP</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E7%BA%BF%E6%80%A7DP/" style="font-size: 14px;">线性DP</a> <a href="/tags/%E7%BB%84%E5%90%88/" style="font-size: 10px;">组合</a> <a href="/tags/%E8%82%A1%E7%A5%A8%E9%97%AE%E9%A2%98/" style="font-size: 10px;">股票问题</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12px;">记录</a> <a href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" style="font-size: 12px;">记忆化搜索</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 18px;">递归</a> <a href="/tags/%E9%80%92%E6%8E%A8/" style="font-size: 12px;">递推</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a> <a href="/tags/%E9%A4%90%E9%A5%AE%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" style="font-size: 12px;">餐饮管理系统</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">一月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/12/">十二月 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/01/22/algorithms/dynamicprogramming/2026-1-22-dynamicprogramming-06%E5%8C%BA%E9%97%B4DP/">区间 DP：从「区间划分」理解最优子结构</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/20/algorithms/dynamicprogramming/2026-1-20-dynamicprogramming-05%E7%8A%B6%E6%80%81%E6%9C%BADP/">状态机 DP：从股票问题理解「有限状态 + 决策转移」</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/19/backend/project/2026-1-19-project-day02/">后端环境搭建与核心模块实战复盘</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/19/backend/project/2026-1-27-project-day03/">后端工程实践总结公共字段自动填充、文件上传与多表业务设计</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/19/algorithms/dynamicprogramming/2026-1-19-dynamicprogramming-04%E7%BA%BF%E6%80%A7DP%E6%80%BB%E7%BB%93/">线性 DP 总结与最长递增子序列（LIS）与二维扩展</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Tingfeng Li<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

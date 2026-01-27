@@ -81,10 +81,10 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-algorithms/dynamicprogramming/2026-1-19-dynamicprogramming-04线性DP总结" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <article id="post-algorithms/dynamicprogramming/2026-1-22-dynamicprogramming-06区间DP" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2026/01/19/algorithms/dynamicprogramming/2026-1-19-dynamicprogramming-04%E7%BA%BF%E6%80%A7DP%E6%80%BB%E7%BB%93/" class="article-date">
-  <time class="dt-published" datetime="2026-01-18T16:00:00.000Z" itemprop="datePublished">2026-01-19</time>
+    <a href="/2026/01/22/algorithms/dynamicprogramming/2026-1-22-dynamicprogramming-06%E5%8C%BA%E9%97%B4DP/" class="article-date">
+  <time class="dt-published" datetime="2026-01-21T16:00:00.000Z" itemprop="datePublished">2026-01-22</time>
 </a>
     
   <div class="article-category">
@@ -99,7 +99,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/01/19/algorithms/dynamicprogramming/2026-1-19-dynamicprogramming-04%E7%BA%BF%E6%80%A7DP%E6%80%BB%E7%BB%93/">线性 DP 总结与最长递增子序列（LIS）与二维扩展</a>
+      <a class="p-name article-title" href="/2026/01/22/algorithms/dynamicprogramming/2026-1-22-dynamicprogramming-06%E5%8C%BA%E9%97%B4DP/">区间 DP：从「区间划分」理解最优子结构</a>
     </h1>
   
 
@@ -107,196 +107,337 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <p><strong>基础题目</strong>：300. 最长递增子序列<br><strong>扩展题目</strong>：354. 俄罗斯套娃信封问题</p>
-<hr>
-<h2 id="一、引言：LIS-在「线性-DP」中的位置"><a href="#一、引言：LIS-在「线性-DP」中的位置" class="headerlink" title="一、引言：LIS 在「线性 DP」中的位置"></a>一、引言：LIS 在「线性 DP」中的位置</h2><p>在完整学习了：</p>
-<ul>
-<li>打家劫舍（选 &#x2F; 不选）</li>
-<li>爬楼梯（排列计数）</li>
-<li>背包问题（容量约束）</li>
-<li>双序列线性 DP（公共子序列）</li>
-</ul>
-<p>之后，<strong>最长递增子序列（LIS）是线性 DP 中最后、也是最容易“升维”的一种模型</strong>。</p>
-<p>它的核心特征非常明确：</p>
-<blockquote>
-<p><strong>单序列 + 子序列 + 有序性约束</strong></p>
+        <blockquote>
+<p>区间 DP 的本质是：<strong>在一个连续区间内枚举“最后一次决策点”，把区间拆分成若干更小区间，通过最优子结构组合得到整体最优解</strong>。它解决的是“前缀 DP 无法表达的、区间内相互依赖的问题”。</p>
 </blockquote>
-<p>一旦理解 LIS，不仅可以解决一维问题，还可以通过<strong>排序 + 降维</strong>，解决看似更复杂的二维、分组问题。</p>
 <hr>
-<h2 id="二、354-俄罗斯套娃信封问题"><a href="#二、354-俄罗斯套娃信封问题" class="headerlink" title="二、354. 俄罗斯套娃信封问题"></a>二、354. 俄罗斯套娃信封问题</h2><h3 id="问题本质与第一直觉"><a href="#问题本质与第一直觉" class="headerlink" title="问题本质与第一直觉"></a>问题本质与第一直觉</h3><p>每个信封用 <code>(w, h)</code> 表示，若：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">w1 &lt; w2 且 h1 &lt; h2</span><br></pre></td></tr></table></figure>
+<h2 id="一、为什么需要区间-DP（与线性-DP-的根本区别）"><a href="#一、为什么需要区间-DP（与线性-DP-的根本区别）" class="headerlink" title="一、为什么需要区间 DP（与线性 DP 的根本区别）"></a>一、为什么需要区间 DP（与线性 DP 的根本区别）</h2><h3 id="线性-DP-在解决什么问题？"><a href="#线性-DP-在解决什么问题？" class="headerlink" title="线性 DP 在解决什么问题？"></a>线性 DP 在解决什么问题？</h3><ul>
+<li>状态通常是：<code>前 i 个元素</code></li>
+<li>决策是：当前位置选 or 不选</li>
+<li>子问题天然是前缀 &#x2F; 后缀</li>
+</ul>
+<p>例如：</p>
+<ul>
+<li>LIS</li>
+<li>LCS</li>
+<li>背包</li>
+<li>股票状态机</li>
+</ul>
+<hr>
+<h3 id="哪些问题线性-DP-无法直接建模？"><a href="#哪些问题线性-DP-无法直接建模？" class="headerlink" title="哪些问题线性 DP 无法直接建模？"></a>哪些问题线性 DP 无法直接建模？</h3><p>当问题满足以下特征之一时，<strong>几乎必然是区间 DP</strong>：</p>
+<ul>
+<li>决策发生在区间内部，而不是边界</li>
+<li>子问题不是“前 i 个”，而是“任意子区间”</li>
+<li>当前最优解依赖于<strong>区间被切成两段或多段</strong></li>
+</ul>
+<p>这时就必须显式引入「区间左右端点」。</p>
+<hr>
+<h2 id="二、区间-DP-的标准状态定义"><a href="#二、区间-DP-的标准状态定义" class="headerlink" title="二、区间 DP 的标准状态定义"></a>二、区间 DP 的标准状态定义</h2><p>区间 DP 的统一模板：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i][j] 表示：区间 [i, j] 内的最优解</span><br></pre></td></tr></table></figure>
 
-<p>则信封 1 可以嵌套进信封 2。</p>
-<p>直觉思路是：</p>
-<blockquote>
-<p>把每个信封当成一个“元素”，求最长递增子序列</p>
-</blockquote>
-<p>但这里<strong>存在一个关键陷阱</strong>：</p>
-<p><strong>题目允许任意重排信封顺序</strong><br> → 原数组顺序是无意义的<br> → 直接在二维数组上做 LIS 会<strong>漏解</strong></p>
-<hr>
-<h3 id="正确建模：二维-→-一维的关键转化"><a href="#正确建模：二维-→-一维的关键转化" class="headerlink" title="正确建模：二维 → 一维的关键转化"></a>正确建模：二维 → 一维的关键转化</h3><p>要想使用 LIS，必须满足：</p>
-<blockquote>
-<p><strong>只在一个维度上递增</strong></p>
-</blockquote>
-<p>因此需要先消除一个维度的干扰。</p>
-<h4 id="核心转化步骤"><a href="#核心转化步骤" class="headerlink" title="核心转化步骤"></a>核心转化步骤</h4><p><strong>Step 1：排序</strong></p>
+<p>常见的隐含约束：</p>
 <ul>
-<li>宽度 <code>w</code>：<strong>升序</strong></li>
-<li>高度 <code>h</code>：<strong>降序（当 w 相同）</strong></li>
+<li><code>i &lt;= j</code></li>
+<li>区间长度逐渐变大</li>
+<li>转移依赖更小的区间</li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// 双关键字排序：宽度升序，高度降序</span><br><span class="line">Arrays.sort(envelopes, (a, b) -&gt; &#123;</span><br><span class="line">    if (a[0] == b[0]) &#123;</span><br><span class="line">        return b[1] - a[1]; // 高度降序</span><br><span class="line">    &#125;</span><br><span class="line">    return a[0] - b[0];     // 宽度升序</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="三、经典入门：516-最长回文子序列"><a href="#三、经典入门：516-最长回文子序列" class="headerlink" title="三、经典入门：516 最长回文子序列"></a>三、经典入门：516 最长回文子序列</h2><h3 id="状态定义"><a href="#状态定义" class="headerlink" title="状态定义"></a>状态定义</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i][j]：字符串 s 在区间 [i, j] 内的最长回文子序列长度</span><br></pre></td></tr></table></figure>
 
-<h4 id="为什么-w-相同时要按-h-降序？"><a href="#为什么-w-相同时要按-h-降序？" class="headerlink" title="为什么 w 相同时要按 h 降序？"></a>为什么 w 相同时要按 h 降序？</h4><p>这是本题<strong>最容易被忽略、也是面试最常考的点</strong>。</p>
-<p>如果：</p>
-<ul>
-<li><code>w</code> 相同</li>
-<li><code>h</code> 也按升序排</li>
+<h3 id="边界条件"><a href="#边界条件" class="headerlink" title="边界条件"></a>边界条件</h3><ul>
+<li><code>i &gt; j</code>：空区间 → 0</li>
+<li><code>i == j</code>：单字符 → 1</li>
 </ul>
-<p>那么在之后对 <code>h</code> 求 LIS 时，会错误地把<strong>同一宽度的信封选进子序列</strong>，违反题意（宽度必须严格递增）。</p>
-<p>而 <strong>h 降序</strong> 的作用是：</p>
-<blockquote>
-<p>在 LIS（严格递增）中，<strong>相同 w 的信封不可能同时被选中</strong></p>
-</blockquote>
 <hr>
-<h3 id="问题彻底降维：只看高度-h"><a href="#问题彻底降维：只看高度-h" class="headerlink" title="问题彻底降维：只看高度 h"></a>问题彻底降维：只看高度 h</h3><p>排序完成后：</p>
-<ul>
-<li>宽度已经隐式满足递增约束</li>
-<li>只需要在高度数组上求 <strong>严格递增 LIS</strong></li>
+<h3 id="状态转移"><a href="#状态转移" class="headerlink" title="状态转移"></a>状态转移</h3><ul>
+<li>如果 <code>s[i] == s[j]</code>：</li>
 </ul>
-<p>问题就完全转化为：</p>
-<blockquote>
-<p><strong>300. 最长递增子序列</strong></p>
-</blockquote>
-<hr>
-<h3 id="算法复杂度分析"><a href="#算法复杂度分析" class="headerlink" title="算法复杂度分析"></a>算法复杂度分析</h3><ul>
-<li>排序：<code>O(n log n)</code></li>
-<li>LIS（贪心 + 二分）：<code>O(n log n)</code></li>
-</ul>
-<p>整体复杂度：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">O(n log n)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i][j] = dp[i+1][j-1] + 2</span><br></pre></td></tr></table></figure>
 
-<p>满足 <code>n ≤ 10^5</code> 的数据规模要求。</p>
-<h2 id="三、心得体会（俄罗斯套娃-→-LIS）"><a href="#三、心得体会（俄罗斯套娃-→-LIS）" class="headerlink" title="三、心得体会（俄罗斯套娃 → LIS）"></a>三、心得体会（俄罗斯套娃 → LIS）</h2><p>这道题<strong>真正考察的不是 LIS 本身，而是问题转化能力</strong>：</p>
-<ol>
-<li><strong>是否意识到原顺序无意义</strong></li>
-<li><strong>是否能通过排序消掉一个维度</strong></li>
-<li><strong>是否处理了“相等元素”的边界情况</strong></li>
-</ol>
-<p>本质模型可以总结为一句话：</p>
+<ul>
+<li>如果 <code>s[i] != s[j]</code>：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i][j] = max(dp[i+1][j], dp[i][j-1])</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="遍历顺序（区间-DP-的“坑点”）"><a href="#遍历顺序（区间-DP-的“坑点”）" class="headerlink" title="遍历顺序（区间 DP 的“坑点”）"></a>遍历顺序（区间 DP 的“坑点”）</h3><p><code>dp[i][j]</code> 依赖：</p>
+<ul>
+<li><code>dp[i+1][j]</code></li>
+<li><code>dp[i][j-1]</code></li>
+<li><code>dp[i+1][j-1]</code> 对于 i 来说是后面的状态，对于 j 来说是前面的状态</li>
+</ul>
+<p>因此：</p>
+<ul>
+<li><strong>i 必须从大到小</strong></li>
+<li><strong>j 必须从小到大</strong></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">for i = n-1 .. 0:</span><br><span class="line">    for j = i .. n-1:</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="常见易错点"><a href="#常见易错点" class="headerlink" title="常见易错点"></a>常见易错点</h3><ul>
+<li>区分「子序列」与「子串」：一个可以不连续，一个必须连续</li>
+</ul>
+<hr>
+<h2 id="四、区间切分模型：1039-多边形三角剖分"><a href="#四、区间切分模型：1039-多边形三角剖分" class="headerlink" title="四、区间切分模型：1039 多边形三角剖分"></a>四、区间切分模型：1039 多边形三角剖分</h2><h3 id="抽象模型"><a href="#抽象模型" class="headerlink" title="抽象模型"></a>抽象模型</h3><p>这类问题的统一抽象是：</p>
 <blockquote>
-<p><strong>二维严格递增问题 &#x3D; 排序 + 一维 LIS</strong></p>
+<p><strong>在区间 (i, j) 中，枚举一个“最后参与决策的点 k”</strong></p>
 </blockquote>
 <hr>
-<h2 id="四、线性-DP-模型全景总结"><a href="#四、线性-DP-模型全景总结" class="headerlink" title="四、线性 DP 模型全景总结"></a>四、线性 DP 模型全景总结</h2><p>回顾整个线性 DP 学习路径，可以清晰地分为 <strong>五大模型</strong>。</p>
+<h3 id="状态定义-1"><a href="#状态定义-1" class="headerlink" title="状态定义"></a>状态定义</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i][j]：由顶点 i 到 j 构成的多边形的最低三角剖分得分</span><br></pre></td></tr></table></figure>
+
 <hr>
-<h3 id="打家劫舍模型（选-不选-相邻约束）"><a href="#打家劫舍模型（选-不选-相邻约束）" class="headerlink" title="打家劫舍模型（选 &#x2F; 不选 + 相邻约束）"></a>打家劫舍模型（选 &#x2F; 不选 + 相邻约束）</h3><p><strong>核心特征</strong></p>
+<h3 id="状态转移（「枚举中点」为例）"><a href="#状态转移（「枚举中点」为例）" class="headerlink" title="状态转移（「枚举中点」为例）"></a>状态转移（「枚举中点」为例）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dp[i][j] = min over k ∈ (i, j):</span><br><span class="line">    dp[i][k] +</span><br><span class="line">    values[i] * values[k] * values[j] +</span><br><span class="line">    dp[k][j]</span><br></pre></td></tr></table></figure>
+
+<p>其中：</p>
 <ul>
-<li>枚举元素选或不选</li>
-<li>相邻元素不能同时选</li>
+<li><code>(i, k)</code> 和 <code>(k, j)</code> 是两个子多边形</li>
+<li><code>(i, k, j)</code> 是当前枚举的三角形</li>
 </ul>
-<p><strong>典型变形</strong></p>
-<ul>
-<li>打家劫舍 II（成环）<br> → 拆成「选第一个 &#x2F; 不选第一个」</li>
-<li>删除并获得点数<br> → 构造值域数组，转化为打家劫舍</li>
-</ul>
+<p><strong>这是区间 DP 最典型的结构</strong>，与回文问题完全不同，但模型统一。</p>
 <hr>
-<h3 id="爬楼梯模型（排列型-DP）"><a href="#爬楼梯模型（排列型-DP）" class="headerlink" title="爬楼梯模型（排列型 DP）"></a>爬楼梯模型（排列型 DP）</h3><p><strong>核心特征</strong></p>
-<ul>
-<li>顺序不同 &#x3D; 不同方案</li>
-<li>每一步选择不同“动作”</li>
-</ul>
-<p><strong>常见变形</strong></p>
-<ul>
-<li>最小代价爬楼梯</li>
-<li>目标字符串构造方案数</li>
-<li>组合总和（顺序相关）</li>
-<li>分组 + 爬楼梯</li>
+<h3 id="本质理解"><a href="#本质理解" class="headerlink" title="本质理解"></a>本质理解</h3><ul>
+<li>固定一条边 <code>(i, j)</code></li>
+<li>枚举“与这条边形成三角形的顶点 k”</li>
+<li>将问题拆成左右两个区间</li>
 </ul>
 <hr>
-<h3 id="背包模型（容量约束）"><a href="#背包模型（容量约束）" class="headerlink" title="背包模型（容量约束）"></a>背包模型（容量约束）</h3><p><strong>分类</strong></p>
+<h2 id="五、极值对抗模型：375-猜数字大小-II"><a href="#五、极值对抗模型：375-猜数字大小-II" class="headerlink" title="五、极值对抗模型：375 猜数字大小 II"></a>五、极值对抗模型：375 猜数字大小 II</h2><h3 id="为什么它也是区间-DP？"><a href="#为什么它也是区间-DP？" class="headerlink" title="为什么它也是区间 DP？"></a>为什么它也是区间 DP？</h3><p>因为：</p>
 <ul>
-<li>01 背包（不能重复选）</li>
-<li>完全背包（可以重复选）</li>
+<li>每次选择一个 k</li>
+<li>会把区间 <code>[l, r]</code> 分成：<ul>
+<li><code>[l, k-1]</code></li>
+<li><code>[k+1, r]</code></li>
 </ul>
-<p><strong>常见问法</strong></p>
-<ul>
-<li>至多 &#x2F; 恰好 &#x2F; 至少装满</li>
-<li>求最大值 &#x2F; 最小值 &#x2F; 方案数</li>
-</ul>
-<p><strong>重要收获</strong></p>
-<ul>
-<li><p>空间优化的本质：</p>
-<p>明确当前状态依赖哪些旧状态</p>
-<p>是否会发生状态覆盖</p>
-<p>必要时引入 <code>pre</code></p>
 </li>
 </ul>
 <hr>
-<h3 id="双序列线性-DP"><a href="#双序列线性-DP" class="headerlink" title="双序列线性 DP"></a>双序列线性 DP</h3><p><strong>核心特征</strong></p>
-<ul>
-<li>操作两个序列</li>
-<li>关注“公共部分”</li>
-</ul>
-<p><strong>典型问题</strong></p>
-<ul>
-<li>最长公共子序列（LCS）</li>
-<li>最短公共超序列（SCS）</li>
-<li>编辑距离</li>
+<h3 id="状态定义-2"><a href="#状态定义-2" class="headerlink" title="状态定义"></a>状态定义</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[l][r]：在区间 [l, r] 内保证猜中所需的最少现金</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="状态转移（min-max-的组合）"><a href="#状态转移（min-max-的组合）" class="headerlink" title="状态转移（min + max 的组合）"></a>状态转移（min + max 的组合）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dp[l][r] = min over k ∈ [l, r]:</span><br><span class="line">    k + max(dp[l][k-1], dp[k+1][r])</span><br></pre></td></tr></table></figure>
+
+<h4 id="为什么是-max？"><a href="#为什么是-max？" class="headerlink" title="为什么是 max？"></a>为什么是 max？</h4><ul>
+<li>因为要保证“最坏情况下也能赢”</li>
+<li>属于 <strong>对抗型 &#x2F; 博弈型区间 DP</strong></li>
 </ul>
 <hr>
-<h3 id="最长递增子序列（LIS）"><a href="#最长递增子序列（LIS）" class="headerlink" title="最长递增子序列（LIS）"></a>最长递增子序列（LIS）</h3><p><strong>核心特征</strong></p>
-<ul>
-<li>单序列</li>
-<li>子序列</li>
-<li>有序性约束（递增 &#x2F; 非递减）</li>
-</ul>
-<p><strong>两种解法层级</strong></p>
-<table>
+<h2 id="六、区间-DP-的统一分类总结"><a href="#六、区间-DP-的统一分类总结" class="headerlink" title="六、区间 DP 的统一分类总结"></a>六、区间 DP 的统一分类总结</h2><table>
 <thead>
 <tr>
-<th>解法</th>
-<th>时间复杂度</th>
-<th>适用</th>
+<th>类型</th>
+<th>特点</th>
+<th>代表题</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>经典 DP</td>
-<td>O(n²)</td>
-<td>理解模型</td>
+<td>双端收缩</td>
+<td>操作在区间两端</td>
+<td>516</td>
 </tr>
 <tr>
-<td>贪心 + 二分</td>
-<td>O(n log n)</td>
-<td>大规模数据</td>
+<td>枚举区间每一个顶点</td>
+<td>枚举分割点 k</td>
+<td>1039</td>
+</tr>
+<tr>
+<td>对抗博弈</td>
+<td>min + max</td>
+<td>375</td>
 </tr>
 </tbody></table>
-<h4 id="关键技巧"><a href="#关键技巧" class="headerlink" title="关键技巧"></a>关键技巧</h4><blockquote>
-<p><strong>交换 dp 的“状态”与“状态值”</strong></p>
-</blockquote>
-<ul>
-<li>用 <code>g[k]</code> 表示：<ul>
-<li>长度为 <code>k+1</code> 的递增子序列</li>
-<li>其末尾元素的最小值</li>
+<hr>
+<h2 id="七、区间-DP-的工程级思维模型"><a href="#七、区间-DP-的工程级思维模型" class="headerlink" title="七、区间 DP 的工程级思维模型"></a>七、区间 DP 的工程级思维模型</h2><h3 id="建模四步法"><a href="#建模四步法" class="headerlink" title="建模四步法"></a>建模四步法</h3><ol>
+<li>区间 <code>[i, j]</code> 表示什么？</li>
+<li>决策发生在区间的哪里？</li>
+<li>子区间如何划分？</li>
+<li>边界区间是什么？</li>
+</ol>
+<hr>
+<h3 id="遍历顺序的通用规律"><a href="#遍历顺序的通用规律" class="headerlink" title="遍历顺序的通用规律"></a>遍历顺序的通用规律</h3><ul>
+<li><strong>区间长度从小到大</strong></li>
+<li>或等价地：<ul>
+<li><code>i</code> 从大到小</li>
+<li><code>j</code> 从小到大</li>
 </ul>
 </li>
 </ul>
-<p>严格来说：</p>
-<ul>
-<li><code>g</code> 不存在状态覆盖</li>
-<li>已不再是传统 DP</li>
-<li>而是 <strong>贪心 + 有序结构 + 二分查找</strong></li>
-</ul>
+<blockquote>
+<p>谁正谁反，取决于你依赖的是 <code>i+1</code> 还是 <code>j-1</code>。</p>
+</blockquote>
 <hr>
 <h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/19/algorithms/dynamicprogramming/2026-1-19-dynamicprogramming-04%E7%BA%BF%E6%80%A7DP%E6%80%BB%E7%BB%93/" data-id="cmklbs4ji004a048t4wusbe87" data-title="线性 DP 总结与最长递增子序列（LIS）与二维扩展" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/22/algorithms/dynamicprogramming/2026-1-22-dynamicprogramming-06%E5%8C%BA%E9%97%B4DP/" data-id="cmkwqzczd006w4o8t6x0m59gt" data-title="区间 DP：从「区间划分」理解最优子结构" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/LIS/" rel="tag">LIS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BA%BF%E6%80%A7DP/" rel="tag">线性DP</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8C%BA%E9%97%B4-DP/" rel="tag">区间 DP</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-algorithms/dynamicprogramming/2026-1-20-dynamicprogramming-05状态机DP" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/20/algorithms/dynamicprogramming/2026-1-20-dynamicprogramming-05%E7%8A%B6%E6%80%81%E6%9C%BADP/" class="article-date">
+  <time class="dt-published" datetime="2026-01-19T16:00:00.000Z" itemprop="datePublished">2026-01-20</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2026/01/20/algorithms/dynamicprogramming/2026-1-20-dynamicprogramming-05%E7%8A%B6%E6%80%81%E6%9C%BADP/">状态机 DP：从股票问题理解「有限状态 + 决策转移」</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>状态机 DP 的本质是：<strong>在时间线推进的过程中，用有限个状态描述系统所处阶段，并在状态之间进行合法转移，求全局最优解</strong>。股票系列问题是状态机 DP 最经典、也最具迁移价值的模型。</p>
+</blockquote>
+<hr>
+<h2 id="一、什么是状态机-DP"><a href="#一、什么是状态机-DP" class="headerlink" title="一、什么是状态机 DP"></a>一、什么是状态机 DP</h2><p>不是“多维 DP”这么简单</p>
+<h3 id="状态机-DP-的核心特征"><a href="#状态机-DP-的核心特征" class="headerlink" title="状态机 DP 的核心特征"></a>状态机 DP 的核心特征</h3><ul>
+<li><strong>时间维度是线性的</strong>（天数 &#x2F; 下标 i）</li>
+<li><strong>状态集合是有限且很小的</strong>（通常 2～5 个）</li>
+<li>每一天的最优解，只依赖于：<ul>
+<li>前一天（或前几天）</li>
+<li>合法状态之间的转移</li>
+</ul>
+</li>
+</ul>
+<p>典型形式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dp[i][state] = max / min &#123;</span><br><span class="line">    dp[i-1][prev_state] + cost</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="为什么股票问题天然适合状态机-DP？"><a href="#为什么股票问题天然适合状态机-DP？" class="headerlink" title="为什么股票问题天然适合状态机 DP？"></a>为什么股票问题天然适合状态机 DP？</h3><p>因为每天的行为是有限的：</p>
+<ul>
+<li>买</li>
+<li>卖</li>
+<li>什么都不做</li>
+</ul>
+<p>而这些行为，<strong>本质上只会改变“是否持有股票”这一状态</strong>。</p>
+<hr>
+<h2 id="二、股票问题的统一状态定义"><a href="#二、股票问题的统一状态定义" class="headerlink" title="二、股票问题的统一状态定义"></a>二、股票问题的统一状态定义</h2><p>不管题目怎么变，本质都围绕这两个基础状态：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">state = 0 → 当前不持有股票</span><br><span class="line">state = 1 → 当前持有股票</span><br></pre></td></tr></table></figure>
+
+<p>因此最基础的定义是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i][j] 表示：第 i 天结束后，处于状态 j 时的最大利润</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="三、基础模型：122-买卖股票的最佳时机-II（无限次交易）"><a href="#三、基础模型：122-买卖股票的最佳时机-II（无限次交易）" class="headerlink" title="三、基础模型：122 买卖股票的最佳时机 II（无限次交易）"></a>三、基础模型：122 买卖股票的最佳时机 II（无限次交易）</h2><h3 id="状态定义"><a href="#状态定义" class="headerlink" title="状态定义"></a>状态定义</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dp[i][0]：第 i 天结束后，不持股的最大利润</span><br><span class="line">dp[i][1]：第 i 天结束后，持股的最大利润</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="状态转移（状态机视角）"><a href="#状态转移（状态机视角）" class="headerlink" title="状态转移（状态机视角）"></a>状态转移（状态机视角）</h3><h4 id="不持股（state-0）"><a href="#不持股（state-0）" class="headerlink" title="不持股（state &#x3D; 0）"></a>不持股（state &#x3D; 0）</h4><ul>
+<li>昨天就不持股，今天什么都不做</li>
+<li>昨天持股，今天卖出</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dp[i][0] = max(</span><br><span class="line">    dp[i-1][0],</span><br><span class="line">    dp[i-1][1] + prices[i]</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h4 id="持股（state-1）"><a href="#持股（state-1）" class="headerlink" title="持股（state &#x3D; 1）"></a>持股（state &#x3D; 1）</h4><ul>
+<li>昨天就持股，今天继续持有</li>
+<li>昨天不持股，今天买入</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dp[i][1] = max(</span><br><span class="line">    dp[i-1][1],</span><br><span class="line">    dp[i-1][0] - prices[i]</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>这是<strong>最纯粹的状态机 DP 模型</strong>，后续所有变形都在此基础上增加约束。</p>
+<hr>
+<h2 id="四、加入约束一：冷冻期（309）"><a href="#四、加入约束一：冷冻期（309）" class="headerlink" title="四、加入约束一：冷冻期（309）"></a>四、加入约束一：冷冻期（309）</h2><blockquote>
+<p><strong>买入操作不再只依赖前一天</strong>。</p>
+</blockquote>
+<p>卖出后，下一天不能立刻买入，因此：</p>
+<ul>
+<li>买入只能从 <strong>前两天的不持股状态</strong> 转移</li>
+</ul>
+<hr>
+<h3 id="状态转移变化"><a href="#状态转移变化" class="headerlink" title="状态转移变化"></a>状态转移变化</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">dp[i][0] = max(</span><br><span class="line">    dp[i-1][0],</span><br><span class="line">    dp[i-1][1] + prices[i]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">dp[i][1] = max(</span><br><span class="line">    dp[i-1][1],</span><br><span class="line">    dp[i-2][0] - prices[i]</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p> 这类题的本质不是“新增状态”，而是：<strong>转移来源发生了变化</strong></p>
+<hr>
+<h2 id="五、加入约束二：交易次数限制（188-123）"><a href="#五、加入约束二：交易次数限制（188-123）" class="headerlink" title="五、加入约束二：交易次数限制（188 &#x2F; 123）"></a>五、加入约束二：交易次数限制（188 &#x2F; 123）</h2><h3 id="为什么要引入「交易次数」维度？"><a href="#为什么要引入「交易次数」维度？" class="headerlink" title="为什么要引入「交易次数」维度？"></a>为什么要引入「交易次数」维度？</h3><p>因为一次完整交易 &#x3D; 买入 + 卖出<br>限制交易次数，意味着 <strong>dp 数组中必须记录“还剩几次卖出的机会”</strong>。</p>
+<hr>
+<h3 id="状态定义（标准三维状态机）"><a href="#状态定义（标准三维状态机）" class="headerlink" title="状态定义（标准三维状态机）"></a>状态定义（标准三维状态机）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">dp[i][k][j]</span><br><span class="line">表示：第 i 天结束后，</span><br><span class="line">      还剩 k 次交易机会，</span><br><span class="line">      当前状态为 j（0 不持股 / 1 持股）</span><br><span class="line">      的最大利润</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="核心转移逻辑（只在卖出时消耗交易次数）"><a href="#核心转移逻辑（只在卖出时消耗交易次数）" class="headerlink" title="核心转移逻辑（只在卖出时消耗交易次数）"></a>核心转移逻辑（只在卖出时消耗交易次数）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">dp[i][k][0] = max(</span><br><span class="line">    dp[i-1][k][0],</span><br><span class="line">    dp[i-1][k-1][1] + prices[i]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">dp[i][k][1] = max(</span><br><span class="line">    dp[i-1][k][1],</span><br><span class="line">    dp[i-1][k][0] - prices[i]</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>为什么是卖出时 k-1，而不是买入？</strong><br>因为一次交易以“完成卖出”为标志。理论上由于最后一天不持有股票的价值一定最高，所以买入时进行 k-1 也可以。</p>
+</blockquote>
+<hr>
+<h3 id="121-123-与-188-的关系"><a href="#121-123-与-188-的关系" class="headerlink" title="121 &#x2F; 123 与 188 的关系"></a>121 &#x2F; 123 与 188 的关系</h3><table>
+<thead>
+<tr>
+<th>题目</th>
+<th>本质</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>121</td>
+<td>k &#x3D; 1 的特例（可用贪心优化）</td>
+</tr>
+<tr>
+<td>123</td>
+<td>k &#x3D; 2 的特例</td>
+</tr>
+<tr>
+<td>188</td>
+<td>任意 k 的通用模型</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="六、加入约束三：手续费（714）"><a href="#六、加入约束三：手续费（714）" class="headerlink" title="六、加入约束三：手续费（714）"></a>六、加入约束三：手续费（714）</h2><h3 id="本质变化"><a href="#本质变化" class="headerlink" title="本质变化"></a>本质变化</h3><blockquote>
+<p>每一笔交易都会多付出一个固定成本。</p>
+</blockquote>
+<p>手续费只影响 <strong>买入或卖出其中一个时机</strong>，常见处理方式：</p>
+<h4 id="在买入时扣手续费"><a href="#在买入时扣手续费" class="headerlink" title="在买入时扣手续费"></a>在买入时扣手续费</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dp[i][1] = max(</span><br><span class="line">    dp[i-1][1],</span><br><span class="line">    dp[i-1][0] - prices[i] - fee</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h4 id="或在卖出时扣手续费（等价）"><a href="#或在卖出时扣手续费（等价）" class="headerlink" title="或在卖出时扣手续费（等价）"></a>或在卖出时扣手续费（等价）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dp[i][0] = max(</span><br><span class="line">    dp[i-1][0],</span><br><span class="line">    dp[i-1][1] + prices[i] - fee</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="七、状态机-DP-的工程级总结"><a href="#七、状态机-DP-的工程级总结" class="headerlink" title="七、状态机 DP 的工程级总结"></a>七、状态机 DP 的工程级总结</h2><h3 id="建模顺序"><a href="#建模顺序" class="headerlink" title="建模顺序"></a>建模顺序</h3><ol>
+<li><strong>时间轴是什么？</strong>（天数 &#x2F; 下标）</li>
+<li><strong>系统有哪些有限状态？</strong>（股票的持有与否）</li>
+<li><strong>哪些状态之间可以互相转移？</strong>（持有股票通过当天卖出转化为未持有）</li>
+<li><strong>哪些转移有额外约束？</strong>（手续费、交易次数限制）</li>
+</ol>
+<hr>
+<h3 id="股票状态机的通用模板"><a href="#股票状态机的通用模板" class="headerlink" title="股票状态机的通用模板"></a>股票状态机的通用模板</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">for i in [0..n):</span><br><span class="line">    for state in States:</span><br><span class="line">        dp[i][state] = max(</span><br><span class="line">            from all valid prev_state</span><br><span class="line">        )</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="状态机-DP-变形"><a href="#状态机-DP-变形" class="headerlink" title="状态机 DP 变形"></a>状态机 DP 变形</h3><ul>
+<li>可迁移到时机开发中：订单状态流转、流控 &#x2F; 限流、工作流引擎、资源占用 &#x2F; 释放建模</li>
+</ul>
+<p><strong>这是后端系统里“时间 + 状态”的通用建模方式。</strong></p>
+<hr>
+<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/20/algorithms/dynamicprogramming/2026-1-20-dynamicprogramming-05%E7%8A%B6%E6%80%81%E6%9C%BADP/" data-id="cmkwqzczc006t4o8tfrag0u5l" data-title="状态机 DP：从股票问题理解「有限状态 + 决策转移」" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BADP/" rel="tag">状态机DP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%82%A1%E7%A5%A8%E9%97%AE%E9%A2%98/" rel="tag">股票问题</a></li></ul>
 
     </footer>
   </div>
@@ -697,11 +838,482 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/19/backend/project/2026-1-19-project-day02/" data-id="cmklbs4jm004u048t7n7aagbi" data-title="后端环境搭建与核心模块实战复盘" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/19/backend/project/2026-1-19-project-day02/" data-id="cmkwqzcy3000e4o8t4dudfsmu" data-title="后端环境搭建与核心模块实战复盘" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%A4%90%E9%A5%AE%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" rel="tag">餐饮管理系统</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-backend/project/2026-1-27-project-day03" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/19/backend/project/2026-1-27-project-day03/" class="article-date">
+  <time class="dt-published" datetime="2026-01-18T16:00:00.000Z" itemprop="datePublished">2026-01-19</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2026/01/19/backend/project/2026-1-27-project-day03/">后端工程实践总结公共字段自动填充、文件上传与多表业务设计</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>本文基于一个真实后端业务系统（Spring Boot + MyBatis）的实现过程，系统性总结了三个实际开发中遇到的问题：<strong>公共字段填充、文件上传服务设计、多表业务模块实现</strong>。</p>
+</blockquote>
+<hr>
+<h2 id="一、公共字段自动填充：用-AOP-解耦“横切逻辑”"><a href="#一、公共字段自动填充：用-AOP-解耦“横切逻辑”" class="headerlink" title="一、公共字段自动填充：用 AOP 解耦“横切逻辑”"></a>一、公共字段自动填充：用 AOP 解耦“横切逻辑”</h2><h3 id="问题背景（Why）"><a href="#问题背景（Why）" class="headerlink" title="问题背景（Why）"></a>问题背景（Why）</h3><p>在一个标准的后端系统中，<strong>几乎所有业务表</strong>都会包含以下公共字段：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>create_time</td>
+<td>创建时间</td>
+</tr>
+<tr>
+<td>create_user</td>
+<td>创建人</td>
+</tr>
+<tr>
+<td>update_time</td>
+<td>修改时间</td>
+</tr>
+<tr>
+<td>update_user</td>
+<td>修改人</td>
+</tr>
+</tbody></table>
+<p>如果在每个 <code>insert / update</code> 的 Mapper 方法中<strong>手写赋值逻辑</strong>，会带来三个问题：</p>
+<ol>
+<li><strong>重复代码严重</strong></li>
+<li><strong>业务代码被污染</strong></li>
+<li><strong>容易遗漏或写错</strong></li>
+</ol>
+<p>这是一个非常典型的 <strong>横切关注点（Cross-Cutting Concern）</strong>。</p>
+<hr>
+<h3 id="设计目标"><a href="#设计目标" class="headerlink" title="设计目标"></a>设计目标</h3><p>从工程角度，我希望这个功能满足：</p>
+<ul>
+<li>业务代码 <strong>零侵入</strong></li>
+<li>插入 &#x2F; 更新行为 <strong>语义清晰</strong></li>
+<li>能够 <strong>统一治理、集中维护</strong></li>
+</ul>
+<p>因此选择方案是：</p>
+<blockquote>
+<p><strong>Spring AOP + 自定义注解</strong></p>
+</blockquote>
+<hr>
+<h3 id="实现方案概述"><a href="#实现方案概述" class="headerlink" title="实现方案概述"></a>实现方案概述</h3><p>整体设计拆分为三层职责：</p>
+<ol>
+<li><strong>注解层</strong>：声明“这个方法需要自动填充”</li>
+<li><strong>切面层</strong>：统一拦截、统一处理</li>
+<li><strong>实体层</strong>：通过反射注入公共字段</li>
+</ol>
+<hr>
+<h3 id="核心实现解析"><a href="#核心实现解析" class="headerlink" title="核心实现解析"></a>核心实现解析</h3><h4 id="（1）自定义注解：表达“意图”"><a href="#（1）自定义注解：表达“意图”" class="headerlink" title="（1）自定义注解：表达“意图”"></a>（1）自定义注解：表达“意图”</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Target(ElementType.METHOD)</span><br><span class="line">@Retention(RetentionPolicy.RUNTIME)</span><br><span class="line">public @interface AutoFill &#123;</span><br><span class="line">    OperationType value(); // INSERT / UPDATE</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键点：</strong></p>
+<ul>
+<li>不关心“填充什么字段”</li>
+<li>只关心“这是一次什么操作”</li>
+<li>将 <strong>业务语义</strong> 与 <strong>实现细节</strong> 完全解耦</li>
+</ul>
+<hr>
+<h4 id="（2）切面设计：拦截-分类处理"><a href="#（2）切面设计：拦截-分类处理" class="headerlink" title="（2）切面设计：拦截 + 分类处理"></a>（2）切面设计：拦截 + 分类处理</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@Pointcut(&quot;execution(* com.sky.mapper.*.*(..)) &amp;&amp; @annotation(com.sky.annotation.AutoFill)&quot;)</span><br><span class="line">public void autoFillPoinCut() &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>只拦截 Mapper 层</li>
+<li>只拦截显式声明了 <code>@AutoFill</code> 的方法</li>
+<li>避免 <strong>误伤 &#x2F; 全局污染</strong></li>
+</ul>
+<hr>
+<h4 id="（3）前置通知：为什么是-Before？"><a href="#（3）前置通知：为什么是-Before？" class="headerlink" title="（3）前置通知：为什么是 @Before？"></a>（3）前置通知：为什么是 @Before？</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@Before(&quot;autoFillPoinCut()&quot;)</span><br><span class="line">public void autoFill(JoinPoint joinPoint) &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>原因很简单但很关键：</strong></p>
+<blockquote>
+<p>公共字段必须在 SQL 执行之前完成赋值，否则 ORM 层拿到的是脏数据。</p>
+</blockquote>
+<hr>
+<h4 id="（4）反射注入字段"><a href="#（4）反射注入字段" class="headerlink" title="（4）反射注入字段"></a>（4）反射注入字段</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Method setCreateTime = entity.getClass()</span><br><span class="line">    .getDeclaredMethod(&quot;setCreateTime&quot;, LocalDateTime.class);</span><br></pre></td></tr></table></figure>
+
+<h3 id="拓展问题"><a href="#拓展问题" class="headerlink" title="拓展问题"></a>拓展问题</h3><ul>
+<li>为什么不用接口？</li>
+<li>为什么不用父类？</li>
+<li>如果实体不包含这些字段怎么办？</li>
+</ul>
+<blockquote>
+<p>答：</p>
+<ul>
+<li>因为这是<strong>内部约定型的横切逻辑</strong>，不需要多态，接口会增加侵入性和实现成本。如果做成通用框架或给第三方用，才会考虑接口约束。</li>
+<li>父类会强制所有实体继承，<strong>破坏领域模型独立性</strong>，而 AOP + 反射只对“需要的地方”生效，更灵活。</li>
+<li>可以加字段存在性校验并抛异常。</li>
+</ul>
+</blockquote>
+<hr>
+<h2 id="二、文件上传服务：从“能用”到“可扩展”"><a href="#二、文件上传服务：从“能用”到“可扩展”" class="headerlink" title="二、文件上传服务：从“能用”到“可扩展”"></a>二、文件上传服务：从“能用”到“可扩展”</h2><h3 id="存储方案对比（Why）"><a href="#存储方案对比（Why）" class="headerlink" title="存储方案对比（Why）"></a>存储方案对比（Why）</h3><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>本地磁盘</td>
+<td>简单</td>
+<td>扩容困难</td>
+</tr>
+<tr>
+<td>分布式文件系统</td>
+<td>可扩展</td>
+<td>运维复杂</td>
+</tr>
+<tr>
+<td>第三方 OSS</td>
+<td>易用、稳定</td>
+<td>成本</td>
+</tr>
+</tbody></table>
+<p>在实际项目中，选择的是：</p>
+<blockquote>
+<p><strong>云厂商 OSS（阿里云 OSS ）</strong></p>
+</blockquote>
+<hr>
+<h3 id="OSS-上传整体流程"><a href="#OSS-上传整体流程" class="headerlink" title="OSS 上传整体流程"></a>OSS 上传整体流程</h3><p><img src="/assets/2.png" alt="2"></p>
+<hr>
+<h3 id="实现关键点"><a href="#实现关键点" class="headerlink" title="实现关键点"></a>实现关键点</h3><h4 id="（1）密钥安全"><a href="#（1）密钥安全" class="headerlink" title="（1）密钥安全"></a>（1）密钥安全</h4><ul>
+<li>使用 <strong>RAM 子账号</strong></li>
+<li>通过 <strong>环境变量</strong> 注入 AccessKey</li>
+<li><strong>不写死、不提交到仓库</strong></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">setx OSS_ACCESS_KEY_ID &quot;xxx&quot;</span><br><span class="line">setx OSS_ACCESS_KEY_SECRET &quot;xxx&quot;👉 面试官会非常在意这一点。</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="（2）配置解耦"><a href="#（2）配置解耦" class="headerlink" title="（2）配置解耦"></a>（2）配置解耦</h4><ul>
+<li>YAML 配置</li>
+<li><code>@ConfigurationProperties</code> 注入</li>
+<li>工具类 + Spring 管理</li>
+</ul>
+<p>这说明你理解：</p>
+<blockquote>
+<p><strong>配置 ≠ 代码</strong></p>
+</blockquote>
+<hr>
+<h4 id="（3）上传核心逻辑"><a href="#（3）上传核心逻辑" class="headerlink" title="（3）上传核心逻辑"></a>（3）上传核心逻辑</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ossClient.putObject(</span><br><span class="line">    bucketName,</span><br><span class="line">    objectName,</span><br><span class="line">    new ByteArrayInputStream(bytes)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>在这里你做的是：</p>
+<ul>
+<li>将 I&#x2F;O 细节 <strong>封装在基础设施层</strong></li>
+<li>Controller 只负责 <strong>接收请求与返回结果</strong></li>
+</ul>
+<hr>
+<h3 id="拓展问题-1"><a href="#拓展问题-1" class="headerlink" title="拓展问题"></a>拓展问题</h3><ul>
+<li>如何避免文件名冲突？</li>
+<li>如何做断点续传？</li>
+<li>如何限制文件类型 &#x2F; 大小？</li>
+</ul>
+<blockquote>
+<p>答：</p>
+<ul>
+<li>UUID+随机数</li>
+<li>采用 <strong>分片上传</strong>，每个分片单独上传并记录状态，失败只重传缺失分片，最终由 OSS 合并。</li>
+<li>后端校验 <code>Content-Type</code>、文件大小，并做必要的内容校验</li>
+</ul>
+</blockquote>
+<hr>
+<h2 id="三、菜品管理模块：典型多表业务设计"><a href="#三、菜品管理模块：典型多表业务设计" class="headerlink" title="三、菜品管理模块：典型多表业务设计"></a>三、菜品管理模块：典型多表业务设计</h2><hr>
+<h3 id="DTO-VO-分离"><a href="#DTO-VO-分离" class="headerlink" title="DTO &#x2F; VO 分离"></a>DTO &#x2F; VO 分离</h3><ul>
+<li>DTO：接收请求</li>
+<li>Entity：数据库映射</li>
+<li>VO：返回前端</li>
+</ul>
+<p>当实体类与请求参数相差较大时，需要引入 DTO；同时返回数据与实体类相差较大时，引入 VO</p>
+<hr>
+<h3 id="主从表插入"><a href="#主从表插入" class="headerlink" title="主从表插入"></a>主从表插入</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;insert useGeneratedKeys=&quot;true&quot; keyProperty=&quot;id&quot;&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>先插主表</li>
+<li>拿主键</li>
+<li>再批量插从表</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;foreach collection=&quot;flavors&quot; item=&quot;df&quot; separator=&quot;,&quot;&gt;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="删除逻辑：业务约束优先于数据库"><a href="#删除逻辑：业务约束优先于数据库" class="headerlink" title="删除逻辑：业务约束优先于数据库"></a>删除逻辑：业务约束优先于数据库</h3><ul>
+<li>起售中的菜品不能删除</li>
+<li>不是靠外键</li>
+<li>而是靠 <strong>业务校验 + 自定义异常</strong></li>
+</ul>
+<blockquote>
+<p><strong>数据库外键 ≠ 业务约束</strong></p>
+</blockquote>
+<hr>
+<h3 id="更新策略：先删后插"><a href="#更新策略：先删后插" class="headerlink" title="更新策略：先删后插"></a>更新策略：先删后插</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">update dish</span><br><span class="line">delete flavors</span><br><span class="line">insert flavors</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>简化逻辑</li>
+<li>保证一致性</li>
+<li>配合事务使用</li>
+</ul>
+<hr>
+<h2 id="学习资料与完整代码"><a href="#学习资料与完整代码" class="headerlink" title="学习资料与完整代码"></a>学习资料与完整代码</h2><p><strong>已整理并上传至 GitHub 仓库</strong></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/19/backend/project/2026-1-27-project-day03/" data-id="cmkwqzcy5000l4o8t41nw151i" data-title="后端工程实践总结公共字段自动填充、文件上传与多表业务设计" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%A4%90%E9%A5%AE%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" rel="tag">餐饮管理系统</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-algorithms/dynamicprogramming/2026-1-19-dynamicprogramming-04线性DP总结" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/19/algorithms/dynamicprogramming/2026-1-19-dynamicprogramming-04%E7%BA%BF%E6%80%A7DP%E6%80%BB%E7%BB%93/" class="article-date">
+  <time class="dt-published" datetime="2026-01-18T16:00:00.000Z" itemprop="datePublished">2026-01-19</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2026/01/19/algorithms/dynamicprogramming/2026-1-19-dynamicprogramming-04%E7%BA%BF%E6%80%A7DP%E6%80%BB%E7%BB%93/">线性 DP 总结与最长递增子序列（LIS）与二维扩展</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><strong>基础题目</strong>：300. 最长递增子序列<br><strong>扩展题目</strong>：354. 俄罗斯套娃信封问题</p>
+<hr>
+<h2 id="一、引言：LIS-在「线性-DP」中的位置"><a href="#一、引言：LIS-在「线性-DP」中的位置" class="headerlink" title="一、引言：LIS 在「线性 DP」中的位置"></a>一、引言：LIS 在「线性 DP」中的位置</h2><p>在完整学习了：</p>
+<ul>
+<li>打家劫舍（选 &#x2F; 不选）</li>
+<li>爬楼梯（排列计数）</li>
+<li>背包问题（容量约束）</li>
+<li>双序列线性 DP（公共子序列）</li>
+</ul>
+<p>之后，<strong>最长递增子序列（LIS）是线性 DP 中最后、也是最容易“升维”的一种模型</strong>。</p>
+<p>它的核心特征非常明确：</p>
+<blockquote>
+<p><strong>单序列 + 子序列 + 有序性约束</strong></p>
+</blockquote>
+<p>一旦理解 LIS，不仅可以解决一维问题，还可以通过<strong>排序 + 降维</strong>，解决看似更复杂的二维、分组问题。</p>
+<hr>
+<h2 id="二、354-俄罗斯套娃信封问题"><a href="#二、354-俄罗斯套娃信封问题" class="headerlink" title="二、354. 俄罗斯套娃信封问题"></a>二、354. 俄罗斯套娃信封问题</h2><h3 id="问题本质与第一直觉"><a href="#问题本质与第一直觉" class="headerlink" title="问题本质与第一直觉"></a>问题本质与第一直觉</h3><p>每个信封用 <code>(w, h)</code> 表示，若：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">w1 &lt; w2 且 h1 &lt; h2</span><br></pre></td></tr></table></figure>
+
+<p>则信封 1 可以嵌套进信封 2。</p>
+<p>直觉思路是：</p>
+<blockquote>
+<p>把每个信封当成一个“元素”，求最长递增子序列</p>
+</blockquote>
+<p>但这里<strong>存在一个关键陷阱</strong>：</p>
+<p><strong>题目允许任意重排信封顺序</strong><br> → 原数组顺序是无意义的<br> → 直接在二维数组上做 LIS 会<strong>漏解</strong></p>
+<hr>
+<h3 id="正确建模：二维-→-一维的关键转化"><a href="#正确建模：二维-→-一维的关键转化" class="headerlink" title="正确建模：二维 → 一维的关键转化"></a>正确建模：二维 → 一维的关键转化</h3><p>要想使用 LIS，必须满足：</p>
+<blockquote>
+<p><strong>只在一个维度上递增</strong></p>
+</blockquote>
+<p>因此需要先消除一个维度的干扰。</p>
+<h4 id="核心转化步骤"><a href="#核心转化步骤" class="headerlink" title="核心转化步骤"></a>核心转化步骤</h4><p><strong>Step 1：排序</strong></p>
+<ul>
+<li>宽度 <code>w</code>：<strong>升序</strong></li>
+<li>高度 <code>h</code>：<strong>降序（当 w 相同）</strong></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// 双关键字排序：宽度升序，高度降序</span><br><span class="line">Arrays.sort(envelopes, (a, b) -&gt; &#123;</span><br><span class="line">    if (a[0] == b[0]) &#123;</span><br><span class="line">        return b[1] - a[1]; // 高度降序</span><br><span class="line">    &#125;</span><br><span class="line">    return a[0] - b[0];     // 宽度升序</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h4 id="为什么-w-相同时要按-h-降序？"><a href="#为什么-w-相同时要按-h-降序？" class="headerlink" title="为什么 w 相同时要按 h 降序？"></a>为什么 w 相同时要按 h 降序？</h4><p>这是本题<strong>最容易被忽略、也是面试最常考的点</strong>。</p>
+<p>如果：</p>
+<ul>
+<li><code>w</code> 相同</li>
+<li><code>h</code> 也按升序排</li>
+</ul>
+<p>那么在之后对 <code>h</code> 求 LIS 时，会错误地把<strong>同一宽度的信封选进子序列</strong>，违反题意（宽度必须严格递增）。</p>
+<p>而 <strong>h 降序</strong> 的作用是：</p>
+<blockquote>
+<p>在 LIS（严格递增）中，<strong>相同 w 的信封不可能同时被选中</strong></p>
+</blockquote>
+<hr>
+<h3 id="问题彻底降维：只看高度-h"><a href="#问题彻底降维：只看高度-h" class="headerlink" title="问题彻底降维：只看高度 h"></a>问题彻底降维：只看高度 h</h3><p>排序完成后：</p>
+<ul>
+<li>宽度已经隐式满足递增约束</li>
+<li>只需要在高度数组上求 <strong>严格递增 LIS</strong></li>
+</ul>
+<p>问题就完全转化为：</p>
+<blockquote>
+<p><strong>300. 最长递增子序列</strong></p>
+</blockquote>
+<hr>
+<h3 id="算法复杂度分析"><a href="#算法复杂度分析" class="headerlink" title="算法复杂度分析"></a>算法复杂度分析</h3><ul>
+<li>排序：<code>O(n log n)</code></li>
+<li>LIS（贪心 + 二分）：<code>O(n log n)</code></li>
+</ul>
+<p>整体复杂度：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">O(n log n)</span><br></pre></td></tr></table></figure>
+
+<p>满足 <code>n ≤ 10^5</code> 的数据规模要求。</p>
+<h2 id="三、心得体会（俄罗斯套娃-→-LIS）"><a href="#三、心得体会（俄罗斯套娃-→-LIS）" class="headerlink" title="三、心得体会（俄罗斯套娃 → LIS）"></a>三、心得体会（俄罗斯套娃 → LIS）</h2><p>这道题<strong>真正考察的不是 LIS 本身，而是问题转化能力</strong>：</p>
+<ol>
+<li><strong>是否意识到原顺序无意义</strong></li>
+<li><strong>是否能通过排序消掉一个维度</strong></li>
+<li><strong>是否处理了“相等元素”的边界情况</strong></li>
+</ol>
+<p>本质模型可以总结为一句话：</p>
+<blockquote>
+<p><strong>二维严格递增问题 &#x3D; 排序 + 一维 LIS</strong></p>
+</blockquote>
+<hr>
+<h2 id="四、线性-DP-模型全景总结"><a href="#四、线性-DP-模型全景总结" class="headerlink" title="四、线性 DP 模型全景总结"></a>四、线性 DP 模型全景总结</h2><p>回顾整个线性 DP 学习路径，可以清晰地分为 <strong>五大模型</strong>。</p>
+<hr>
+<h3 id="打家劫舍模型（选-不选-相邻约束）"><a href="#打家劫舍模型（选-不选-相邻约束）" class="headerlink" title="打家劫舍模型（选 &#x2F; 不选 + 相邻约束）"></a>打家劫舍模型（选 &#x2F; 不选 + 相邻约束）</h3><p><strong>核心特征</strong></p>
+<ul>
+<li>枚举元素选或不选</li>
+<li>相邻元素不能同时选</li>
+</ul>
+<p><strong>典型变形</strong></p>
+<ul>
+<li>打家劫舍 II（成环）<br> → 拆成「选第一个 &#x2F; 不选第一个」</li>
+<li>删除并获得点数<br> → 构造值域数组，转化为打家劫舍</li>
+</ul>
+<hr>
+<h3 id="爬楼梯模型（排列型-DP）"><a href="#爬楼梯模型（排列型-DP）" class="headerlink" title="爬楼梯模型（排列型 DP）"></a>爬楼梯模型（排列型 DP）</h3><p><strong>核心特征</strong></p>
+<ul>
+<li>顺序不同 &#x3D; 不同方案</li>
+<li>每一步选择不同“动作”</li>
+</ul>
+<p><strong>常见变形</strong></p>
+<ul>
+<li>最小代价爬楼梯</li>
+<li>目标字符串构造方案数</li>
+<li>组合总和（顺序相关）</li>
+<li>分组 + 爬楼梯</li>
+</ul>
+<hr>
+<h3 id="背包模型（容量约束）"><a href="#背包模型（容量约束）" class="headerlink" title="背包模型（容量约束）"></a>背包模型（容量约束）</h3><p><strong>分类</strong></p>
+<ul>
+<li>01 背包（不能重复选）</li>
+<li>完全背包（可以重复选）</li>
+</ul>
+<p><strong>常见问法</strong></p>
+<ul>
+<li>至多 &#x2F; 恰好 &#x2F; 至少装满</li>
+<li>求最大值 &#x2F; 最小值 &#x2F; 方案数</li>
+</ul>
+<p><strong>重要收获</strong></p>
+<ul>
+<li><p>空间优化的本质：</p>
+<p>明确当前状态依赖哪些旧状态</p>
+<p>是否会发生状态覆盖</p>
+<p>必要时引入 <code>pre</code></p>
+</li>
+</ul>
+<hr>
+<h3 id="双序列线性-DP"><a href="#双序列线性-DP" class="headerlink" title="双序列线性 DP"></a>双序列线性 DP</h3><p><strong>核心特征</strong></p>
+<ul>
+<li>操作两个序列</li>
+<li>关注“公共部分”</li>
+</ul>
+<p><strong>典型问题</strong></p>
+<ul>
+<li>最长公共子序列（LCS）</li>
+<li>最短公共超序列（SCS）</li>
+<li>编辑距离</li>
+</ul>
+<hr>
+<h3 id="最长递增子序列（LIS）"><a href="#最长递增子序列（LIS）" class="headerlink" title="最长递增子序列（LIS）"></a>最长递增子序列（LIS）</h3><p><strong>核心特征</strong></p>
+<ul>
+<li>单序列</li>
+<li>子序列</li>
+<li>有序性约束（递增 &#x2F; 非递减）</li>
+</ul>
+<p><strong>两种解法层级</strong></p>
+<table>
+<thead>
+<tr>
+<th>解法</th>
+<th>时间复杂度</th>
+<th>适用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>经典 DP</td>
+<td>O(n²)</td>
+<td>理解模型</td>
+</tr>
+<tr>
+<td>贪心 + 二分</td>
+<td>O(n log n)</td>
+<td>大规模数据</td>
+</tr>
+</tbody></table>
+<h4 id="关键技巧"><a href="#关键技巧" class="headerlink" title="关键技巧"></a>关键技巧</h4><blockquote>
+<p><strong>交换 dp 的“状态”与“状态值”</strong></p>
+</blockquote>
+<ul>
+<li>用 <code>g[k]</code> 表示：<ul>
+<li>长度为 <code>k+1</code> 的递增子序列</li>
+<li>其末尾元素的最小值</li>
+</ul>
+</li>
+</ul>
+<p>严格来说：</p>
+<ul>
+<li><code>g</code> 不存在状态覆盖</li>
+<li>已不再是传统 DP</li>
+<li>而是 <strong>贪心 + 有序结构 + 二分查找</strong></li>
+</ul>
+<hr>
+<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/19/algorithms/dynamicprogramming/2026-1-19-dynamicprogramming-04%E7%BA%BF%E6%80%A7DP%E6%80%BB%E7%BB%93/" data-id="cmkwqzczc006r4o8tg5a7fcs9" data-title="线性 DP 总结与最长递增子序列（LIS）与二维扩展" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/LIS/" rel="tag">LIS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BA%BF%E6%80%A7DP/" rel="tag">线性DP</a></li></ul>
 
     </footer>
   </div>
@@ -939,7 +1551,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/18/algorithms/dynamicprogramming/2026-1-18-dynamicprogramming-03LIS/" data-id="cmklbs4jh0047048t6ajn5jig" data-title="线性 DP · 最长递增子序列（LIS）专题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/18/algorithms/dynamicprogramming/2026-1-18-dynamicprogramming-03LIS/" data-id="cmkwqzczb006p4o8t4p3qas0s" data-title="线性 DP · 最长递增子序列（LIS）专题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1156,7 +1768,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/15/algorithms/dynamicprogramming/2026-1-14-dynamicprogramming-02%E7%BA%BF%E6%80%A7DP/" data-id="cmklbs4jh0045048t1ozq7yil" data-title="线性 DP：字符串问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/15/algorithms/dynamicprogramming/2026-1-14-dynamicprogramming-02%E7%BA%BF%E6%80%A7DP/" data-id="cmkwqzcza006m4o8tapylbsv0" data-title="线性 DP：字符串问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1347,7 +1959,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/14/misc/git-%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E6%95%B4%E7%90%86%E6%80%BB%E7%BB%93/" data-id="cmklbs4ia0001048t768jgdn7" data-title="git 开发工具整理总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/14/misc/git-%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E6%95%B4%E7%90%86%E6%80%BB%E7%BB%93/" data-id="cmkwqzcxv00014o8taqgd9yks" data-title="git 开发工具整理总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1558,7 +2170,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/13/algorithms/dynamicprogramming/2026-1-13-dynamicprogramming-01%E8%83%8C%E5%8C%85%E4%B8%8E%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85%E6%A8%A1%E5%9E%8B/" data-id="cmklbs4jg0044048tac9rc7q2" data-title="DP 模型：从回溯语义到 0-1 背包与完全背包（2026-01-13）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/13/algorithms/dynamicprogramming/2026-1-13-dynamicprogramming-01%E8%83%8C%E5%8C%85%E4%B8%8E%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85%E6%A8%A1%E5%9E%8B/" data-id="cmkwqzcza006k4o8t2bswatlv" data-title="DP 模型：从回溯语义到 0-1 背包与完全背包（2026-01-13）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1705,604 +2317,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/13/backend/project/2026-1-13-project-day01/" data-id="cmklbs4jm004r048tc98rbywq" data-title="项目结构搭建：从系统结构图到多模块 Maven 项目设计" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/13/backend/project/2026-1-13-project-day01/" data-id="cmkwqzcy100094o8t5huf5imt" data-title="项目结构搭建：从系统结构图到多模块 Maven 项目设计" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/maven/" rel="tag">maven</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-backend/ssm/springboot/2026-1-11-springboot-day03 " class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2026/01/13/backend/ssm/springboot/2026-1-11-springboot-day03%20/" class="article-date">
-  <time class="dt-published" datetime="2026-01-12T16:00:00.000Z" itemprop="datePublished">2026-01-13</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>►<a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/SpringBoot/">SpringBoot</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/01/13/backend/ssm/springboot/2026-1-11-springboot-day03%20/">Spring Boot 配置与测试实战复盘</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>本文基于一次完整的学习与踩坑过程，系统复盘 <strong>配置绑定、宽松绑定、属性校验、测试配置覆盖、Web 测试</strong> 等关键机制，重点回答一个问题：<br> <strong>Spring Boot 为什么要这样设计？我在工程中应该如何正确使用？</strong></p>
-</blockquote>
-<h2 id="一、Spring-Boot-热部署的本质：不是“热更新”，而是-ClassLoader-重启"><a href="#一、Spring-Boot-热部署的本质：不是“热更新”，而是-ClassLoader-重启" class="headerlink" title="一、Spring Boot 热部署的本质：不是“热更新”，而是 ClassLoader 重启"></a>一、Spring Boot 热部署的本质：不是“热更新”，而是 ClassLoader 重启</h2><p>在传统 Java Web 项目中，热部署通常由外置 Web 容器完成；<br>而 Spring Boot 采用 <strong>内嵌容器</strong>，服务器本身运行在 Spring 容器中，因此热部署的实现方式完全不同。</p>
-<h3 id="devtools-的核心原理"><a href="#devtools-的核心原理" class="headerlink" title="devtools 的核心原理"></a>devtools 的核心原理</h3><p>Spring Boot 的热部署依赖 <code>spring-boot-devtools</code>：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;spring-boot-devtools&lt;/artifactId&gt;</span><br><span class="line">    &lt;optional&gt;true&lt;/optional&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
-
-<p>其核心并不是 JVM 层面的“代码热替换”，而是 <strong>类加载器分层重启</strong>：</p>
-<ul>
-<li><strong>base ClassLoader</strong>：加载第三方依赖（jar 包），只加载一次</li>
-<li><strong>restart ClassLoader</strong>：加载业务代码，修改后可重新加载</li>
-</ul>
-<p>热部署的本质是：<strong>重启 restart ClassLoader，而不是整个 JVM</strong>。</p>
-<h3 id="为什么线上环境必须关闭热部署？"><a href="#为什么线上环境必须关闭热部署？" class="headerlink" title="为什么线上环境必须关闭热部署？"></a>为什么线上环境必须关闭热部署？</h3><ul>
-<li>ClassLoader 重启可能带来状态不一致</li>
-<li>与线上稳定性目标冲突</li>
-<li>devtools 本身只服务于开发阶段</li>
-<li>额外的开销，线上改不了源码，所以也不会启动热部署</li>
-</ul>
-<p>因此，<strong>热部署是开发工具</strong>。</p>
-<hr>
-<h2 id="二、-ConfigurationProperties：配置绑定的正确方式"><a href="#二、-ConfigurationProperties：配置绑定的正确方式" class="headerlink" title="二、@ConfigurationProperties：配置绑定的正确方式"></a>二、@ConfigurationProperties：配置绑定的正确方式</h2><h3 id="为什么不推荐大量使用-Value？"><a href="#为什么不推荐大量使用-Value？" class="headerlink" title="为什么不推荐大量使用 @Value？"></a>为什么不推荐大量使用 @Value？</h3><p><code>@Value</code> 属于“点对点注入”，在配置复杂时会带来问题：</p>
-<ul>
-<li>类型不安全</li>
-<li>分散、不可维护</li>
-<li>无法集中校验</li>
-</ul>
-<p>相比之下，<code>@ConfigurationProperties</code> 提供了 <strong>结构化配置绑定</strong>：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">servers:</span><br><span class="line">  ip-address: 192.168.0.1</span><br><span class="line">  port: 2345</span><br><span class="line">  timeout: 3h</span><br><span class="line"></span><br><span class="line">@ConfigurationProperties(prefix = &quot;servers&quot;)</span><br><span class="line">public class ServerConfig &#123;</span><br><span class="line">    private String ipAddress;</span><br><span class="line">    private int port;</span><br><span class="line">    private Duration timeout;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h2 id="三、宽松绑定-≠-配置名可以随便写（第一个踩坑点）"><a href="#三、宽松绑定-≠-配置名可以随便写（第一个踩坑点）" class="headerlink" title="三、宽松绑定 ≠ 配置名可以随便写（第一个踩坑点）"></a>三、宽松绑定 ≠ 配置名可以随便写（第一个踩坑点）</h2><h3 id="我最初的误解"><a href="#我最初的误解" class="headerlink" title="我最初的误解"></a>我最初的误解</h3><blockquote>
-<p>Spring Boot 配置支持宽松绑定，忽略大小写、中划线、下划线<br> 那是不是 <code>dataSource</code>、<code>data_source</code>、<code>data-source</code> 都可以？</p>
-</blockquote>
-<h3 id="实际踩坑现象"><a href="#实际踩坑现象" class="headerlink" title="实际踩坑现象"></a>实际踩坑现象</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dataSource:</span><br><span class="line">  url: jdbc:mysql://...</span><br></pre></td></tr></table></figure>
-
-<p>启动时报错：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Configuration property name &#x27;dataSource&#x27; is not valid</span><br><span class="line">Canonical names should be kebab-case</span><br></pre></td></tr></table></figure>
-
-<h3 id="3-3-正确理解（非常重要）"><a href="#3-3-正确理解（非常重要）" class="headerlink" title="3.3 正确理解（非常重要）"></a>3.3 正确理解（非常重要）</h3><ul>
-<li><strong>宽松绑定发生在：配置项 → Java 字段</strong></li>
-<li><strong>但配置 key 本身必须是合法的 canonical 名称</strong></li>
-</ul>
-<p>正确写法：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">datasource:</span><br><span class="line">  url: ...</span><br></pre></td></tr></table></figure>
-
-<p>或官方标准写法：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">spring:</span><br><span class="line">  datasource:</span><br><span class="line">    url: ...</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>宽松绑定解决的是“如何映射”，不是“命名是否合法”。</p>
-</blockquote>
-<hr>
-<h2 id="四、-Validated-是一把“双刃剑”（第二个踩坑点）"><a href="#四、-Validated-是一把“双刃剑”（第二个踩坑点）" class="headerlink" title="四、@Validated 是一把“双刃剑”（第二个踩坑点）"></a>四、@Validated 是一把“双刃剑”（第二个踩坑点）</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@ConfigurationProperties(prefix = &quot;servers&quot;)</span><br><span class="line">@Validated</span><br><span class="line">public class ServerConfig &#123;</span><br><span class="line"></span><br><span class="line">    @Min(1)</span><br><span class="line">    @Max(1234)</span><br><span class="line">    private int port;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="在生产环境中的价值"><a href="#在生产环境中的价值" class="headerlink" title="在生产环境中的价值"></a>在生产环境中的价值</h3><ul>
-<li>配置非法 → 容器启动失败</li>
-<li>fail-fast，避免线上事故</li>
-<li>非常符合工程安全性要求</li>
-</ul>
-<h3 id="在测试环境中被“反杀”"><a href="#在测试环境中被“反杀”" class="headerlink" title="在测试环境中被“反杀”"></a>在测试环境中被“反杀”</h3><p>测试中尝试覆盖配置：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@SpringBootTest(properties = &#123;</span><br><span class="line">    &quot;servers.port=8888&quot;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-
-<p>结果直接启动失败：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ConstraintViolationException</span><br></pre></td></tr></table></figure>
-
-<p>原因：<br> <strong>8888 超出了 @Max(1234)</strong></p>
-<h3 id="正确的工程姿势"><a href="#正确的工程姿势" class="headerlink" title="正确的工程姿势"></a>正确的工程姿势</h3><ul>
-<li><strong>测试只覆盖 <code>servers.port</code>（Web 端口）</strong></li>
-<li>业务配置仍使用合法值</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@SpringBootTest(properties = &#123;</span><br><span class="line">    &quot;servers.port=8888&quot;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p><strong>测试不是绕过校验，而是在合法范围内模拟不同环境。</strong></p>
-</blockquote>
-<hr>
-<h2 id="六、Web-层测试：为什么我选择-MockMvc"><a href="#六、Web-层测试：为什么我选择-MockMvc" class="headerlink" title="六、Web 层测试：为什么我选择 MockMvc"></a>六、Web 层测试：为什么我选择 MockMvc</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@SpringBootTest</span><br><span class="line">@AutoConfigureMockMvc</span><br><span class="line">class WebTest &#123; &#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="MockMvc-的优势"><a href="#MockMvc-的优势" class="headerlink" title="MockMvc 的优势"></a>MockMvc 的优势</h3><ul>
-<li>不需要真实端口</li>
-<li>不依赖网络</li>
-<li>执行速度快</li>
-<li>适合 CI &#x2F; 自动化测试</li>
-</ul>
-<h3 id="JSON-断言的工程选择"><a href="#JSON-断言的工程选择" class="headerlink" title="JSON 断言的工程选择"></a>JSON 断言的工程选择</h3><ul>
-<li>接口稳定：<code>content().json()</code></li>
-<li>接口可能演进：<code>jsonPath()</code></li>
-</ul>
-<hr>
-<h2 id="七、我从这次-Spring-Boot-学习中总结的经验"><a href="#七、我从这次-Spring-Boot-学习中总结的经验" class="headerlink" title="七、我从这次 Spring Boot 学习中总结的经验"></a>七、我从这次 Spring Boot 学习中总结的经验</h2><ol>
-<li><strong>配置名是否合法，比是否能绑定更早发生</strong></li>
-<li>宽松绑定只解决映射问题，不解决命名问题</li>
-<li><code>@Validated</code> 是 fail-fast，不是调试工具</li>
-<li>测试配置覆盖必须遵守业务约束</li>
-<li>Web 测试优先 MockMvc，而不是启动真实端口</li>
-</ol>
-<h2 id="学习资料与完整代码"><a href="#学习资料与完整代码" class="headerlink" title="学习资料与完整代码"></a>学习资料与完整代码</h2><p><strong>已整理并上传至 GitHub 仓库</strong></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/13/backend/ssm/springboot/2026-1-11-springboot-day03%20/" data-id="cmklbs4jt005g048tekml68j0" data-title="Spring Boot 配置与测试实战复盘" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B5%8B%E8%AF%95/" rel="tag">测试</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" rel="tag">热部署</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%85%8D%E7%BD%AE/" rel="tag">配置</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-algorithms/dynamicprogramming/2026-1-12-dynamicprogramming-practice" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2026/01/12/algorithms/dynamicprogramming/2026-1-12-dynamicprogramming-practice/" class="article-date">
-  <time class="dt-published" datetime="2026-01-12T06:30:00.000Z" itemprop="datePublished">2026-01-12</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/01/12/algorithms/dynamicprogramming/2026-1-12-dynamicprogramming-practice/">从回溯到记忆化搜索到递推：动态规划巩固练习</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>今天的练习并不是学习新的 DP 模板，而是<strong>围绕两个最经典的模型：打家劫舍 与 爬楼梯，去做“变形题”的识别与迁移</strong>。</p>
-<p>通过这一组题目的训练，我逐渐体会到：</p>
-<p>动态规划的关键不在于记公式，而在于识别“本质模型”，并主动把陌生题目转化为熟悉结构。</p>
-</blockquote>
-<p><strong>基础题目</strong>：198. 打家劫舍</p>
-<p><strong>打家劫舍模型变形</strong></p>
-<ul>
-<li><strong>740. 删除并获得点数</strong></li>
-</ul>
-<p><strong>爬楼梯模型变形（方案数）</strong></p>
-<ul>
-<li><strong>2466. 统计构造好字符串的方案数</strong></li>
-<li><strong>377. 组合总和 Ⅳ</strong></li>
-<li><strong>2266. 统计打字方案数</strong></li>
-</ul>
-<p><strong>经典二维 DP</strong></p>
-<ul>
-<li><strong>64. 最小路径和</strong></li>
-</ul>
-<hr>
-<h2 id="核心模型回顾"><a href="#核心模型回顾" class="headerlink" title="核心模型回顾"></a>核心模型回顾</h2><p>在进入具体题目之前，先明确两个核心模型的“<strong>本质约束</strong>”。</p>
-<h3 id="1-打家劫舍模型的本质"><a href="#1-打家劫舍模型的本质" class="headerlink" title="1. 打家劫舍模型的本质"></a>1. 打家劫舍模型的本质</h3><ul>
-<li>每个元素都有「选 &#x2F; 不选」两种状态</li>
-<li><strong>一旦选择某个元素，就会限制相邻元素不能被选择</strong></li>
-<li>状态转移通常是：</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i] = max(dp[i - 1], dp[i - 2] + value[i])</span><br></pre></td></tr></table></figure>
-
-<p>重点不在“房子”，而在<strong>相邻约束</strong></p>
-<hr>
-<h3 id="2-爬楼梯模型的本质"><a href="#2-爬楼梯模型的本质" class="headerlink" title="2. 爬楼梯模型的本质"></a>2. 爬楼梯模型的本质</h3><ul>
-<li>本质是一个<strong>排列问题</strong></li>
-<li><strong>顺序不同 &#x3D; 不同方案</strong></li>
-<li>给定一个目标值 <code>target</code></li>
-<li>每一步可以选择若干“步长”，问总方案数</li>
-</ul>
-<p>只要是：</p>
-<ul>
-<li>「目标值固定」</li>
-<li>「每一步可以选择若干选项」</li>
-<li>「顺序敏感」</li>
-</ul>
-<p>都可以往爬楼梯模型上靠</p>
-<hr>
-<h2 id="结合具体题目分析"><a href="#结合具体题目分析" class="headerlink" title="结合具体题目分析"></a>结合具体题目分析</h2><h3 id="740-删除并获得点数-——-打家劫舍的值域改造"><a href="#740-删除并获得点数-——-打家劫舍的值域改造" class="headerlink" title="740. 删除并获得点数 —— 打家劫舍的值域改造"></a>740. 删除并获得点数 —— 打家劫舍的值域改造</h3><p><strong>题意简述</strong>：<br> 选择一个数 <code>nums[i]</code>，可以获得 <code>nums[i]</code> 的点数，但会删除所有值为 <code>nums[i] - 1</code> 和 <code>nums[i] + 1</code> 的元素。</p>
-<h4 id="思路转化"><a href="#思路转化" class="headerlink" title="思路转化"></a>思路转化</h4><p>这道题的难点在于：</p>
-<ul>
-<li>原数组中，相同数字可能出现多次</li>
-<li>删除的是“值相邻”，而不是“位置相邻”</li>
-</ul>
-<p><strong>关键一步：构造打家劫舍的条件</strong></p>
-<p>将数组转为<strong>值域数组</strong></p>
-<ul>
-<li><code>sums[x]</code>：表示值为 <code>x</code> 的所有元素之和</li>
-<li>例如：</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nums = [2,2,3,3,3,4]</span><br><span class="line">sums = [0,0,4,9,4]</span><br></pre></td></tr></table></figure>
-
-<p>此时问题变成：</p>
-<blockquote>
-<p>在 <code>sums</code> 数组中，选择若干不相邻的元素，使得总和最大</p>
-</blockquote>
-<p><strong>完全等价于打家劫舍</strong></p>
-<hr>
-<h3 id="2466-统计构造好字符串的方案数-——-爬楼梯模型"><a href="#2466-统计构造好字符串的方案数-——-爬楼梯模型" class="headerlink" title="2466. 统计构造好字符串的方案数 —— 爬楼梯模型"></a>2466. 统计构造好字符串的方案数 —— 爬楼梯模型</h3><p>这道题表面是字符串问题，但本质非常清晰：</p>
-<ul>
-<li>当前字符串长度 &#x3D; 已爬的台阶数</li>
-<li>每一步可以：<ul>
-<li>增加 <code>zero</code> 个字符</li>
-<li>或增加 <code>one</code> 个字符</li>
-</ul>
-</li>
-<li>问：长度在 <code>[low, high]</code> 区间内的方案总数</li>
-</ul>
-<p><strong>这是标准的爬楼梯模型</strong></p>
-<ul>
-<li><code>dp[i]</code>：构造长度为 <code>i</code> 的方案数</li>
-<li>每次从 <code>i - zero</code> 或 <code>i - one</code> 转移而来</li>
-</ul>
-<hr>
-<h3 id="377-组合总和-Ⅳ-——-爬楼梯-顺序敏感"><a href="#377-组合总和-Ⅳ-——-爬楼梯-顺序敏感" class="headerlink" title="377. 组合总和 Ⅳ —— 爬楼梯 + 顺序敏感"></a>377. 组合总和 Ⅳ —— 爬楼梯 + 顺序敏感</h3><p>这道题非常具有代表性：</p>
-<ul>
-<li>给定 <code>nums</code></li>
-<li>目标和 <code>target</code></li>
-<li><strong>不同顺序算不同方案</strong></li>
-</ul>
-<h4 id="本质理解"><a href="#本质理解" class="headerlink" title="本质理解"></a>本质理解</h4><p>可以这样理解：</p>
-<blockquote>
-<p>爬 <code>target</code> 阶楼梯<br> 每次可以爬 <code>nums[i]</code> 阶<br> 问一共有多少种爬法</p>
-</blockquote>
-<p>顺序不同 → 不同路径</p>
-<hr>
-<h3 id="2266-统计打字方案数-——-分组-爬楼梯"><a href="#2266-统计打字方案数-——-分组-爬楼梯" class="headerlink" title="2266. 统计打字方案数 —— 分组 + 爬楼梯"></a>2266. 统计打字方案数 —— 分组 + 爬楼梯</h3><p>这道题本身规则较复杂，但从 DP 角度可以拆解为：</p>
-<ol>
-<li><strong>按连续相同数字分组</strong></li>
-<li>每一组内部：<ul>
-<li>是一个「爬楼梯问题」</li>
-<li>不同按键允许的最大步长不同</li>
-</ul>
-</li>
-<li><strong>最终答案 &#x3D; 各组方案数相乘</strong></li>
-</ol>
-<p>这是一个非常典型的：</p>
-<blockquote>
-<p><strong>局部 DP + 全局组合</strong></p>
-</blockquote>
-<hr>
-<h3 id="64-最小路径和-——-经典二维-DP"><a href="#64-最小路径和-——-经典二维-DP" class="headerlink" title="64. 最小路径和 —— 经典二维 DP"></a>64. 最小路径和 —— 经典二维 DP</h3><p>这是标准的网格 DP：</p>
-<ul>
-<li><code>dp[i][j]</code> 表示到 <code>(i, j)</code> 的最小路径和</li>
-<li>当前状态只依赖：<ul>
-<li>上方 <code>(i - 1, j)</code></li>
-<li>左方 <code>(i, j - 1)</code></li>
-</ul>
-</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i][j] = min(dp[i - 1][j], dp[i][j - 1]) + grid[i][j]</span><br></pre></td></tr></table></figure>
-
-<p>没有变形，但非常适合作为 DP 基础模板反复巩固</p>
-<hr>
-<h2 id="心得与方法论总结"><a href="#心得与方法论总结" class="headerlink" title="心得与方法论总结"></a>心得与方法论总结</h2><h3 id="1-打家劫舍-≠-偷房子"><a href="#1-打家劫舍-≠-偷房子" class="headerlink" title="1. 打家劫舍 ≠ 偷房子"></a>1. 打家劫舍 ≠ 偷房子</h3><p>打家劫舍的真正核心是：</p>
-<blockquote>
-<p><strong>选择一个元素，会导致“相邻状态失效”</strong></p>
-</blockquote>
-<ul>
-<li>740 题中，相邻的是「值」</li>
-<li>所以我们主动<strong>构造值域数组</strong>，人为制造相邻关系</li>
-</ul>
-<p><strong>没有条件，就创造条件</strong></p>
-<hr>
-<h3 id="2-爬楼梯-顺序敏感的方案计数"><a href="#2-爬楼梯-顺序敏感的方案计数" class="headerlink" title="2. 爬楼梯 &#x3D; 顺序敏感的方案计数"></a>2. 爬楼梯 &#x3D; 顺序敏感的方案计数</h3><p>爬楼梯模型特别适合解决：</p>
-<ul>
-<li>方案数问题</li>
-<li>和 &#x2F; 长度固定的问题</li>
-<li>顺序不同算不同的情况</li>
-</ul>
-<p>例如：</p>
-<ul>
-<li>字符串构造</li>
-<li>数字组合</li>
-<li>步数累加</li>
-</ul>
-<p>把「目标值」当成台阶数，把「选择」当成一步能走的距离</p>
-<hr>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>通过今天这一组题目的训练，我对动态规划有了一个更重要的认知转变：</p>
-<blockquote>
-<p><strong>DP 的关键不是记住状态转移方程，而是识别题目的“原型模型”。</strong></p>
-</blockquote>
-<ul>
-<li>看到「相邻不能同时选」 → 想打家劫舍</li>
-<li>看到「目标固定 + 多种选择 + 顺序敏感」 → 想爬楼梯</li>
-</ul>
-<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/12/algorithms/dynamicprogramming/2026-1-12-dynamicprogramming-practice/" data-id="cmklbs4in000y048tgp7hf2lp" data-title="从回溯到记忆化搜索到递推：动态规划巩固练习" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" rel="tag">记忆化搜索</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%80%92%E6%8E%A8/" rel="tag">递推</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-algorithms/dynamicprogramming/2026-1-11-dynamicprogramming" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2026/01/11/algorithms/dynamicprogramming/2026-1-11-dynamicprogramming/" class="article-date">
-  <time class="dt-published" datetime="2026-01-11T05:30:00.000Z" itemprop="datePublished">2026-01-11</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/01/11/algorithms/dynamicprogramming/2026-1-11-dynamicprogramming/">动态规划：从回溯到记忆化搜索，再到递推</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p><strong>核心思想</strong>：当前状态的最优解，来源于之前状态的最优解</p>
-</blockquote>
-<p><strong>基础题目</strong>：198. 打家劫舍</p>
-<p><strong>扩展题目</strong>：</p>
-<ul>
-<li>爬楼梯</li>
-<li>使用最小花费爬楼梯</li>
-<li>爬楼梯 II</li>
-<li>打家劫舍 II</li>
-</ul>
-<hr>
-<h2 id="一、什么是动态规划？"><a href="#一、什么是动态规划？" class="headerlink" title="一、什么是动态规划？"></a>一、什么是动态规划？</h2><p>很多人第一次接触动态规划，都会被「状态转移方程」劝退。但实际上，<strong>动态规划并不是一种“新算法”，而是回溯的一种系统性优化</strong>。</p>
-<blockquote>
-<p>动态规划 &#x3D; 回溯 + 去重 + 自底向上</p>
-</blockquote>
-<p>理解动态规划，最自然的一条路径是：</p>
-<blockquote>
-<p><strong>回溯 → 记忆化搜索 → 递推（DP）</strong></p>
-</blockquote>
-<p>下面我们通过「打家劫舍」这个经典问题，完整走一遍这条路径。</p>
-<hr>
-<h2 id="二、从回溯开始：暴力-DFS-的本质"><a href="#二、从回溯开始：暴力-DFS-的本质" class="headerlink" title="二、从回溯开始：暴力 DFS 的本质"></a>二、从回溯开始：暴力 DFS 的本质</h2><p>以 <strong>198. 打家劫舍</strong> 为例：</p>
-<ul>
-<li>每一间房子：<strong>选 or 不选</strong></li>
-<li>不能选相邻的房子</li>
-</ul>
-<p>我们从“最后一个房子”开始思考，定义：</p>
-<blockquote>
-<p><strong>dfs(i)</strong>：考虑前 <code>i</code> 个房子，能偷到的最大金额</p>
-</blockquote>
-<p>那么对于第 <code>i</code> 个房子：</p>
-<ul>
-<li>不偷：最大金额 &#x3D; <code>dfs(i - 1)</code></li>
-<li>偷：最大金额 &#x3D; <code>dfs(i - 2) + nums[i]</code></li>
-</ul>
-<p>得到递归公式：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dfs(i) = max(dfs(i - 1), dfs(i - 2) + nums[i])</span><br></pre></td></tr></table></figure>
-
-<p>但问题也随之而来：<strong>大量重复计算</strong>。</p>
-<p><img src="/assets/1.png" alt="1"></p>
-<p>可以看到：</p>
-<ul>
-<li><code>dfs(2)</code> 被计算了多次</li>
-<li><code>dfs(1)</code> 被计算了更多次</li>
-</ul>
-<p>这正是 <strong>动态规划要解决的核心问题：重复子问题</strong></p>
-<hr>
-<h2 id="三、记忆化搜索：给回溯加“缓存”"><a href="#三、记忆化搜索：给回溯加“缓存”" class="headerlink" title="三、记忆化搜索：给回溯加“缓存”"></a>三、记忆化搜索：给回溯加“缓存”</h2><p>回溯的问题不在于“递归”，而在于 <strong>重复递归</strong>。</p>
-<p>解决方法也很直接：</p>
-<blockquote>
-<p><strong>算过的结果，存下来，下次直接用</strong></p>
-</blockquote>
-<p>这就是 <strong>记忆化搜索（Memoization）</strong>。</p>
-<h3 id="Java-示例"><a href="#Java-示例" class="headerlink" title="Java 示例"></a>Java 示例</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">private int dfs(int i, int[] nums, int[] cache) &#123;</span><br><span class="line">    if (i &lt; 0) &#123;</span><br><span class="line">        return 0;</span><br><span class="line">    &#125;</span><br><span class="line">    if (cache[i] != -1) &#123;</span><br><span class="line">    	// 之前计算过,直接返回</span><br><span class="line">        return cache[i];</span><br><span class="line">    &#125;</span><br><span class="line">    // 之前没算过，将当前结果缓存</span><br><span class="line">    cache[i] = Math.max(</span><br><span class="line">        dfs(i - 1, nums, cache),</span><br><span class="line">        dfs(i - 2, nums, cache) + nums[i]</span><br><span class="line">    );</span><br><span class="line">    return cache[i];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>此时：</p>
-<ul>
-<li>时间复杂度：从指数级 ➜ <strong>O(n)</strong></li>
-<li>但仍然有：<ul>
-<li>递归栈空间</li>
-<li>cache 数组空间</li>
-</ul>
-</li>
-</ul>
-<p>接下来就是最后一步优化空间复杂度：<strong>递推</strong></p>
-<hr>
-<h2 id="四、从记忆化搜索到递推（真正的-DP）"><a href="#四、从记忆化搜索到递推（真正的-DP）" class="headerlink" title="四、从记忆化搜索到递推（真正的 DP）"></a>四、从记忆化搜索到递推（真正的 DP）</h2><p>观察记忆化搜索中的递归关系：</p>
-<ul>
-<li><code>dfs(2)</code> 依赖 <code>dfs(1)</code> 和 <code>dfs(0)</code></li>
-<li><code>dfs(3)</code> 依赖 <code>dfs(2)</code> 和 <code>dfs(1)</code></li>
-<li>……</li>
-</ul>
-<p>这说明：</p>
-<blockquote>
-<p><strong>状态之间的依赖顺序是确定的</strong></p>
-</blockquote>
-<p>既然如此，我们完全可以：</p>
-<ul>
-<li>不再“递”</li>
-<li>只保留“归”</li>
-<li><strong>从小到大计算每一个状态</strong></li>
-</ul>
-<h3 id="递推（DP）的三要素"><a href="#递推（DP）的三要素" class="headerlink" title="递推（DP）的三要素"></a>递推（DP）的三要素</h3><p>从记忆化搜索到递推，本质上完成了三件事：</p>
-<ol>
-<li><strong>状态数组（dp）</strong>：<code>dp[i]</code> 记录 <code>dfs(i)</code> 的结果</li>
-<li><strong>循环代替递归</strong>：从 <code>i = 0</code> 推到 <code>n</code></li>
-<li><strong>初始化代替递归边界</strong>：<code>dp[0]</code>、<code>dp[1]</code> 对应原来的递归边界</li>
-</ol>
-<h3 id="为什么叫“递推”？"><a href="#为什么叫“递推”？" class="headerlink" title="为什么叫“递推”？"></a>为什么叫“递推”？</h3><blockquote>
-<p>因为当前状态是 <strong>由之前状态推导出来的</strong></p>
-</blockquote>
-<p>在打家劫舍中：</p>
-<ul>
-<li>偷到第 <code>i</code> 间房子的最大金额<br> <strong>不是只由第 <code>i</code> 间房子决定的</strong></li>
-<li>而是由：<ul>
-<li>第 <code>i-1</code> 间房子的最优解</li>
-<li>第 <code>i-2</code> 间房子的最优解<br> 共同决定</li>
-</ul>
-</li>
-</ul>
-<p>这正是动态规划中最核心的结构：</p>
-<blockquote>
-<p><strong>最优子结构</strong></p>
-</blockquote>
-<hr>
-<h2 id="五、空间优化：从-O-n-到-O-1"><a href="#五、空间优化：从-O-n-到-O-1" class="headerlink" title="五、空间优化：从 O(n) 到 O(1)"></a>五、空间优化：从 O(n) 到 O(1)</h2><p>在打家劫舍中：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i] 只依赖 dp[i-1] 和 dp[i-2]</span><br></pre></td></tr></table></figure>
-
-<p>因此：</p>
-<ul>
-<li>不需要完整 dp 数组</li>
-<li>只需要保存「前两个状态」</li>
-</ul>
-<p> 空间复杂度可进一步优化为 <strong>O(1)</strong></p>
-<hr>
-<h2 id="六、结合具体题目总结-DP-模型"><a href="#六、结合具体题目总结-DP-模型" class="headerlink" title="六、结合具体题目总结 DP 模型"></a>六、结合具体题目总结 DP 模型</h2><h3 id="70-爬楼梯"><a href="#70-爬楼梯" class="headerlink" title="70. 爬楼梯"></a>70. 爬楼梯</h3><ul>
-<li><strong>状态定义</strong>：<code>dp[i]</code> &#x3D; 爬到第 i 阶的方法数</li>
-<li><strong>递推公式</strong>：</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i] = dp[i - 1] + dp[i - 2]</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><strong>初始化</strong>：<ul>
-<li><code>dp[0] = 1</code></li>
-<li><code>dp[1] = 1</code></li>
-</ul>
-</li>
-<li><strong>答案</strong>：<code>dp[n]</code></li>
-</ul>
-<p>本质：<strong>斐波那契数列</strong></p>
-<hr>
-<h3 id="746-使用最小花费爬楼梯"><a href="#746-使用最小花费爬楼梯" class="headerlink" title="746. 使用最小花费爬楼梯"></a>746. 使用最小花费爬楼梯</h3><ul>
-<li><strong>状态定义</strong>：<code>dp[i]</code> &#x3D; 到达第 i 阶的最小花费</li>
-<li><strong>递推公式</strong>：</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dp[i] = min(dp[i - 1] + cost[i - 1],</span><br><span class="line">            dp[i - 2] + cost[i - 2])</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><strong>初始化</strong>：<ul>
-<li><code>dp[0] = 0</code></li>
-<li><code>dp[1] = 0</code></li>
-</ul>
-</li>
-<li><strong>答案</strong>：<code>dp[n]</code></li>
-</ul>
-<p>特点： <strong>不是计数，而是最小值优化</strong></p>
-<hr>
-<h3 id="3693-爬楼梯-II"><a href="#3693-爬楼梯-II" class="headerlink" title="3693. 爬楼梯 II"></a>3693. 爬楼梯 II</h3><ul>
-<li>一次可以跳 <strong>1 &#x2F; 2 &#x2F; 3</strong> 阶</li>
-<li><strong>递推公式</strong>：</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i] = dp[i - 1] + dp[i - 2] + dp[i - 3]</span><br></pre></td></tr></table></figure>
-
-<p>本质变化只有：</p>
-<blockquote>
-<p><strong>当前状态依赖的“历史状态数量”变多了</strong>，计算 cost 的方式不同了</p>
-</blockquote>
-<hr>
-<h3 id="213-打家劫舍-II（环形）"><a href="#213-打家劫舍-II（环形）" class="headerlink" title="213. 打家劫舍 II（环形）"></a>213. 打家劫舍 II（环形）</h3><p>核心难点：</p>
-<blockquote>
-<p><strong>首尾不能同时选</strong></p>
-</blockquote>
-<p>经典处理方式：</p>
-<ul>
-<li>情况一：不偷第 0 间 ➜ 偷 <code>[1 … n-1]</code></li>
-<li>情况二：不偷第 n-1 间 ➜ 偷 <code>[0 … n-2]</code></li>
-<li>对两种情况分别做 <strong>198 打家劫舍</strong></li>
-<li>取最大值</li>
-</ul>
-<p> <strong>环形 DP → 拆成两个线性 DP</strong></p>
-<hr>
-<h2 id="七、心得与方法论总结"><a href="#七、心得与方法论总结" class="headerlink" title="七、心得与方法论总结"></a>七、心得与方法论总结</h2><h3 id="动态规划到底“动”在哪？"><a href="#动态规划到底“动”在哪？" class="headerlink" title="动态规划到底“动”在哪？"></a>动态规划到底“动”在哪？</h3><ul>
-<li>状态是变化的</li>
-<li>当前状态来自之前状态</li>
-<li>本质是 <strong>dfs 中的“归”</strong></li>
-</ul>
-<p>递推，其实就是：</p>
-<blockquote>
-<p><strong>省略 dfs 的“递”，只保留“归”</strong></p>
-</blockquote>
-<hr>
-<h3 id="想不出递推公式怎么办？"><a href="#想不出递推公式怎么办？" class="headerlink" title="想不出递推公式怎么办？"></a>想不出递推公式怎么办？</h3><p>一个非常实用的技巧：</p>
-<blockquote>
-<p><strong>回退一步，用回溯 + 记忆化搜索先写出来</strong></p>
-</blockquote>
-<ul>
-<li>回溯天然符合“选 or 不选”</li>
-<li>递归公式写出来后</li>
-<li>直接“翻译”为 dp 即可</li>
-</ul>
-<hr>
-<h3 id="什么时候应该想到动态规划？"><a href="#什么时候应该想到动态规划？" class="headerlink" title="什么时候应该想到动态规划？"></a>什么时候应该想到动态规划？</h3><p>当题目满足以下特征之一时，<strong>高度警惕 DP</strong>：</p>
-<ul>
-<li>当前结果依赖之前的结果</li>
-<li>有“最优”“最多”“最少”“方案数”等关键词</li>
-<li>存在大量重复子问题</li>
-<li>能清晰定义「状态」</li>
-</ul>
-<p>一句话总结：</p>
-<blockquote>
-<p><strong>只要当前状态是在之前状态的基础上演化而来，就可以尝试动态规划</strong></p>
-</blockquote>
-<hr>
-<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>动态规划并不是死记模板，而是一种 <strong>从回溯中抽象出的系统性思维方式</strong>。<br>真正掌握 DP 的标志，不是会写状态转移方程，而是：</p>
-<blockquote>
-<p><strong>能从回溯自然地推导出递推</strong></p>
-</blockquote>
-<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/11/algorithms/dynamicprogramming/2026-1-11-dynamicprogramming/" data-id="cmklbs4im000w048tbeuo9u36" data-title="动态规划：从回溯到记忆化搜索，再到递推" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" rel="tag">记忆化搜索</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%80%92%E6%8E%A8/" rel="tag">递推</a></li></ul>
 
     </footer>
   </div>
@@ -2337,7 +2356,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/01%E8%83%8C%E5%8C%85/" rel="tag">01背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LIS/" rel="tag">LIS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring-MVC/" rel="tag">Spring MVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis-plus/" rel="tag">mybatis-plus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="tag">字符串</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" rel="tag">学习计划</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" rel="tag">完全背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8E%92%E5%88%97/" rel="tag">排列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8B%E8%AF%95/" rel="tag">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" rel="tag">热部署</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BA%BF%E6%80%A7DP/" rel="tag">线性DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E5%90%88/" rel="tag">组合</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" rel="tag">记忆化搜索</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E6%8E%A8/" rel="tag">递推</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%85%8D%E7%BD%AE/" rel="tag">配置</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A4%90%E9%A5%AE%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" rel="tag">餐饮管理系统</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/01%E8%83%8C%E5%8C%85/" rel="tag">01背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LIS/" rel="tag">LIS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring-MVC/" rel="tag">Spring MVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis-plus/" rel="tag">mybatis-plus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8C%BA%E9%97%B4-DP/" rel="tag">区间 DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="tag">字符串</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" rel="tag">学习计划</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" rel="tag">完全背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8E%92%E5%88%97/" rel="tag">排列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8B%E8%AF%95/" rel="tag">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" rel="tag">热部署</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BADP/" rel="tag">状态机DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BA%BF%E6%80%A7DP/" rel="tag">线性DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E5%90%88/" rel="tag">组合</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%82%A1%E7%A5%A8%E9%97%AE%E9%A2%98/" rel="tag">股票问题</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" rel="tag">记忆化搜索</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E6%8E%A8/" rel="tag">递推</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%85%8D%E7%BD%AE/" rel="tag">配置</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A4%90%E9%A5%AE%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" rel="tag">餐饮管理系统</a></li></ul>
     </div>
   </div>
 
@@ -2347,7 +2366,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/01%E8%83%8C%E5%8C%85/" style="font-size: 10px;">01背包</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LIS/" style="font-size: 12px;">LIS</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/Spring/" style="font-size: 10px;">Spring</a> <a href="/tags/Spring-MVC/" style="font-size: 10px;">Spring MVC</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/jdbc/" style="font-size: 12px;">jdbc</a> <a href="/tags/maven/" style="font-size: 12px;">maven</a> <a href="/tags/mybatis/" style="font-size: 16px;">mybatis</a> <a href="/tags/mybatis-plus/" style="font-size: 10px;">mybatis-plus</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 18px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 12px;">子集</a> <a href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" style="font-size: 10px;">字符串</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" style="font-size: 10px;">完全背包</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 12px;">总结</a> <a href="/tags/%E6%8E%92%E5%88%97/" style="font-size: 10px;">排列</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B5%8B%E8%AF%95/" style="font-size: 10px;">测试</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12px;">深度优先遍历</a> <a href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" style="font-size: 10px;">热部署</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E7%BA%BF%E6%80%A7DP/" style="font-size: 14px;">线性DP</a> <a href="/tags/%E7%BB%84%E5%90%88/" style="font-size: 10px;">组合</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12px;">记录</a> <a href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" style="font-size: 12px;">记忆化搜索</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 18px;">递归</a> <a href="/tags/%E9%80%92%E6%8E%A8/" style="font-size: 12px;">递推</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a> <a href="/tags/%E9%A4%90%E9%A5%AE%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" style="font-size: 10px;">餐饮管理系统</a>
+      <a href="/tags/01%E8%83%8C%E5%8C%85/" style="font-size: 10px;">01背包</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LIS/" style="font-size: 12px;">LIS</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/Spring/" style="font-size: 10px;">Spring</a> <a href="/tags/Spring-MVC/" style="font-size: 10px;">Spring MVC</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/jdbc/" style="font-size: 12px;">jdbc</a> <a href="/tags/maven/" style="font-size: 12px;">maven</a> <a href="/tags/mybatis/" style="font-size: 16px;">mybatis</a> <a href="/tags/mybatis-plus/" style="font-size: 10px;">mybatis-plus</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8C%BA%E9%97%B4-DP/" style="font-size: 10px;">区间 DP</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 18px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 12px;">子集</a> <a href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" style="font-size: 10px;">字符串</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" style="font-size: 10px;">完全背包</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 12px;">总结</a> <a href="/tags/%E6%8E%92%E5%88%97/" style="font-size: 10px;">排列</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B5%8B%E8%AF%95/" style="font-size: 10px;">测试</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12px;">深度优先遍历</a> <a href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" style="font-size: 10px;">热部署</a> <a href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BADP/" style="font-size: 10px;">状态机DP</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E7%BA%BF%E6%80%A7DP/" style="font-size: 14px;">线性DP</a> <a href="/tags/%E7%BB%84%E5%90%88/" style="font-size: 10px;">组合</a> <a href="/tags/%E8%82%A1%E7%A5%A8%E9%97%AE%E9%A2%98/" style="font-size: 10px;">股票问题</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12px;">记录</a> <a href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" style="font-size: 12px;">记忆化搜索</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 18px;">递归</a> <a href="/tags/%E9%80%92%E6%8E%A8/" style="font-size: 12px;">递推</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a> <a href="/tags/%E9%A4%90%E9%A5%AE%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" style="font-size: 12px;">餐饮管理系统</a>
     </div>
   </div>
 
@@ -2369,7 +2388,11 @@
       <ul>
         
           <li>
-            <a href="/2026/01/19/algorithms/dynamicprogramming/2026-1-19-dynamicprogramming-04%E7%BA%BF%E6%80%A7DP%E6%80%BB%E7%BB%93/">线性 DP 总结与最长递增子序列（LIS）与二维扩展</a>
+            <a href="/2026/01/22/algorithms/dynamicprogramming/2026-1-22-dynamicprogramming-06%E5%8C%BA%E9%97%B4DP/">区间 DP：从「区间划分」理解最优子结构</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/20/algorithms/dynamicprogramming/2026-1-20-dynamicprogramming-05%E7%8A%B6%E6%80%81%E6%9C%BADP/">状态机 DP：从股票问题理解「有限状态 + 决策转移」</a>
           </li>
         
           <li>
@@ -2377,15 +2400,11 @@
           </li>
         
           <li>
-            <a href="/2026/01/18/algorithms/dynamicprogramming/2026-1-18-dynamicprogramming-03LIS/">线性 DP · 最长递增子序列（LIS）专题总结</a>
+            <a href="/2026/01/19/backend/project/2026-1-27-project-day03/">后端工程实践总结公共字段自动填充、文件上传与多表业务设计</a>
           </li>
         
           <li>
-            <a href="/2026/01/15/algorithms/dynamicprogramming/2026-1-14-dynamicprogramming-02%E7%BA%BF%E6%80%A7DP/">线性 DP：字符串问题</a>
-          </li>
-        
-          <li>
-            <a href="/2026/01/14/misc/git-%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E6%95%B4%E7%90%86%E6%80%BB%E7%BB%93/">git 开发工具整理总结</a>
+            <a href="/2026/01/19/algorithms/dynamicprogramming/2026-1-19-dynamicprogramming-04%E7%BA%BF%E6%80%A7DP%E6%80%BB%E7%BB%93/">线性 DP 总结与最长递增子序列（LIS）与二维扩展</a>
           </li>
         
       </ul>
