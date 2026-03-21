@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>项目Redis、小程序相关总结 | 廷风的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="一、Redis1. 为什么在这个场景引入 Redis？在店铺营业状态这个场景中：  数据特点：只有两种状态（营业 &#x2F; 打烊）、读多写少（频繁查询状态）、对实时性要求高 如果用 MySQL：需要建表，增加系统复杂度、每次查询需要 IO，性能较低  因此选择使用 Redis（内存数据库） 来存储状态：  基于内存，读写性能高（微秒级） 适合存储简单 KV 结构 可以减少数据库压力   2.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="项目Redis、小程序相关总结">
+<meta property="og:url" content="http://example.com/2026/03/21/backend/project/2026-3-21-project-day04/index.html">
+<meta property="og:site_name" content="廷风的技术博客">
+<meta property="og:description" content="一、Redis1. 为什么在这个场景引入 Redis？在店铺营业状态这个场景中：  数据特点：只有两种状态（营业 &#x2F; 打烊）、读多写少（频繁查询状态）、对实时性要求高 如果用 MySQL：需要建表，增加系统复杂度、每次查询需要 IO，性能较低  因此选择使用 Redis（内存数据库） 来存储状态：  基于内存，读写性能高（微秒级） 适合存储简单 KV 结构 可以减少数据库压力   2.">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-03-20T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-21T10:39:22.396Z">
+<meta property="article:author" content="Tingfeng Li">
+<meta property="article:tag" content="餐饮管理系统">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="廷风的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">廷风的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Java 后端开发</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-backend/project/2026-3-21-project-day04" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/03/21/backend/project/2026-3-21-project-day04/" class="article-date">
+  <time class="dt-published" datetime="2026-03-20T16:00:00.000Z" itemprop="datePublished">2026-03-21</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      项目Redis、小程序相关总结
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="一、Redis"><a href="#一、Redis" class="headerlink" title="一、Redis"></a>一、Redis</h1><h2 id="1-为什么在这个场景引入-Redis？"><a href="#1-为什么在这个场景引入-Redis？" class="headerlink" title="1. 为什么在这个场景引入 Redis？"></a>1. 为什么在这个场景引入 Redis？</h2><p>在店铺营业状态这个场景中：</p>
+<ul>
+<li>数据特点：只有两种状态（营业 &#x2F; 打烊）、读多写少（频繁查询状态）、对实时性要求高</li>
+<li>如果用 MySQL：需要建表，增加系统复杂度、每次查询需要 IO，性能较低</li>
+</ul>
+<p>因此选择使用 <strong>Redis（内存数据库）</strong> 来存储状态：</p>
+<ul>
+<li>基于内存，读写性能高（微秒级）</li>
+<li>适合存储简单 KV 结构</li>
+<li>可以减少数据库压力</li>
+</ul>
+<hr>
+<h2 id="2-Redis-在项目中的使用流程"><a href="#2-Redis-在项目中的使用流程" class="headerlink" title="2. Redis 在项目中的使用流程"></a>2. Redis 在项目中的使用流程</h2><ol>
+<li>引入依赖：spring-boot-starter-data-redis</li>
+<li>配置连接信息：host &#x2F; port &#x2F; password &#x2F; database</li>
+<li>配置 RedisTemplate 类：设置 key&#x2F;value 序列化器（避免乱码）</li>
+<li>业务操作：set &#x2F; get</li>
+</ol>
+<hr>
+<h2 id="3-为什么要配置序列化器？"><a href="#3-为什么要配置序列化器？" class="headerlink" title="3. 为什么要配置序列化器？"></a>3. 为什么要配置序列化器？</h2><p>RedisTemplate 默认使用 JDK 序列化：可读性差（乱码）、跨语言兼容性差</p>
+<p>在项目中：</p>
+<ul>
+<li>key：StringRedisSerializer</li>
+<li>value：String &#x2F; JSON 序列化</li>
+</ul>
+<p>好处：可读性强、便于调试、通用性好</p>
+<hr>
+<h2 id="4-怎么设计Key？"><a href="#4-怎么设计Key？" class="headerlink" title="4. 怎么设计Key？"></a>4. 怎么设计Key？</h2><p>全局设置一个常量：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public static final String KEY = &quot;SHOP_STATUS&quot;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="5-Bug-排查过程（重点）"><a href="#5-Bug-排查过程（重点）" class="headerlink" title="5. Bug 排查过程（重点）"></a>5. Bug 排查过程（重点）</h2><p>你这段非常好，但需要“面试表达化”👇</p>
+<p>问题：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">RedisConnectionFailureException: Unable to connect to Redis</span><br></pre></td></tr></table></figure>
+
+<p>排查思路（一定要按层次说！）：</p>
+<h3 id="（1）排除-Spring-Bean-问题"><a href="#（1）排除-Spring-Bean-问题" class="headerlink" title="（1）排除 Spring Bean 问题"></a>（1）排除 Spring Bean 问题</h3><ul>
+<li>redisTemplate 成功注入（打印 redisTemplate对象）</li>
+</ul>
+<h3 id="（2）排除-Redis-服务问题"><a href="#（2）排除-Redis-服务问题" class="headerlink" title="（2）排除 Redis 服务问题"></a>（2）排除 Redis 服务问题</h3><ul>
+<li>redis-cli 连接正常 (redis-cli)</li>
+</ul>
+<h3 id="（3）排除配置文件问题"><a href="#（3）排除配置文件问题" class="headerlink" title="（3）排除配置文件问题"></a>（3）排除配置文件问题</h3><ul>
+<li>host &#x2F; port &#x2F; database 读取正常（@value）</li>
+</ul>
+<h3 id="（4）定位到连接工厂（关键）"><a href="#（4）定位到连接工厂（关键）" class="headerlink" title="（4）定位到连接工厂（关键）"></a>（4）定位到连接工厂（关键）</h3><ul>
+<li>RedisConnectionFactory 创建失败 ❌</li>
+</ul>
+<p>最终定位：Lettuce 客户端连接阶段失败</p>
+<hr>
+<h2 id="6-问题本质原因"><a href="#6-问题本质原因" class="headerlink" title="6. 问题本质原因"></a>6. 问题本质原因</h2><blockquote>
+<p>在 Windows 环境下，Redis 开启密码认证时，Lettuce 客户端在认证阶段存在兼容问题，导致连接失败。</p>
+</blockquote>
+<hr>
+<h2 id="7-解决方案（要说“方案-扩展”）"><a href="#7-解决方案（要说“方案-扩展”）" class="headerlink" title="7. 解决方案（要说“方案 + 扩展”）"></a>7. 解决方案（要说“方案 + 扩展”）</h2><p>当前方案：</p>
+<ul>
+<li>去掉 Redis 密码 → 成功连接</li>
+</ul>
+<p>更优方案（面试加分）：</p>
+<ul>
+<li>使用 <strong>Docker + Linux 版本 Redis</strong></li>
+<li>或切换 Jedis</li>
+</ul>
+<hr>
+<h2 id="扩展问题"><a href="#扩展问题" class="headerlink" title="扩展问题"></a>扩展问题</h2><ul>
+<li>Redis 和 MySQL 的区别？</li>
+<li>Redis 为什么快？</li>
+<li>Redis 持久化机制（RDB &#x2F; AOF）</li>
+<li>Redis 线程模型（单线程 + IO 多路复用）</li>
+</ul>
+<hr>
+<h1 id="二、微信小程序登录-JWT"><a href="#二、微信小程序登录-JWT" class="headerlink" title="二、微信小程序登录 + JWT"></a>二、微信小程序登录 + JWT</h1><hr>
+<h2 id="1-小程序登录流程"><a href="#1-小程序登录流程" class="headerlink" title="1. 小程序登录流程"></a>1. 小程序登录流程</h2><ol>
+<li>小程序调用 wx.login → 获取 <strong>code</strong></li>
+<li>客户端将 code 发送给后端</li>
+<li>后端调用微信接口（通过 HttpClient）</li>
+<li>微信返回：<ul>
+<li>openid（用户唯一标识）</li>
+</ul>
+</li>
+<li>后端：<ul>
+<li>根据 openid 查询 &#x2F; 注册用户</li>
+<li>生成 JWT token</li>
+</ul>
+</li>
+<li>返回 token 给前端</li>
+<li>前端后续请求携带 token</li>
+</ol>
+<hr>
+<h2 id="2-为什么需要-openid？"><a href="#2-为什么需要-openid？" class="headerlink" title="2. 为什么需要 openid？"></a>2. 为什么需要 openid？</h2><ul>
+<li>openid 是微信用户在当前小程序中的<strong>唯一标识</strong></li>
+<li>用于：用户登录、用户数据绑定</li>
+</ul>
+<hr>
+<h2 id="3-HttpClient-的作用"><a href="#3-HttpClient-的作用" class="headerlink" title="3. HttpClient 的作用"></a>3. HttpClient 的作用</h2><p>HttpClient 用于：</p>
+<ul>
+<li>构造 HTTP 请求（GET&#x2F;POST）</li>
+<li>发送请求</li>
+<li>接收响应</li>
+</ul>
+<p>本质：<strong>服务端调用第三方 API（微信服务器）</strong></p>
+<hr>
+<h2 id="4-JWT-的作用"><a href="#4-JWT-的作用" class="headerlink" title="4. JWT 的作用"></a>4. JWT 的作用</h2><p>用于实现 <strong>无状态登录（Stateless Authentication）</strong></p>
+<hr>
+<h2 id="5-JWT-的组成"><a href="#5-JWT-的组成" class="headerlink" title="5. JWT 的组成"></a>5. JWT 的组成</h2><p>三部分：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Header.Payload.Signature</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Header：算法信息</li>
+<li>Payload：用户数据（userId、过期时间）</li>
+<li>Signature：签名防篡改</li>
+</ul>
+<hr>
+<h2 id="6-在项目中-JWT-是怎么用的？"><a href="#6-在项目中-JWT-是怎么用的？" class="headerlink" title="6. 在项目中 JWT 是怎么用的？"></a>6. 在项目中 JWT 是怎么用的？</h2><ul>
+<li>登录成功后：<ul>
+<li>生成 JWT token</li>
+<li>将 userId、时效写入 payload</li>
+</ul>
+</li>
+<li>返回 token 给前端</li>
+<li>前端请求时：<ul>
+<li>放在请求头（Authorization &#x2F; token）</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="7-拦截器做了什么？（重点）"><a href="#7-拦截器做了什么？（重点）" class="headerlink" title="7. 拦截器做了什么？（重点）"></a>7. 拦截器做了什么？（重点）</h2><p>在 Spring 中通过 HandlerInterceptor：</p>
+<ol>
+<li>判断是否是需要拦截的请求</li>
+<li>获取请求头中的 token</li>
+<li>解析 JWT：<ul>
+<li>成功 → 放行</li>
+<li>失败 → 拒绝请求</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="8-为什么用-JWT，而不是-Session？（重点）"><a href="#8-为什么用-JWT，而不是-Session？（重点）" class="headerlink" title="8. 为什么用 JWT，而不是 Session？（重点）"></a>8. 为什么用 JWT，而不是 Session？（重点）</h2><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Session</td>
+<td>有状态，需要服务器存储</td>
+</tr>
+<tr>
+<td>JWT</td>
+<td>无状态，扩展性好</td>
+</tr>
+</tbody></table>
+<p>我的选择原因：</p>
+<ul>
+<li>支持分布式</li>
+<li>减少服务器压力</li>
+<li>易扩展</li>
+</ul>
+<hr>
+<h2 id="9-拓展问题"><a href="#9-拓展问题" class="headerlink" title="9. 拓展问题"></a>9. 拓展问题</h2><ul>
+<li>JWT 会不会被篡改？</li>
+<li>JWT 如何续期？</li>
+<li>JWT 如何退出登录？</li>
+<li>Token 存在哪更安全？</li>
+</ul>
+<hr>
+<h1 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h1><h3 id="技术点："><a href="#技术点：" class="headerlink" title="技术点："></a>技术点：</h3><ul>
+<li>Redis（缓存设计 + 问题排查）</li>
+<li>JWT（认证体系）</li>
+<li>HttpClient（第三方接口调用）</li>
+<li>Spring 拦截器</li>
+</ul>
+<hr>
+<h2 id="学习资料与完整代码"><a href="#学习资料与完整代码" class="headerlink" title="学习资料与完整代码"></a>学习资料与完整代码</h2><p><strong>已整理并上传至 GitHub 仓库</strong></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/03/21/backend/project/2026-3-21-project-day04/" data-id="cmn07ogxk000r7s8tfgdf4s1l" data-title="项目Redis、小程序相关总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%A4%90%E9%A5%AE%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" rel="tag">餐饮管理系统</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2026/01/22/algorithms/dynamicprogramming/2026-1-22-dynamicprogramming-06%E5%8C%BA%E9%97%B4DP/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">区间 DP：从「区间划分」理解最优子结构</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/ssm/">ssm</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/SpringBoot/">SpringBoot</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/01%E8%83%8C%E5%8C%85/" rel="tag">01背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LIS/" rel="tag">LIS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring-MVC/" rel="tag">Spring MVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis-plus/" rel="tag">mybatis-plus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8C%BA%E9%97%B4-DP/" rel="tag">区间 DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="tag">字符串</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" rel="tag">学习计划</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" rel="tag">完全背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8E%92%E5%88%97/" rel="tag">排列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8B%E8%AF%95/" rel="tag">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" rel="tag">热部署</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BADP/" rel="tag">状态机DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BA%BF%E6%80%A7DP/" rel="tag">线性DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E5%90%88/" rel="tag">组合</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%82%A1%E7%A5%A8%E9%97%AE%E9%A2%98/" rel="tag">股票问题</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" rel="tag">记忆化搜索</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E6%8E%A8/" rel="tag">递推</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%85%8D%E7%BD%AE/" rel="tag">配置</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A4%90%E9%A5%AE%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" rel="tag">餐饮管理系统</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/01%E8%83%8C%E5%8C%85/" style="font-size: 10px;">01背包</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LIS/" style="font-size: 12px;">LIS</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/Spring/" style="font-size: 10px;">Spring</a> <a href="/tags/Spring-MVC/" style="font-size: 10px;">Spring MVC</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/jdbc/" style="font-size: 12px;">jdbc</a> <a href="/tags/maven/" style="font-size: 12px;">maven</a> <a href="/tags/mybatis/" style="font-size: 16px;">mybatis</a> <a href="/tags/mybatis-plus/" style="font-size: 10px;">mybatis-plus</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8C%BA%E9%97%B4-DP/" style="font-size: 10px;">区间 DP</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 18px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 12px;">子集</a> <a href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" style="font-size: 10px;">字符串</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" style="font-size: 10px;">完全背包</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 12px;">总结</a> <a href="/tags/%E6%8E%92%E5%88%97/" style="font-size: 10px;">排列</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B5%8B%E8%AF%95/" style="font-size: 10px;">测试</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12px;">深度优先遍历</a> <a href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" style="font-size: 10px;">热部署</a> <a href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BADP/" style="font-size: 10px;">状态机DP</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E7%BA%BF%E6%80%A7DP/" style="font-size: 14px;">线性DP</a> <a href="/tags/%E7%BB%84%E5%90%88/" style="font-size: 10px;">组合</a> <a href="/tags/%E8%82%A1%E7%A5%A8%E9%97%AE%E9%A2%98/" style="font-size: 10px;">股票问题</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12px;">记录</a> <a href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" style="font-size: 12px;">记忆化搜索</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 18px;">递归</a> <a href="/tags/%E9%80%92%E6%8E%A8/" style="font-size: 12px;">递推</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a> <a href="/tags/%E9%A4%90%E9%A5%AE%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" style="font-size: 14px;">餐饮管理系统</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">三月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">一月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/12/">十二月 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/03/21/backend/project/2026-3-21-project-day04/">项目Redis、小程序相关总结</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/22/algorithms/dynamicprogramming/2026-1-22-dynamicprogramming-06%E5%8C%BA%E9%97%B4DP/">区间 DP：从「区间划分」理解最优子结构</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/20/algorithms/dynamicprogramming/2026-1-20-dynamicprogramming-05%E7%8A%B6%E6%80%81%E6%9C%BADP/">状态机 DP：从股票问题理解「有限状态 + 决策转移」</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/19/backend/project/2026-1-19-project-day02/">后端环境搭建与核心模块实战复盘</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/19/backend/project/2026-1-27-project-day03/">后端工程实践总结公共字段自动填充、文件上传与多表业务设计</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Tingfeng Li<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
