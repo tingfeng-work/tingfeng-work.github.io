@@ -159,7 +159,7 @@ Method setCreateTime = entity.getClass()
 
 ```
 setx OSS_ACCESS_KEY_ID "xxx"
-setx OSS_ACCESS_KEY_SECRET "xxx"👉 面试官会非常在意这一点。
+setx OSS_ACCESS_KEY_SECRET "xxx"
 ```
 
 ------
