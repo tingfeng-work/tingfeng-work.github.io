@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>相向双指针 | 廷风的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="从“两数之和”到“接雨水”，理解双指针背后的单调性在刷 LeetCode 的过程中，我对“相向双指针（Two Pointers）”一类题目进行了集中训练。 一开始，我对双指针的理解停留在：  数组有序 left 和 right 相向移动 两数之和和小了 left++ 两数和大了 right–  但真正系统刷完“两数之和”、“三数之和”、“接雨水”等经典题后，我逐渐意识到：  相向双指针的核心并不是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="相向双指针">
+<meta property="og:url" content="http://example.com/2026/05/11/algorithms/pointer/2026%205-11%20Opposite%20two%20pointers/index.html">
+<meta property="og:site_name" content="廷风的技术博客">
+<meta property="og:description" content="从“两数之和”到“接雨水”，理解双指针背后的单调性在刷 LeetCode 的过程中，我对“相向双指针（Two Pointers）”一类题目进行了集中训练。 一开始，我对双指针的理解停留在：  数组有序 left 和 right 相向移动 两数之和和小了 left++ 两数和大了 right–  但真正系统刷完“两数之和”、“三数之和”、“接雨水”等经典题后，我逐渐意识到：  相向双指针的核心并不是">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-05-11T05:00:00.000Z">
+<meta property="article:modified_time" content="2026-05-18T05:14:47.388Z">
+<meta property="article:author" content="Tingfeng Li">
+<meta property="article:tag" content="指针">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="廷风的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">廷风的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Java 后端开发</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-algorithms/pointer/2026 5-11 Opposite two pointers" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/05/11/algorithms/pointer/2026%205-11%20Opposite%20two%20pointers/" class="article-date">
+  <time class="dt-published" datetime="2026-05-11T05:00:00.000Z" itemprop="datePublished">2026-05-11</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E6%8C%87%E9%92%88/">指针</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      相向双指针
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="从“两数之和”到“接雨水”，理解双指针背后的单调性"><a href="#从“两数之和”到“接雨水”，理解双指针背后的单调性" class="headerlink" title="从“两数之和”到“接雨水”，理解双指针背后的单调性"></a>从“两数之和”到“接雨水”，理解双指针背后的单调性</h1><p>在刷 LeetCode 的过程中，我对“相向双指针（Two Pointers）”一类题目进行了集中训练。</p>
+<p>一开始，我对双指针的理解停留在：</p>
+<ul>
+<li>数组有序</li>
+<li>left 和 right 相向移动</li>
+<li>两数之和和小了 left++</li>
+<li>两数和大了 right–</li>
+</ul>
+<p>但真正系统刷完“两数之和”、“三数之和”、“接雨水”等经典题后，我逐渐意识到：</p>
+<blockquote>
+<p>相向双指针的核心并不是“双指针”本身，而是利用问题中的“单调性”，在一次移动中排除一整片不可能的解空间。</p>
+</blockquote>
+<p>这篇文章，我希望从“为什么可以移动指针”这个角度，总结我对刷双指针专题的一些理解。</p>
+<hr>
+<h1 id="一、两数之和：相向指针的起点"><a href="#一、两数之和：相向指针的起点" class="headerlink" title="一、两数之和：相向指针的起点"></a>一、两数之和：相向指针的起点</h1><p>经典题目：两数之和 II</p>
+<p>由于数组有序：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nums[left] + nums[right]</span><br></pre></td></tr></table></figure>
+
+<p>如果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sum &lt; target</span><br></pre></td></tr></table></figure>
+
+<p>说明当前和太小。</p>
+<p>因为数组递增：</p>
+<ul>
+<li>right 左边的数只会更小</li>
+<li>移动 right 没意义</li>
+</ul>
+<p>因此只能：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">left++</span><br></pre></td></tr></table></figure>
+
+<p>反之：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sum &gt; target</span><br></pre></td></tr></table></figure>
+
+<p>则需要：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">right--</span><br></pre></td></tr></table></figure>
+
+<p>这里本质上利用的是：</p>
+<blockquote>
+<p>有序数组带来的单调性。</p>
+</blockquote>
+<p>一次指针移动，可以排除掉 O(n) 个无效状态，因为单调性，当前状态不满足，移动另一侧指针是无效的，就一次排除了 n 个无效状态，因此时间复杂度从：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">O(n²)</span><br></pre></td></tr></table></figure>
+
+<p>降为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">O(n)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="二、三数之和：双指针与剪枝"><a href="#二、三数之和：双指针与剪枝" class="headerlink" title="二、三数之和：双指针与剪枝"></a>二、三数之和：双指针与剪枝</h1><p>经典题目：三数之和</p>
+<p>核心思路：</p>
+<ul>
+<li>固定第一个数</li>
+<li>剩余部分转化为“两数之和”</li>
+</ul>
+<p>即：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a + b + c = 0</span><br></pre></td></tr></table></figure>
+
+<p>转化为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">b + c = -a</span><br></pre></td></tr></table></figure>
+
+<p>这里第一次让我真正意识到：</p>
+<blockquote>
+<p>双指针不仅是一种技巧，更是一种“降维思想”。</p>
+</blockquote>
+<hr>
+<h2 id="去重问题"><a href="#去重问题" class="headerlink" title="去重问题"></a>去重问题</h2><p>三数之和最关键的问题之一是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">结果不能重复</span><br></pre></td></tr></table></figure>
+
+<p>因此：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">if (i &gt; 0 &amp;&amp; nums[i] == nums[i - 1]) continue;</span><br></pre></td></tr></table></figure>
+
+<p>以及：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">while (left &lt; right &amp;&amp; nums[left] == nums[left - 1]) left++;</span><br></pre></td></tr></table></figure>
+
+<p>本质上都是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">跳过重复状态</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="剪枝优化"><a href="#剪枝优化" class="headerlink" title="剪枝优化"></a>剪枝优化</h2><p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">if (nums[i] + nums[i + 1] + nums[i + 2] &gt; 0) break;</span><br></pre></td></tr></table></figure>
+
+<p>由于数组已经排序：</p>
+<ul>
+<li>当前最小三数和已经大于 0</li>
+<li>后续只会更大</li>
+</ul>
+<p>因此：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">可以直接结束循环</span><br></pre></td></tr></table></figure>
+
+<p>这里体现的是：</p>
+<blockquote>
+<p>利用单调性进一步缩小搜索空间。</p>
+</blockquote>
+<hr>
+<h1 id="三、四数之和：Java-整形溢出问题"><a href="#三、四数之和：Java-整形溢出问题" class="headerlink" title="三、四数之和：Java 整形溢出问题"></a>三、四数之和：Java 整形溢出问题</h1><p>在完成“四数之和”时，我第一次真正踩到了 Java 整形溢出的坑。</p>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">long sum = a + b + c + d;</span><br></pre></td></tr></table></figure>
+
+<p>如果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a,b,c,d 都是 int</span><br></pre></td></tr></table></figure>
+
+<p>那么表达式会先以 int 运算。</p>
+<p>即：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int + int + int + int</span><br></pre></td></tr></table></figure>
+
+<p>可能在赋值给 long 之前已经溢出。</p>
+<p>Java 中：</p>
+<blockquote>
+<p>表达式类型由参与运算的操作数决定，而不是赋值变量决定。</p>
+</blockquote>
+<p>因此正确写法应该是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">long sum = (long)a + b + c + d;</span><br></pre></td></tr></table></figure>
+
+<p>或者：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">long sum = 0L + a + b + c + d;</span><br></pre></td></tr></table></figure>
+
+<p>这类问题本质上已经不只是算法问题，而是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">语言机制问题</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="四、接雨水与盛水容器：木桶效应中的单调性"><a href="#四、接雨水与盛水容器：木桶效应中的单调性" class="headerlink" title="四、接雨水与盛水容器：木桶效应中的单调性"></a>四、接雨水与盛水容器：木桶效应中的单调性</h1><p>经典题目：</p>
+<ul>
+<li><ol>
+<li>盛最多水的容器</li>
+</ol>
+</li>
+<li><ol>
+<li>接雨水</li>
+</ol>
+</li>
+</ul>
+<p>这类题与“两数之和”最大的不同在于：</p>
+<blockquote>
+<p>它们的单调性并不来自数组有序。</p>
+</blockquote>
+<p>而来自：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">木桶短板效应</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="盛最多水的容器"><a href="#盛最多水的容器" class="headerlink" title="盛最多水的容器"></a>盛最多水的容器</h2><p>面积：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">面积 = 宽度 × min(leftHeight, rightHeight)</span><br></pre></td></tr></table></figure>
+
+<p>容量取决于更短的一边。</p>
+<p>假设：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">leftHeight &lt; rightHeight</span><br></pre></td></tr></table></figure>
+
+<p>如果移动 right：</p>
+<ul>
+<li>宽度减少</li>
+<li>短板不变</li>
+</ul>
+<p>面积一定不会更优。</p>
+<p>因此只能移动：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">left++</span><br></pre></td></tr></table></figure>
+
+<p>这里的核心仍然是：</p>
+<blockquote>
+<p>利用单调性排除无效解。</p>
+</blockquote>
+<hr>
+<h1 id="五、验证回文串：指针移动时机"><a href="#五、验证回文串：指针移动时机" class="headerlink" title="五、验证回文串：指针移动时机"></a>五、验证回文串：指针移动时机</h1><p>经典题目：</p>
+<ul>
+<li><ol>
+<li>验证回文串</li>
+</ol>
+</li>
+</ul>
+<p>这道题让我开始真正关注：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">指针到底什么时候移动？</span><br></pre></td></tr></table></figure>
+
+<p>题目要求：</p>
+<ul>
+<li>忽略非字母数字字符</li>
+<li>忽略大小写</li>
+</ul>
+<p>因此：</p>
+<ul>
+<li>有时只移动一个指针</li>
+<li>有时两个同时移动</li>
+</ul>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if (!Character.isLetterOrDigit(s.charAt(left))) &#123;</span><br><span class="line">    left++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我还学习到了一个非常实用的 Java API：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Character.isLetterOrDigit(char c)</span><br></pre></td></tr></table></figure>
+
+<p>用于判断字符是否为：</p>
+<ul>
+<li>字母</li>
+<li>数字</li>
+</ul>
+<p>相比手动 ASCII 判断：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">c &gt;= &#x27;a&#x27; &amp;&amp; c &lt;= &#x27;z&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>代码更加简洁，也更符合工程开发习惯。</p>
+<hr>
+<h1 id="六、我对刷双指针的理解变化"><a href="#六、我对刷双指针的理解变化" class="headerlink" title="六、我对刷双指针的理解变化"></a>六、我对刷双指针的理解变化</h1><p>以前刷题时，我更关注：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">这题是什么模板？</span><br></pre></td></tr></table></figure>
+
+<p>现在我会优先思考：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">为什么可以移动这个指针？</span><br><span class="line">为什么不会漏解？</span><br></pre></td></tr></table></figure>
+
+<p>因为我越来越觉得：</p>
+<blockquote>
+<p>算法真正重要的不是“记住模板”，而是理解算法为什么成立。</p>
+</blockquote>
+<hr>
+<h1 id="七、总结：相向双指针的本质"><a href="#七、总结：相向双指针的本质" class="headerlink" title="七、总结：相向双指针的本质"></a>七、总结：相向双指针的本质</h1><p>我现在对相向双指针的理解，可以总结为一句话：</p>
+<blockquote>
+<p>相向双指针的核心不是“双指针”，而是“利用问题中的单调性，不断缩小搜索空间”。</p>
+</blockquote>
+<p>这种单调性可能来自：</p>
+<table>
+<thead>
+<tr>
+<th>题目</th>
+<th>单调性来源</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>两数之和</td>
+<td>数组有序</td>
+</tr>
+<tr>
+<td>三数 &#x2F; 四数之和</td>
+<td>排序 + 剪枝</td>
+</tr>
+<tr>
+<td>盛水容器</td>
+<td>木桶短板效应</td>
+</tr>
+<tr>
+<td>接雨水</td>
+<td>左右最大值约束</td>
+</tr>
+<tr>
+<td>回文串</td>
+<td>搜索空间收缩</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>这次系统复习双指针专题后，我最大的收获并不是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">又会了几道题</span><br></pre></td></tr></table></figure>
+
+<p>而是开始真正思考：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">为什么复杂度能降低？</span><br><span class="line">为什么移动指针不会漏解？</span><br><span class="line">为什么单调性能帮助我们排除状态？</span><br></pre></td></tr></table></figure>
+
+<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/05/11/algorithms/pointer/2026%205-11%20Opposite%20two%20pointers/" data-id="cmparmy5b004zd88t36ztglqx" data-title="相向双指针" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8C%87%E9%92%88/" rel="tag">指针</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2026/05/18/algorithms/pointer/2026%205-18%20Two%20pointers%20in%20the%20same%20direction/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          同向双指针
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2026/03/21/backend/project/2026-3-21-project-day04/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">项目Redis、小程序相关总结</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/ssm/">ssm</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/SpringBoot/">SpringBoot</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E6%8C%87%E9%92%88/">指针</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/01%E8%83%8C%E5%8C%85/" rel="tag">01背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LIS/" rel="tag">LIS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring-MVC/" rel="tag">Spring MVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis-plus/" rel="tag">mybatis-plus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8C%BA%E9%97%B4-DP/" rel="tag">区间 DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="tag">字符串</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" rel="tag">学习计划</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" rel="tag">完全背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8C%87%E9%92%88/" rel="tag">指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8E%92%E5%88%97/" rel="tag">排列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8B%E8%AF%95/" rel="tag">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" rel="tag">热部署</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BADP/" rel="tag">状态机DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BA%BF%E6%80%A7DP/" rel="tag">线性DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E5%90%88/" rel="tag">组合</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%82%A1%E7%A5%A8%E9%97%AE%E9%A2%98/" rel="tag">股票问题</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" rel="tag">记忆化搜索</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E6%8E%A8/" rel="tag">递推</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%85%8D%E7%BD%AE/" rel="tag">配置</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A4%90%E9%A5%AE%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" rel="tag">餐饮管理系统</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/01%E8%83%8C%E5%8C%85/" style="font-size: 10px;">01背包</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LIS/" style="font-size: 12px;">LIS</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/Spring/" style="font-size: 10px;">Spring</a> <a href="/tags/Spring-MVC/" style="font-size: 10px;">Spring MVC</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/jdbc/" style="font-size: 12px;">jdbc</a> <a href="/tags/maven/" style="font-size: 12px;">maven</a> <a href="/tags/mybatis/" style="font-size: 16px;">mybatis</a> <a href="/tags/mybatis-plus/" style="font-size: 10px;">mybatis-plus</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8C%BA%E9%97%B4-DP/" style="font-size: 10px;">区间 DP</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 18px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 12px;">子集</a> <a href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" style="font-size: 10px;">字符串</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" style="font-size: 10px;">完全背包</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 12px;">总结</a> <a href="/tags/%E6%8C%87%E9%92%88/" style="font-size: 12px;">指针</a> <a href="/tags/%E6%8E%92%E5%88%97/" style="font-size: 10px;">排列</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B5%8B%E8%AF%95/" style="font-size: 10px;">测试</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12px;">深度优先遍历</a> <a href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" style="font-size: 10px;">热部署</a> <a href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BADP/" style="font-size: 10px;">状态机DP</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E7%BA%BF%E6%80%A7DP/" style="font-size: 14px;">线性DP</a> <a href="/tags/%E7%BB%84%E5%90%88/" style="font-size: 10px;">组合</a> <a href="/tags/%E8%82%A1%E7%A5%A8%E9%97%AE%E9%A2%98/" style="font-size: 10px;">股票问题</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12px;">记录</a> <a href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" style="font-size: 12px;">记忆化搜索</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 18px;">递归</a> <a href="/tags/%E9%80%92%E6%8E%A8/" style="font-size: 12px;">递推</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a> <a href="/tags/%E9%A4%90%E9%A5%AE%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" style="font-size: 14px;">餐饮管理系统</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/05/">五月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">三月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">一月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/12/">十二月 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/05/18/algorithms/pointer/2026%205-18%20Two%20pointers%20in%20the%20same%20direction/">同向双指针</a>
+          </li>
+        
+          <li>
+            <a href="/2026/05/11/algorithms/pointer/2026%205-11%20Opposite%20two%20pointers/">相向双指针</a>
+          </li>
+        
+          <li>
+            <a href="/2026/03/21/backend/project/2026-3-21-project-day04/">项目Redis、小程序相关总结</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/22/algorithms/dynamicprogramming/2026-1-22-dynamicprogramming-06%E5%8C%BA%E9%97%B4DP/">区间 DP：从「区间划分」理解最优子结构</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/20/algorithms/dynamicprogramming/2026-1-20-dynamicprogramming-05%E7%8A%B6%E6%80%81%E6%9C%BADP/">状态机 DP：从股票问题理解「有限状态 + 决策转移」</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Tingfeng Li<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

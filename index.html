@@ -81,6 +81,659 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-algorithms/pointer/2026 5-18 Two pointers in the same direction" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/05/18/algorithms/pointer/2026%205-18%20Two%20pointers%20in%20the%20same%20direction/" class="article-date">
+  <time class="dt-published" datetime="2026-05-18T05:00:00.000Z" itemprop="datePublished">2026-05-18</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E6%8C%87%E9%92%88/">指针</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2026/05/18/algorithms/pointer/2026%205-18%20Two%20pointers%20in%20the%20same%20direction/">同向双指针</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="滑动窗口：从“枚举子数组”到“利用单调性缩小搜索空间”"><a href="#滑动窗口：从“枚举子数组”到“利用单调性缩小搜索空间”" class="headerlink" title="滑动窗口：从“枚举子数组”到“利用单调性缩小搜索空间”"></a>滑动窗口：从“枚举子数组”到“利用单调性缩小搜索空间”</h1><p>在系统复习双指针专题时，我发现：</p>
+<blockquote>
+<p>相向双指针解决的是“两端逼近”的问题，而滑动窗口（同向双指针）解决的则是“连续区间”的问题。</p>
+</blockquote>
+<p>一开始，我对刷滑动窗口题目的理解还停留在：</p>
+<ul>
+<li>一个 left</li>
+<li>一个 right</li>
+<li>不断移动窗口</li>
+</ul>
+<p>但随着完成：</p>
+<ul>
+<li>长度最小的子数组</li>
+<li>无重复字符的最长子串</li>
+<li>乘积小于 K 的子数组</li>
+<li>最小覆盖子串</li>
+</ul>
+<p>等经典题后，我逐渐意识到：</p>
+<blockquote>
+<p>滑动窗口的本质，并不是“维护窗口”，而是利用区间性质与单调性，动态缩小搜索空间。</p>
+</blockquote>
+<p>这篇文章，我希望从：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">为什么窗口可以移动？</span><br><span class="line">为什么不会漏解？</span><br><span class="line">什么时候扩展？</span><br><span class="line">什么时候收缩？</span><br></pre></td></tr></table></figure>
+
+<p>几个角度，系统总结我对滑动窗口的理解。</p>
+<hr>
+<h1 id="一、为什么滑动窗口通常用于“子数组-子串”？"><a href="#一、为什么滑动窗口通常用于“子数组-子串”？" class="headerlink" title="一、为什么滑动窗口通常用于“子数组 &#x2F; 子串”？"></a>一、为什么滑动窗口通常用于“子数组 &#x2F; 子串”？</h1><p>滑动窗口有一个非常明显的特点：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">窗口内就是一个连续区间</span><br></pre></td></tr></table></figure>
+
+<p>因此它天然适合处理：</p>
+<ul>
+<li>子数组</li>
+<li>子串</li>
+<li>连续区间</li>
+</ul>
+<p>例如：</p>
+<table>
+<thead>
+<tr>
+<th>题目</th>
+<th>本质</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>长度最小的子数组</td>
+<td>连续子数组</td>
+</tr>
+<tr>
+<td>无重复字符最长子串</td>
+<td>连续子串</td>
+</tr>
+<tr>
+<td>最小覆盖子串</td>
+<td>连续子串</td>
+</tr>
+<tr>
+<td>乘积小于 K 的子数组</td>
+<td>连续子数组</td>
+</tr>
+</tbody></table>
+<p>因为：</p>
+<blockquote>
+<p>窗口移动时，只需要增删边界元素，就能维护整个区间状态。</p>
+</blockquote>
+<p>这也是滑动窗口相比暴力枚举最大的优势。</p>
+<hr>
+<h1 id="二、滑动窗口的本质：动态维护一个“合法区间”"><a href="#二、滑动窗口的本质：动态维护一个“合法区间”" class="headerlink" title="二、滑动窗口的本质：动态维护一个“合法区间”"></a>二、滑动窗口的本质：动态维护一个“合法区间”</h1><p>滑动窗口的核心思想可以总结为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">right 负责扩展窗口</span><br><span class="line">left 负责收缩窗口</span><br></pre></td></tr></table></figure>
+
+<p>窗口中的元素始终满足某种条件。</p>
+<p>典型模板：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">int left = 0;</span><br><span class="line"></span><br><span class="line">for (int right = 0; right &lt; n; right++) &#123;</span><br><span class="line"></span><br><span class="line">    // 1. 新元素进入窗口</span><br><span class="line">    update(nums[right]);</span><br><span class="line"></span><br><span class="line">    // 2. 当窗口合法性转变</span><br><span class="line">    while (窗口合法/不合法) &#123;</span><br><span class="line">        remove(nums[left]);</span><br><span class="line">        left++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 3. 更新答案可以在 while 内、前或后</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里其实体现了：</p>
+<blockquote>
+<p>滑动窗口的本质并不是“枚举”，而是“维护”。</p>
+</blockquote>
+<hr>
+<h1 id="三、209-长度最小的子数组：第一次真正理解“单调性”"><a href="#三、209-长度最小的子数组：第一次真正理解“单调性”" class="headerlink" title="三、209. 长度最小的子数组：第一次真正理解“单调性”"></a>三、209. 长度最小的子数组：第一次真正理解“单调性”</h1><p>经典题目：长度最小的子数组</p>
+<p>题目要求：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">找到和 ≥ target 的最短连续子数组</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="为什么能使用滑动窗口？"><a href="#为什么能使用滑动窗口？" class="headerlink" title="为什么能使用滑动窗口？"></a>为什么能使用滑动窗口？</h2><p>这道题最关键的条件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">数组中的元素全为正数</span><br></pre></td></tr></table></figure>
+
+<p>这意味着：窗口越大，区间和越大</p>
+<p>即：存在单调性</p>
+<p>因此：</p>
+<ul>
+<li>right 扩展窗口 → sum 增大</li>
+<li>left 收缩窗口 → sum 减小</li>
+</ul>
+<p>这就形成了：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">合法 与 不合法 的状态转换</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="为什么答案出现在“收缩过程”中？"><a href="#为什么答案出现在“收缩过程”中？" class="headerlink" title="为什么答案出现在“收缩过程”中？"></a>为什么答案出现在“收缩过程”中？</h2><p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sum &gt;= target</span><br></pre></td></tr></table></figure>
+
+<p>说明当前窗口已经合法。</p>
+<p>但题目要求：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">最短</span><br></pre></td></tr></table></figure>
+
+<p>因此需要：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">尽可能缩小窗口</span><br></pre></td></tr></table></figure>
+
+<p>于是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">while (sum &gt;= target) &#123;</span><br><span class="line">    ans = Math.min(ans, right - left + 1);</span><br><span class="line"></span><br><span class="line">    sum -= nums[left];</span><br><span class="line">    left++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我第一次真正意识到：</p>
+<blockquote>
+<p>滑动窗口的答案，很多时候恰恰出现在“状态变化的边界”。</p>
+</blockquote>
+<p>因为：</p>
+<ul>
+<li>当前合法</li>
+<li>再缩一步可能就不合法</li>
+</ul>
+<p>那么：当前窗口很可能就是极值答案</p>
+<hr>
+<h1 id="四、滑动窗口中的三类经典问题"><a href="#四、滑动窗口中的三类经典问题" class="headerlink" title="四、滑动窗口中的三类经典问题"></a>四、滑动窗口中的三类经典问题</h1><p>在刷完整个专题后，我发现大部分滑动窗口题目都可以归纳为三类。</p>
+<hr>
+<h1 id="第一类：越长越合法"><a href="#第一类：越长越合法" class="headerlink" title="第一类：越长越合法"></a>第一类：越长越合法</h1><p>典型题目：长度最小的子数组</p>
+<p>特点：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">窗口越大，越容易满足条件</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<ul>
+<li>和越来越大</li>
+<li>覆盖字符越来越全</li>
+</ul>
+<p>因此：right 扩展使窗口更合法</p>
+<p>而：left 收缩使窗口更不合法</p>
+<hr>
+<h1 id="第二类：越短越合法"><a href="#第二类：越短越合法" class="headerlink" title="第二类：越短越合法"></a>第二类：越短越合法</h1><p>典型题目：乘积小于 K 的子数组</p>
+<p>由于：乘积会随着窗口扩大而增大</p>
+<p>因此：窗口越大，越不容易满足条件</p>
+<p>当：product &gt;&#x3D; k</p>
+<p>时：必须不断收缩 left，直到重新合法。</p>
+<hr>
+<h2 id="一个非常重要的结论"><a href="#一个非常重要的结论" class="headerlink" title="一个非常重要的结论"></a>一个非常重要的结论</h2><p>在 713 中我第一次理解：</p>
+<blockquote>
+<p>当窗口合法时，以 right 结尾的所有子数组都合法。</p>
+</blockquote>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[left, right]</span><br></pre></td></tr></table></figure>
+
+<p>合法。</p>
+<p>那么：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[left+1, right]</span><br><span class="line">[left+2, right]</span><br><span class="line">...</span><br><span class="line">[right, right]</span><br></pre></td></tr></table></figure>
+
+<p>也全部合法。</p>
+<p>因此：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ans += right - left + 1;</span><br></pre></td></tr></table></figure>
+
+<p>这里本质上利用的是：单调性带来的“批量统计”。</p>
+<p>这是滑动窗口中非常重要的思想。</p>
+<hr>
+<h1 id="第三类：维护特定条件"><a href="#第三类：维护特定条件" class="headerlink" title="第三类：维护特定条件"></a>第三类：维护特定条件</h1><p>典型题目：</p>
+<ul>
+<li>无重复字符的最长子串</li>
+<li>每个字符最多出现两次</li>
+<li>最多 K 个重复元素</li>
+</ul>
+<p>这类题的特点：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">窗口是否合法</span><br><span class="line">取决于窗口内部状态</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">字符是否重复</span><br></pre></td></tr></table></figure>
+
+<p>因此：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">需要额外数据结构维护窗口状态</span><br></pre></td></tr></table></figure>
+
+<p>通常：HashMap、HashSe、t计数数组（最快优先考虑）</p>
+<hr>
+<h1 id="五、无重复字符最长子串：窗口状态维护"><a href="#五、无重复字符最长子串：窗口状态维护" class="headerlink" title="五、无重复字符最长子串：窗口状态维护"></a>五、无重复字符最长子串：窗口状态维护</h1><p>经典题：无重复字符的最长子串</p>
+<p>这里窗口维护的是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">字符出现次数</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">map.merge(c, 1, Integer::sum);</span><br></pre></td></tr></table></figure>
+
+<p>当：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">某字符出现次数 &gt; 1</span><br></pre></td></tr></table></figure>
+
+<p>窗口非法。</p>
+<p>于是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">while (map.get(c) &gt; 1) &#123;</span><br><span class="line">    map.merge(s.charAt(left), -1, Integer::sum);</span><br><span class="line">    left++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="六、我对刷滑动窗口最大的理解变化"><a href="#六、我对刷滑动窗口最大的理解变化" class="headerlink" title="六、我对刷滑动窗口最大的理解变化"></a>六、我对刷滑动窗口最大的理解变化</h1><p>以前我对刷滑动窗口的理解是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">一个左指针和一个右指针的同方向上的移动</span><br></pre></td></tr></table></figure>
+
+<p>现在我更关注：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">窗口中的“状态”是什么？</span><br></pre></td></tr></table></figure>
+
+<p>因为真正重要的不是：</p>
+<ul>
+<li>left++</li>
+<li>right++</li>
+</ul>
+<p>而是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">窗口移动后，</span><br><span class="line">什么状态发生了变化？</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<table>
+<thead>
+<tr>
+<th>题目</th>
+<th>窗口状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>209</td>
+<td>区间和</td>
+</tr>
+<tr>
+<td>713</td>
+<td>区间乘积</td>
+</tr>
+<tr>
+<td>3</td>
+<td>字符出现次数</td>
+</tr>
+<tr>
+<td>76</td>
+<td>字符覆盖情况</td>
+</tr>
+<tr>
+<td>1004</td>
+<td>0 的数量</td>
+</tr>
+</tbody></table>
+<p>我越来越觉得：</p>
+<blockquote>
+<p>滑动窗口其实是在动态维护一个“区间状态机”。</p>
+</blockquote>
+<hr>
+<h1 id="七、最难的一类：76-最小覆盖子串"><a href="#七、最难的一类：76-最小覆盖子串" class="headerlink" title="七、最难的一类：76. 最小覆盖子串"></a>七、最难的一类：76. 最小覆盖子串</h1><p>这是我认为最能体现滑动窗口思想的一道题。</p>
+<p>因为它同时涉及：</p>
+<ul>
+<li>窗口扩展</li>
+<li>状态维护</li>
+<li>合法判断</li>
+<li>最优解更新</li>
+</ul>
+<hr>
+<h2 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a>核心思想</h2><p>窗口需要满足：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">覆盖 t 中所有字符</span><br></pre></td></tr></table></figure>
+
+<p>right 扩展：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">让窗口逐渐合法</span><br></pre></td></tr></table></figure>
+
+<p>left 收缩：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">寻找更短答案</span><br></pre></td></tr></table></figure>
+
+<p>本质仍然是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在合法与不合法之间寻找边界</span><br></pre></td></tr></table></figure>
+
+<p>这也是滑动窗口最核心的思想。</p>
+<hr>
+<h1 id="八、滑动窗口与相向双指针的统一理解"><a href="#八、滑动窗口与相向双指针的统一理解" class="headerlink" title="八、滑动窗口与相向双指针的统一理解"></a>八、滑动窗口与相向双指针的统一理解</h1><p>刷完整个专题后，我发现：</p>
+<blockquote>
+<p>滑动窗口与相向双指针，本质其实是同一种思想。</p>
+</blockquote>
+<p>二者共同点：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">利用单调性缩小搜索空间</span><br></pre></td></tr></table></figure>
+
+<p>区别只是：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>指针方向</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>相向双指针</td>
+<td>两边向中间</td>
+</tr>
+<tr>
+<td>滑动窗口</td>
+<td>同方向移动</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="九、Java-中的一些工程细节"><a href="#九、Java-中的一些工程细节" class="headerlink" title="九、Java 中的一些工程细节"></a>九、Java 中的一些工程细节</h1><p>在这次复习过程中，我还进一步巩固了：</p>
+<hr>
+<h2 id="1-方法引用"><a href="#1-方法引用" class="headerlink" title="1. 方法引用"></a>1. 方法引用</h2><p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Integer::sum</span><br></pre></td></tr></table></figure>
+
+<p>它本质上是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(a, b) -&gt; a + b</span><br></pre></td></tr></table></figure>
+
+<p>的简化写法。</p>
+<p>属于：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Lambda 表达式的进一步优化</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2-map-merge"><a href="#2-map-merge" class="headerlink" title="2. map.merge()"></a>2. map.merge()</h2><p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">map.merge(c, 1, Integer::sum);</span><br></pre></td></tr></table></figure>
+
+<p>作用：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">如果 key 不存在：</span><br><span class="line">    放入 value</span><br><span class="line"></span><br><span class="line">如果存在：</span><br><span class="line">    使用给定规则更新 value</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">map.merge(c, -1, Integer::sum);</span><br></pre></td></tr></table></figure>
+
+<p>可以优雅地完成：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">计数减一</span><br></pre></td></tr></table></figure>
+
+<p>相比：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">map.put(c, map.get(c) + 1);</span><br></pre></td></tr></table></figure>
+
+<p>代码更加简洁。</p>
+<hr>
+<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/05/18/algorithms/pointer/2026%205-18%20Two%20pointers%20in%20the%20same%20direction/" data-id="cmparmy5c0052d88t7nv89pdc" data-title="同向双指针" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8C%87%E9%92%88/" rel="tag">指针</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-algorithms/pointer/2026 5-11 Opposite two pointers" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/05/11/algorithms/pointer/2026%205-11%20Opposite%20two%20pointers/" class="article-date">
+  <time class="dt-published" datetime="2026-05-11T05:00:00.000Z" itemprop="datePublished">2026-05-11</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E6%8C%87%E9%92%88/">指针</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2026/05/11/algorithms/pointer/2026%205-11%20Opposite%20two%20pointers/">相向双指针</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="从“两数之和”到“接雨水”，理解双指针背后的单调性"><a href="#从“两数之和”到“接雨水”，理解双指针背后的单调性" class="headerlink" title="从“两数之和”到“接雨水”，理解双指针背后的单调性"></a>从“两数之和”到“接雨水”，理解双指针背后的单调性</h1><p>在刷 LeetCode 的过程中，我对“相向双指针（Two Pointers）”一类题目进行了集中训练。</p>
+<p>一开始，我对双指针的理解停留在：</p>
+<ul>
+<li>数组有序</li>
+<li>left 和 right 相向移动</li>
+<li>两数之和和小了 left++</li>
+<li>两数和大了 right–</li>
+</ul>
+<p>但真正系统刷完“两数之和”、“三数之和”、“接雨水”等经典题后，我逐渐意识到：</p>
+<blockquote>
+<p>相向双指针的核心并不是“双指针”本身，而是利用问题中的“单调性”，在一次移动中排除一整片不可能的解空间。</p>
+</blockquote>
+<p>这篇文章，我希望从“为什么可以移动指针”这个角度，总结我对刷双指针专题的一些理解。</p>
+<hr>
+<h1 id="一、两数之和：相向指针的起点"><a href="#一、两数之和：相向指针的起点" class="headerlink" title="一、两数之和：相向指针的起点"></a>一、两数之和：相向指针的起点</h1><p>经典题目：两数之和 II</p>
+<p>由于数组有序：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nums[left] + nums[right]</span><br></pre></td></tr></table></figure>
+
+<p>如果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sum &lt; target</span><br></pre></td></tr></table></figure>
+
+<p>说明当前和太小。</p>
+<p>因为数组递增：</p>
+<ul>
+<li>right 左边的数只会更小</li>
+<li>移动 right 没意义</li>
+</ul>
+<p>因此只能：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">left++</span><br></pre></td></tr></table></figure>
+
+<p>反之：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sum &gt; target</span><br></pre></td></tr></table></figure>
+
+<p>则需要：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">right--</span><br></pre></td></tr></table></figure>
+
+<p>这里本质上利用的是：</p>
+<blockquote>
+<p>有序数组带来的单调性。</p>
+</blockquote>
+<p>一次指针移动，可以排除掉 O(n) 个无效状态，因为单调性，当前状态不满足，移动另一侧指针是无效的，就一次排除了 n 个无效状态，因此时间复杂度从：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">O(n²)</span><br></pre></td></tr></table></figure>
+
+<p>降为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">O(n)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="二、三数之和：双指针与剪枝"><a href="#二、三数之和：双指针与剪枝" class="headerlink" title="二、三数之和：双指针与剪枝"></a>二、三数之和：双指针与剪枝</h1><p>经典题目：三数之和</p>
+<p>核心思路：</p>
+<ul>
+<li>固定第一个数</li>
+<li>剩余部分转化为“两数之和”</li>
+</ul>
+<p>即：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a + b + c = 0</span><br></pre></td></tr></table></figure>
+
+<p>转化为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">b + c = -a</span><br></pre></td></tr></table></figure>
+
+<p>这里第一次让我真正意识到：</p>
+<blockquote>
+<p>双指针不仅是一种技巧，更是一种“降维思想”。</p>
+</blockquote>
+<hr>
+<h2 id="去重问题"><a href="#去重问题" class="headerlink" title="去重问题"></a>去重问题</h2><p>三数之和最关键的问题之一是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">结果不能重复</span><br></pre></td></tr></table></figure>
+
+<p>因此：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">if (i &gt; 0 &amp;&amp; nums[i] == nums[i - 1]) continue;</span><br></pre></td></tr></table></figure>
+
+<p>以及：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">while (left &lt; right &amp;&amp; nums[left] == nums[left - 1]) left++;</span><br></pre></td></tr></table></figure>
+
+<p>本质上都是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">跳过重复状态</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="剪枝优化"><a href="#剪枝优化" class="headerlink" title="剪枝优化"></a>剪枝优化</h2><p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">if (nums[i] + nums[i + 1] + nums[i + 2] &gt; 0) break;</span><br></pre></td></tr></table></figure>
+
+<p>由于数组已经排序：</p>
+<ul>
+<li>当前最小三数和已经大于 0</li>
+<li>后续只会更大</li>
+</ul>
+<p>因此：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">可以直接结束循环</span><br></pre></td></tr></table></figure>
+
+<p>这里体现的是：</p>
+<blockquote>
+<p>利用单调性进一步缩小搜索空间。</p>
+</blockquote>
+<hr>
+<h1 id="三、四数之和：Java-整形溢出问题"><a href="#三、四数之和：Java-整形溢出问题" class="headerlink" title="三、四数之和：Java 整形溢出问题"></a>三、四数之和：Java 整形溢出问题</h1><p>在完成“四数之和”时，我第一次真正踩到了 Java 整形溢出的坑。</p>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">long sum = a + b + c + d;</span><br></pre></td></tr></table></figure>
+
+<p>如果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a,b,c,d 都是 int</span><br></pre></td></tr></table></figure>
+
+<p>那么表达式会先以 int 运算。</p>
+<p>即：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int + int + int + int</span><br></pre></td></tr></table></figure>
+
+<p>可能在赋值给 long 之前已经溢出。</p>
+<p>Java 中：</p>
+<blockquote>
+<p>表达式类型由参与运算的操作数决定，而不是赋值变量决定。</p>
+</blockquote>
+<p>因此正确写法应该是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">long sum = (long)a + b + c + d;</span><br></pre></td></tr></table></figure>
+
+<p>或者：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">long sum = 0L + a + b + c + d;</span><br></pre></td></tr></table></figure>
+
+<p>这类问题本质上已经不只是算法问题，而是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">语言机制问题</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="四、接雨水与盛水容器：木桶效应中的单调性"><a href="#四、接雨水与盛水容器：木桶效应中的单调性" class="headerlink" title="四、接雨水与盛水容器：木桶效应中的单调性"></a>四、接雨水与盛水容器：木桶效应中的单调性</h1><p>经典题目：</p>
+<ul>
+<li><ol>
+<li>盛最多水的容器</li>
+</ol>
+</li>
+<li><ol>
+<li>接雨水</li>
+</ol>
+</li>
+</ul>
+<p>这类题与“两数之和”最大的不同在于：</p>
+<blockquote>
+<p>它们的单调性并不来自数组有序。</p>
+</blockquote>
+<p>而来自：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">木桶短板效应</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="盛最多水的容器"><a href="#盛最多水的容器" class="headerlink" title="盛最多水的容器"></a>盛最多水的容器</h2><p>面积：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">面积 = 宽度 × min(leftHeight, rightHeight)</span><br></pre></td></tr></table></figure>
+
+<p>容量取决于更短的一边。</p>
+<p>假设：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">leftHeight &lt; rightHeight</span><br></pre></td></tr></table></figure>
+
+<p>如果移动 right：</p>
+<ul>
+<li>宽度减少</li>
+<li>短板不变</li>
+</ul>
+<p>面积一定不会更优。</p>
+<p>因此只能移动：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">left++</span><br></pre></td></tr></table></figure>
+
+<p>这里的核心仍然是：</p>
+<blockquote>
+<p>利用单调性排除无效解。</p>
+</blockquote>
+<hr>
+<h1 id="五、验证回文串：指针移动时机"><a href="#五、验证回文串：指针移动时机" class="headerlink" title="五、验证回文串：指针移动时机"></a>五、验证回文串：指针移动时机</h1><p>经典题目：</p>
+<ul>
+<li><ol>
+<li>验证回文串</li>
+</ol>
+</li>
+</ul>
+<p>这道题让我开始真正关注：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">指针到底什么时候移动？</span><br></pre></td></tr></table></figure>
+
+<p>题目要求：</p>
+<ul>
+<li>忽略非字母数字字符</li>
+<li>忽略大小写</li>
+</ul>
+<p>因此：</p>
+<ul>
+<li>有时只移动一个指针</li>
+<li>有时两个同时移动</li>
+</ul>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if (!Character.isLetterOrDigit(s.charAt(left))) &#123;</span><br><span class="line">    left++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我还学习到了一个非常实用的 Java API：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Character.isLetterOrDigit(char c)</span><br></pre></td></tr></table></figure>
+
+<p>用于判断字符是否为：</p>
+<ul>
+<li>字母</li>
+<li>数字</li>
+</ul>
+<p>相比手动 ASCII 判断：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">c &gt;= &#x27;a&#x27; &amp;&amp; c &lt;= &#x27;z&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>代码更加简洁，也更符合工程开发习惯。</p>
+<hr>
+<h1 id="六、我对刷双指针的理解变化"><a href="#六、我对刷双指针的理解变化" class="headerlink" title="六、我对刷双指针的理解变化"></a>六、我对刷双指针的理解变化</h1><p>以前刷题时，我更关注：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">这题是什么模板？</span><br></pre></td></tr></table></figure>
+
+<p>现在我会优先思考：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">为什么可以移动这个指针？</span><br><span class="line">为什么不会漏解？</span><br></pre></td></tr></table></figure>
+
+<p>因为我越来越觉得：</p>
+<blockquote>
+<p>算法真正重要的不是“记住模板”，而是理解算法为什么成立。</p>
+</blockquote>
+<hr>
+<h1 id="七、总结：相向双指针的本质"><a href="#七、总结：相向双指针的本质" class="headerlink" title="七、总结：相向双指针的本质"></a>七、总结：相向双指针的本质</h1><p>我现在对相向双指针的理解，可以总结为一句话：</p>
+<blockquote>
+<p>相向双指针的核心不是“双指针”，而是“利用问题中的单调性，不断缩小搜索空间”。</p>
+</blockquote>
+<p>这种单调性可能来自：</p>
+<table>
+<thead>
+<tr>
+<th>题目</th>
+<th>单调性来源</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>两数之和</td>
+<td>数组有序</td>
+</tr>
+<tr>
+<td>三数 &#x2F; 四数之和</td>
+<td>排序 + 剪枝</td>
+</tr>
+<tr>
+<td>盛水容器</td>
+<td>木桶短板效应</td>
+</tr>
+<tr>
+<td>接雨水</td>
+<td>左右最大值约束</td>
+</tr>
+<tr>
+<td>回文串</td>
+<td>搜索空间收缩</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>这次系统复习双指针专题后，我最大的收获并不是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">又会了几道题</span><br></pre></td></tr></table></figure>
+
+<p>而是开始真正思考：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">为什么复杂度能降低？</span><br><span class="line">为什么移动指针不会漏解？</span><br><span class="line">为什么单调性能帮助我们排除状态？</span><br></pre></td></tr></table></figure>
+
+<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/05/11/algorithms/pointer/2026%205-11%20Opposite%20two%20pointers/" data-id="cmparmy5b004zd88t36ztglqx" data-title="相向双指针" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8C%87%E9%92%88/" rel="tag">指针</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-backend/project/2026-3-21-project-day04" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2026/03/21/backend/project/2026-3-21-project-day04/" class="article-date">
@@ -287,7 +940,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/03/21/backend/project/2026-3-21-project-day04/" data-id="cmn07ogxk000r7s8tfgdf4s1l" data-title="项目Redis、小程序相关总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/03/21/backend/project/2026-3-21-project-day04/" data-id="cmparmy56004bd88t27pacnpl" data-title="项目Redis、小程序相关总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -490,7 +1143,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/22/algorithms/dynamicprogramming/2026-1-22-dynamicprogramming-06%E5%8C%BA%E9%97%B4DP/" data-id="cmn07ogxs001l7s8tf0up4w9f" data-title="区间 DP：从「区间划分」理解最优子结构" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/22/algorithms/dynamicprogramming/2026-1-22-dynamicprogramming-06%E5%8C%BA%E9%97%B4DP/" data-id="cmparmy4n0019d88tashv70hv" data-title="区间 DP：从「区间划分」理解最优子结构" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -653,7 +1306,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/20/algorithms/dynamicprogramming/2026-1-20-dynamicprogramming-05%E7%8A%B6%E6%80%81%E6%9C%BADP/" data-id="cmn07ogxr001k7s8th6ah6jo9" data-title="状态机 DP：从股票问题理解「有限状态 + 决策转移」" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/20/algorithms/dynamicprogramming/2026-1-20-dynamicprogramming-05%E7%8A%B6%E6%80%81%E6%9C%BADP/" data-id="cmparmy4m0014d88tbtrg4i39" data-title="状态机 DP：从股票问题理解「有限状态 + 决策转移」" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1058,7 +1711,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/19/backend/project/2026-1-19-project-day02/" data-id="cmn07ogxi000l7s8t2vnwgmmi" data-title="后端环境搭建与核心模块实战复盘" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/19/backend/project/2026-1-19-project-day02/" data-id="cmparmy4j000wd88t71v3ab3t" data-title="后端环境搭建与核心模块实战复盘" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1304,7 +1957,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/19/backend/project/2026-1-27-project-day03/" data-id="cmn07ogxj000n7s8t8swu0snz" data-title="后端工程实践总结公共字段自动填充、文件上传与多表业务设计" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/19/backend/project/2026-1-27-project-day03/" data-id="cmparmy4k0010d88tfy5cevr5" data-title="后端工程实践总结公共字段自动填充、文件上传与多表业务设计" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1529,7 +2182,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/19/algorithms/dynamicprogramming/2026-1-19-dynamicprogramming-04%E7%BA%BF%E6%80%A7DP%E6%80%BB%E7%BB%93/" data-id="cmn07ogxq001g7s8t1r6w5ymh" data-title="线性 DP 总结与最长递增子序列（LIS）与二维扩展" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/19/algorithms/dynamicprogramming/2026-1-19-dynamicprogramming-04%E7%BA%BF%E6%80%A7DP%E6%80%BB%E7%BB%93/" data-id="cmparmy4l0012d88td7822onz" data-title="线性 DP 总结与最长递增子序列（LIS）与二维扩展" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1771,7 +2424,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/18/algorithms/dynamicprogramming/2026-1-18-dynamicprogramming-03LIS/" data-id="cmn07ogxp001a7s8tclep3ekj" data-title="线性 DP · 最长递增子序列（LIS）专题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/18/algorithms/dynamicprogramming/2026-1-18-dynamicprogramming-03LIS/" data-id="cmparmy4j000yd88tcn68bt3o" data-title="线性 DP · 最长递增子序列（LIS）专题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1988,413 +2641,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/15/algorithms/dynamicprogramming/2026-1-14-dynamicprogramming-02%E7%BA%BF%E6%80%A7DP/" data-id="cmn07ogxq001d7s8t7ikp34wj" data-title="线性 DP：字符串问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/01/15/algorithms/dynamicprogramming/2026-1-14-dynamicprogramming-02%E7%BA%BF%E6%80%A7DP/" data-id="cmparmy4f000md88t5gv31rzg" data-title="线性 DP：字符串问题" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="tag">字符串</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BA%BF%E6%80%A7DP/" rel="tag">线性DP</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-misc/git-开发工具整理总结" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2026/01/14/misc/git-%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E6%95%B4%E7%90%86%E6%80%BB%E7%BB%93/" class="article-date">
-  <time class="dt-published" datetime="2026-01-14T06:20:00.000Z" itemprop="datePublished">2026-01-14</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/01/14/misc/git-%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E6%95%B4%E7%90%86%E6%80%BB%E7%BB%93/">git 开发工具整理总结</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>本文是在学习过程中，零星对 git 的学习的总结与汇总。</p>
-</blockquote>
-<h2 id="什么是-Git"><a href="#什么是-Git" class="headerlink" title="什么是 Git"></a>什么是 Git</h2><p>git 是基于 c 语言的分布式版本控制系统，与之对应的是集中式版本控制系统。这两者的不同：</p>
-<ul>
-<li>集中式版本控制系统：版本库存放在中央服务器，必须联网才能从中央服务器拉取最新版本，推送新版本到中央服务器。</li>
-<li>分布式版本控制系统：没有中央服务器，每个人的电脑都有一个完整的版本库。多人协作的实现是通过将各自修改的内容推送给对方。实际应用中，通常用一台电脑充当“中央服务器”，这个服务器只用来交换大家的修改信息，不存放版本库。</li>
-</ul>
-<p>git 的优势不单单是不必联网，还有强大的分支管理</p>
-<hr>
-<h2 id="版本库"><a href="#版本库" class="headerlink" title="版本库"></a>版本库</h2><p>版本库又名仓库（Repository），可以理解为一个目录，这个目录中的所有文件受 git 管理，每个文件的增删改，git 都能跟踪，以便根据需求还原。</p>
-<p>创建版本库非常简单，在需要交给 git 管理的目录下，执行 <code>git init</code> 命令即可。</p>
-<blockquote>
-<p>需要注意的是，目录名尽量不要包含中文。</p>
-</blockquote>
-<p>所有的版本控制系统，其实都只是跟踪文本文件的改动，例如 txt 文件、程序代码等等，不能监控图片、视频这种二进制文件（只能监控大小的改变，内容的改变不能监控）。</p>
-<h3 id="添加文件到版本库"><a href="#添加文件到版本库" class="headerlink" title="添加文件到版本库"></a>添加文件到版本库</h3><p>在 git 管理的目录下，通过 <code>git add &lt;filename&gt;</code> 添加文件到版本库，再通过 <code>git commit -m &quot;msg&quot;</code> 命令把文件提交到仓库。<code>git status</code> 命令可以查看仓库当前状态，会提示修改过的文件，以及准备提交的文件（add 的文件）。<code>git diff</code> 命令可以对比文件哪些地方变化了。</p>
-<p>注意添加和提交是两个操作。</p>
-<h3 id="小结（目前最常用命令）"><a href="#小结（目前最常用命令）" class="headerlink" title="小结（目前最常用命令）"></a>小结（目前最常用命令）</h3><ul>
-<li><code>git init</code>：将当前目录交给 git 管理</li>
-<li><code>git add &lt;filename&gt;</code>：将指定文件添加到版本库中</li>
-<li><code>git commit -m &quot;msg&quot;</code>：提交本次修改，msg 是对本次提交的说明</li>
-<li><code>git status</code>：查看仓库当前状态，哪些文件被修改了，哪些文件添加到版本库中但是还没有提交</li>
-<li><code>git diff</code>：查看文件修改内容</li>
-</ul>
-<hr>
-<h2 id="时光穿梭"><a href="#时光穿梭" class="headerlink" title="时光穿梭"></a>时光穿梭</h2><h3 id="版本回退"><a href="#版本回退" class="headerlink" title="版本回退"></a>版本回退</h3><p>同一仓库，经过多次提交后，难免记不清哪个版本修改了什么内容，所以在进行版本回退前，可以通过 <code>git log</code> 命令查看历史记录，可以看到包含了每次提交的 commit id：364… 以及谁提交的，以及日期和每次提交的说明。</p>
-<p><img src="D:/develop/tingfeng-work.github.io/source/_posts/misc/assets/1.png" alt="1"></p>
-<p>此外，我们还需要当前版本的信息，head 指向的就是当前版本，然后就可以定位需要回退的版本，通过 <code>git reset</code> 命令进行回退</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git reset --hard HEAD^</span><br></pre></td></tr></table></figure>
-
-<p>^ 表示上个版本，多个版本可用 <del>， HEAD</del>100 表示回退 100  个版本。</p>
-<p>–hard 参数表示回退上个版本的已提交状态，–soft 表示回退到上个版本的未提交状态，–mixed 回到上个版本已添加但是为提交的状态。</p>
-<p>也可以通过 <code>git reset --hard f35ed</code> 回退到具体版本，或者穿梭到未来的版本，注意这里 commit id 不用写全，只要让 git 能够找到唯一的版本即可。<code>git reflog</code> 命令显示 git 记录的每一次命令，通过这个可用查看版本号。</p>
-<blockquote>
-<p>git 的版本回退速度非常快，因为 git 内部有个指向当前版本的 HEAD 指针，回退版本时，仅仅是将 HEAD 指向指定版本</p>
-</blockquote>
-<h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><ul>
-<li><code>git reset --hard HEAD^/指定版本号</code>：回退到当前版本的上个版本或回退到指定版本号的版本</li>
-<li><code>git log</code> 与 <code>git reflog</code> ：命令查看历史记录，来找到需要回退的版本或版本号</li>
-</ul>
-<h3 id="工作区与暂存区"><a href="#工作区与暂存区" class="headerlink" title="工作区与暂存区"></a>工作区与暂存区</h3><p>工作区，就是电脑中实际操作的目录。</p>
-<p>版本库，是工作区中的隐藏目录 .git，其中存储 git 进行版本控制的很多信息，最重要的就是暂存区（stage）和 git 自动创建的 master 分支，以及指向 master 分支的 HEAD 指针。</p>
-<p><img src="D:/develop/tingfeng-work.github.io/source/_posts/misc/assets/2.png" alt="2"></p>
-<ul>
-<li><code>git add</code> 就是将<strong>文件修改</strong>添加到暂存区</li>
-<li><code>git commit</code> 就是将暂存区的所有内容添加到当前分支</li>
-</ul>
-<blockquote>
-<p>可以理解为：需要提交的文件修改通通放到暂存区，然后，一次性提交暂存区的所有修改。</p>
-</blockquote>
-<h3 id="管理修改"><a href="#管理修改" class="headerlink" title="管理修改"></a>管理修改</h3><p>git 管理的是对文件的修改而非文件，怎么理解？例如，在文件中新增一个 ‘a’ 字符，然后 <code>git add</code> 后又将字符改为了 ‘b’，暂存区中只知道你将新增了一个字符 ‘a’，而不知道它改为了 ‘b’，这是一个很好的证明 git 管理的是修改而非文件本身。</p>
-<h3 id="撤销修改"><a href="#撤销修改" class="headerlink" title="撤销修改"></a>撤销修改</h3><p>撤销修改有三种情形：</p>
-<ul>
-<li><p>只是对工作区进行了修改，还没有 add 与 commit：直接通过 <code>git restore &lt;file&gt;</code> 撤销修改</p>
-</li>
-<li><p>对工作区的修改，添加到了暂存区：通过 <code>git restore --staged &lt;file&gt;</code> 命令将文件从暂存区删除，然后通过  <code>git restore &lt;file&gt;</code> 撤销修改。 </p>
-</li>
-<li><p>对工作区的修改不仅添加到了缓存区，还提交到了分支当中：<code>git reset HEAD^</code> 进行版本回退。</p>
-</li>
-</ul>
-<blockquote>
-<p>git checkout –filename 命令是让文件回到最近一次 add 或 commit 时的状态</p>
-</blockquote>
-<h3 id="文件的删除"><a href="#文件的删除" class="headerlink" title="文件的删除"></a>文件的删除</h3><p>仓库中的文件的删除也是一次修改操作，git 会记录下来。如果想在 git 仓库中也实现文件的永久删除，可以用 <code>git rm filename</code> 命令，也可以用 <code>git add filename</code> 将这次修改提交到暂存区，然后再提交。</p>
-<p>如果要撤销这次删除操作，只需要用到上一节介绍的 <code>git checkout --filename</code> 命令</p>
-<blockquote>
-<p>这里需要注意的就是：没有被添加到仓库中的文件，git 是无法控制的</p>
-</blockquote>
-<hr>
-<h2 id="远程仓库"><a href="#远程仓库" class="headerlink" title="远程仓库"></a>远程仓库</h2><p>以上的功能，集中版本控制系统也能做到。真正体现 git 优势的是远程仓库，简单来说，就是将本地仓库托管到服务器上每天 24 小时开机，也可以从服务器中拉取别人的仓库，还能将提交推送到服务器上。</p>
-<p>GitHub 就是提供 Git 仓库托管服务的，你需要告诉远程仓库你的身份信息，谁都可以修改你的远程仓库。本地Git仓库和 GitHub 仓库之间的传输是通过 SSH 加密的，所以需要先设置 SSH 密钥。</p>
-<h3 id="添加远程库"><a href="#添加远程库" class="headerlink" title="添加远程库"></a>添加远程库</h3><p>在 github 上创建好远程仓库后，需要将它与本地仓库关联：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git remote add origin git@github.com:tingfeng-worK/project.git</span><br></pre></td></tr></table></figure>
-
-<p>如果没有设置 SSH 密钥这一步，本地推送就推送不到远程仓库，相当于没有登录。命令中的 origin 是默认的远程仓库名，将本地仓库的内容推送到远程仓库，用命令 <code>git push</code>，实际上是将当前分支 master 推送到远程库，第一次推送时需要加上 <code>-u</code> 参数，它表示 git 不但会把本地的 master 分支推送到远程库中新的 master 分支，还会将它们关联起来，以后推送或拉取时就可以简化命令。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push -u origin master</span><br></pre></td></tr></table></figure>
-
-<h3 id="从远程库克隆"><a href="#从远程库克隆" class="headerlink" title="从远程库克隆"></a>从远程库克隆</h3><p>上述添加远程库是将本地已有的仓库添加并关联到远程仓库，而将远程仓库拉取到本地用到的 git 命令是：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> git@github.com:tingfeng-worK/project.git <span class="comment"># ssh 协议</span></span><br><span class="line"></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/tingfeng-work/project.git <span class="comment"># https 协议</span></span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>Git 支持多协议，可以使用 https，但是使用 ssh 最快</p>
-</blockquote>
-<hr>
-<h2 id="分支管理"><a href="#分支管理" class="headerlink" title="分支管理"></a>分支管理</h2><p>Git 的分支管理是它的优势之一，无论创建、切换和删除分支，Git在1秒钟之内就能完成！无论你的版本库是1个文件还是1万个文件。</p>
-<p>分支管理就好比在一个项目中，你与队友并行在不同的分支上开发不同的功能，在这个分支上你想提交就提交，不会影响主分支，在功能完成后，将分支合并到主分支上，项目就同时具备了你俩开发的功能。</p>
-<h3 id="分支的创建与合并"><a href="#分支的创建与合并" class="headerlink" title="分支的创建与合并"></a>分支的创建与合并</h3><p>每次提交，git 都会 将它们串联为一条时间线，这个时间线就是一个分支，目前为止用到的都是 git 默认为我们常见的主分支 master，HEAD 严格来说不是指向提交，而是指向 master，而 master 指向每一次提交，如图所示：</p>
-<p><img src="D:/develop/tingfeng-work.github.io/source/_posts/misc/assets/3.png" alt="3"></p>
-<p>每次提交，master 分支都会向前移动一次，HEAD 指针也随之移动。</p>
-<p>当我们创建新的分支 dev 时，相当于创建了一个新的时间线，Git 会创建一个 dev 指针，指向 master 相同的提交，再把 HEAD 指向 dev，就表示当前分支在 dev 上：</p>
-<p><img src="D:/develop/tingfeng-work.github.io/source/_posts/misc/assets/4.png" alt="4"></p>
-<p>这也解释了为什么 git 新建分支很快，它只是新建了一个指针，同时更改了 HEAD 的指向。现在对工作区的修改提交之后，就是 dev 指针移动，而 master 指针不变了：</p>
-<p><img src="D:/develop/tingfeng-work.github.io/source/_posts/misc/assets/5.png" alt="5"></p>
-<p>在<code>dev</code>上的工作完成后，就可以把<code>dev</code>合并到<code>master</code>上。这种单时间线的合并最简单，就是直接把<code>master</code>指向<code>dev</code>的当前提交，就完成了合并。相关指令：</p>
-<ul>
-<li><code>git branch</code>：查看有哪些分支</li>
-<li><code>git branch &lt;name&gt;</code> ：新建分支</li>
-<li><code>git checkout &lt;name&gt;</code> 或 <code>git switch &lt;name&gt;</code>：切换分支</li>
-<li><code>git checkout -b &lt;name&gt;</code> 或 <code>git switch -c &lt;name&gt;</code>：创建并切换到新建的分支</li>
-<li><code>git merger &lt;name&gt;</code>：合并某分支到当前分支</li>
-<li><code>git branch -d &lt;name&gt;</code>：删除分支</li>
-</ul>
-<h3 id="冲突解决"><a href="#冲突解决" class="headerlink" title="冲突解决"></a>冲突解决</h3><p>上面描述最简单的单时间线的分支合并，考虑合并两个时间线的分支，这种情况下，git 无法执行快速合并，只能试着把各自的修改合并起来：</p>
-<p><img src="D:/develop/tingfeng-work.github.io/source/_posts/misc/assets/6.png" alt="6"></p>
-<p>但是，这种合并可能会有冲突，假设这两次提交针对文件的同一地方进行了修改，合并分支时就会产生冲突，这也很好理解，git 不知道到底要怎么修改，所以必须手动解决冲突后再提交，也就是明确告诉 git 要怎么改。手动解决后，再合并就会变为：</p>
-<p><img src="D:/develop/tingfeng-work.github.io/source/_posts/misc/assets/7.png" alt="7"></p>
-<p>可以看到这种合并会创建一次新的提交，这也很好理解，因为这是对文件的一次修改。</p>
-<ul>
-<li><code>git log --graph --pretty=oneline --abbrev-commit</code>：可以看到分支合并情况。</li>
-</ul>
-<h3 id="多人协作"><a href="#多人协作" class="headerlink" title="多人协作"></a>多人协作</h3><ul>
-<li>从远程仓库拉取分支进行本地修改</li>
-<li>修改后从本地推送分支，如果推送失败，说明远程仓库中已经有人对操作 1 中拉取的分支进行了修改，并提交到远程仓库了，这时需要需要进行合并。</li>
-<li>如果合并失败，就在本地解决冲突，然后再提交。</li>
-</ul>
-<p>这个过程会用到的指令：</p>
-<ul>
-<li><p><code>git remote -v</code>：查看远程仓库信息</p>
-</li>
-<li><p><code>git pull</code>：拉取并合并远程基于当前分支的提交，这个命令执行的前提是远程仓库上的分支与当前分支建立了联系。</p>
-</li>
-<li><p><code>git branch --set-upstream-to &lt;branch-name&gt; origin/&lt;branch-name&gt;</code>：将远程仓库中的分支与本地分支建立联系</p>
-</li>
-<li><p><code>git push origin &lt;branch-name&gt;</code>：从本地推送分支到远程仓库</p>
-</li>
-<li><p><code>git checkout -b branch-name origin/branch-name</code></p>
-</li>
-</ul>
-<h3 id="Rebase"><a href="#Rebase" class="headerlink" title="Rebase"></a>Rebase</h3><p>将本地未 push 的分叉提交历史整理为一条分支（一条直线）</p>
-<hr>
-<h2 id="标签"><a href="#标签" class="headerlink" title="标签"></a>标签</h2><p>标签就相当于一个有名字的不会动的指针，指向某一个 commit，方便进行版本控制。如果没有标签，想要跳转到指定的版本，需要通过 git log 找 commit 的 id，而且 id 还很长，所以标签就起到了快速找到指定版本的作用。</p>
-<h3 id="创建标签"><a href="#创建标签" class="headerlink" title="创建标签"></a>创建标签</h3><p>切换到需要打标签的提交，通过 <code>git tag &lt;name&gt;</code>，就实现打标签了，也可以指定 commit id 的方式打标签，同时指定 <code>git tag -a &lt;name&gt; -m &quot;msg&quot;</code> 参数可以对创建标签进行说明。<code>git tag</code> 查看所有标签，<code>git show &lt;tagname&gt;</code>查看指定标签。</p>
-<blockquote>
-<p>注意：标签总是和某个commit挂钩。如果这个commit既出现在master分支，又出现在dev分支，那么在这两个分支上都可以看到这个标签。</p>
-</blockquote>
-<h3 id="操作标签"><a href="#操作标签" class="headerlink" title="操作标签"></a>操作标签</h3><ul>
-<li>命令<code>git push origin &lt;tagname&gt;</code>可以推送一个本地标签；</li>
-<li>命令<code>git push origin --tags</code>可以推送全部未推送过的本地标签；</li>
-<li>命令<code>git tag -d &lt;tagname&gt;</code>可以删除一个本地标签；</li>
-<li>命令<code>git push origin :refs/tags/&lt;tagname&gt;</code>可以删除一个远程标签。</li>
-</ul>
-<hr>
-<h2 id="GitHub-开源项目"><a href="#GitHub-开源项目" class="headerlink" title="GitHub 开源项目"></a>GitHub 开源项目</h2><p>在 GitHub 上，利用 Git 强大的克隆和分支功能，可以实现自由参与各种开源项目了。</p>
-<p>对于开源项目，先 fork 到自己的远程仓库，再从自己的远程仓库中克隆到本地仓库。对本地仓库的修改，再提交到自己的远程仓库，如果希望自己的修改被项目方接受，需要在 GitHub 上发起 pull request，最终取决于对方是否接受。</p>
-<hr>
-<h2 id="学习-Git-的网站"><a href="#学习-Git-的网站" class="headerlink" title="学习 Git 的网站"></a>学习 Git 的网站</h2><p><a target="_blank" rel="noopener" href="https://learngitbranching.js.org/?locale=zh_CN">https://learngitbranching.js.org/?locale=zh_CN</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/14/misc/git-%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7%E6%95%B4%E7%90%86%E6%80%BB%E7%BB%93/" data-id="cmn07ogxb00047s8t2xdw81ii" data-title="git 开发工具整理总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-algorithms/dynamicprogramming/2026-1-13-dynamicprogramming-01背包与完全背包模型" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2026/01/13/algorithms/dynamicprogramming/2026-1-13-dynamicprogramming-01%E8%83%8C%E5%8C%85%E4%B8%8E%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85%E6%A8%A1%E5%9E%8B/" class="article-date">
-  <time class="dt-published" datetime="2026-01-13T04:30:00.000Z" itemprop="datePublished">2026-01-13</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>►<a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/01/13/algorithms/dynamicprogramming/2026-1-13-dynamicprogramming-01%E8%83%8C%E5%8C%85%E4%B8%8E%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85%E6%A8%A1%E5%9E%8B/">DP 模型：从回溯语义到 0-1 背包与完全背包（2026-01-13）</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>本文通过 494、322、2915 三道典型题目，总结 <strong>0-1 背包与完全背包的统一建模方式</strong>。重点在于<strong>如何从回溯语义自然推导出动态规划模型</strong>。</p>
-</blockquote>
-<p><strong>基础题目</strong>：01背包、完全背包</p>
-<p><strong>01背包变形</strong>：</p>
-<p>494.目标和、2915.和为目标值的最长子序列的长度</p>
-<p><strong>完全背包变形</strong>：</p>
-<p>322.零钱兑换</p>
-<hr>
-<h2 id="一、为什么要从“回溯语义”入手理解-DP？"><a href="#一、为什么要从“回溯语义”入手理解-DP？" class="headerlink" title="一、为什么要从“回溯语义”入手理解 DP？"></a>一、为什么要从“回溯语义”入手理解 DP？</h2><p>在学习动态规划的过程中，我一度陷入这样的问题：</p>
-<ul>
-<li>明明知道这是 DP 题</li>
-<li>但一到写 <code>dp[i][j]</code> 就容易：<ul>
-<li>不知道从何下手</li>
-<li>理解错误状态含义</li>
-<li>写错初始化</li>
-</ul>
-</li>
-</ul>
-<p>后来我解题循序渐进旨在加深对回溯与DP的理解：</p>
-<blockquote>
-<p><strong>所有 DP 题，先用 <code>dfs(i, j)</code> 把“语义”想清楚，再翻译成 DP。</strong></p>
-</blockquote>
-<p>这篇博客正是围绕这一方法，总结 <strong>0-1 背包与完全背包</strong> 这两类最常见的 DP 模型。</p>
-<hr>
-<h2 id="二、统一视角：什么是“背包模型”？"><a href="#二、统一视角：什么是“背包模型”？" class="headerlink" title="二、统一视角：什么是“背包模型”？"></a>二、统一视角：什么是“背包模型”？</h2><p>从抽象层面看，背包问题的本质只有一句话：</p>
-<blockquote>
-<p><strong>枚举每个输入元素，决定“选或不选”，并维护一个容量约束。</strong></p>
-</blockquote>
-<h3 id="0-1-背包模型"><a href="#0-1-背包模型" class="headerlink" title="0-1 背包模型"></a>0-1 背包模型</h3><p><strong>问题描述</strong></p>
-<ul>
-<li>有 <code>n</code> 个物品</li>
-<li>第 <code>i</code> 个物品体积 <code>w[i]</code>，价值 <code>v[i]</code></li>
-<li>每个物品最多选一次</li>
-<li>在容量 <code>capacity</code> 内，求最大价值和</li>
-</ul>
-<h3 id="回溯语义三问（非常重要）"><a href="#回溯语义三问（非常重要）" class="headerlink" title="回溯语义三问（非常重要）"></a>回溯语义三问（非常重要）</h3><ul>
-<li>当前操作：枚举第 i 个物品选或不选：不选，剩余容量不变；选，容量减少 w[i]</li>
-<li>子问题：剩余容量为 c 时，前 i 个物品中的最大价值和</li>
-<li>下一个子问题：分类讨论：<ul>
-<li>当前操作不选：剩余容量 c 从前 i-1 个物品中得到的最大价值</li>
-<li>当前操作选：剩余容量 c - w[i] 从前 i-1 个物品得到的最大价值</li>
-</ul>
-</li>
-</ul>
-<h3 id="回溯表达式"><a href="#回溯表达式" class="headerlink" title="回溯表达式"></a>回溯表达式</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">int dfs(int i, int c, int[] w, int[] v) &#123;</span><br><span class="line">    if (i &lt; 0) return 0;</span><br><span class="line">    if (w[i] &gt; c) &#123;</span><br><span class="line">        return dfs(i - 1, c, w, v);</span><br><span class="line">    &#125;</span><br><span class="line">    return Math.max(</span><br><span class="line">        dfs(i - 1, c, w, v),                 // 不选</span><br><span class="line">        dfs(i - 1, c - w[i], w, v) + v[i]    // 选</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>一旦写出这段递归，DP 就已经成功了一半。</strong></p>
-<hr>
-<h3 id="完全背包模型"><a href="#完全背包模型" class="headerlink" title="完全背包模型"></a>完全背包模型</h3><p>完全背包与 0-1 背包只有一个本质区别：</p>
-<blockquote>
-<p><strong>当前物品是否允许在同一层决策中被再次使用</strong></p>
-</blockquote>
-<h4 id="回溯表达式-1"><a href="#回溯表达式-1" class="headerlink" title="回溯表达式"></a>回溯表达式</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dfs(i, c) = max(</span><br><span class="line">    dfs(i - 1, c),          // 不选</span><br><span class="line">    dfs(i, c - w[i]) + v[i] // 选，并且还能继续选 i</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
-
-<h4 id="一个非常容易困惑的问题"><a href="#一个非常容易困惑的问题" class="headerlink" title="一个非常容易困惑的问题"></a>一个非常容易困惑的问题</h4><blockquote>
-<p>为什么不需要写 <code>dfs(i - 1, c - w[i])</code>？即选了一次后不在选了</p>
-</blockquote>
-<p>原因在于：</p>
-<ul>
-<li><code>dfs(i, c - w[i])</code> 中，下一层仍然可以选择“不选”，自然会递归到 <code>dfs(i - 1, c - w[i])</code></li>
-</ul>
-<p>也就是说：</p>
-<blockquote>
-<p><strong>“选一次就不再选”这个语义，已经被递归本身隐式表达了。</strong></p>
-</blockquote>
-<p>这是我在完全背包中收获最大的一个认知点。</p>
-<hr>
-<h2 id="三、常见背包问题的分类方式"><a href="#三、常见背包问题的分类方式" class="headerlink" title="三、常见背包问题的分类方式"></a>三、常见背包问题的分类方式</h2><p>在做题时，我会优先判断两个维度：</p>
-<h3 id="1-装不装满？"><a href="#1-装不装满？" class="headerlink" title="1. 装不装满？"></a>1. 装不装满？</h3><ul>
-<li><strong>至多装 capacity</strong></li>
-<li><strong>恰好装 capacity</strong></li>
-<li><strong>至少装 capacity</strong></li>
-</ul>
-<h3 id="2-求什么？"><a href="#2-求什么？" class="headerlink" title="2. 求什么？"></a>2. 求什么？</h3><ul>
-<li>方案数</li>
-<li>最大价值</li>
-<li>最小价值</li>
-</ul>
-<blockquote>
-<p>大部分 LeetCode 背包题，都可以被放入这个二维分类表中。</p>
-</blockquote>
-<hr>
-<h2 id="四、结合具体题目分析"><a href="#四、结合具体题目分析" class="headerlink" title="四、结合具体题目分析"></a>四、结合具体题目分析</h2><h3 id="494-目标和-——-0-1-背包（恰好装满，求方案数）"><a href="#494-目标和-——-0-1-背包（恰好装满，求方案数）" class="headerlink" title="494. 目标和 —— 0-1 背包（恰好装满，求方案数）"></a>494. 目标和 —— 0-1 背包（恰好装满，求方案数）</h3><h4 id="建模思路"><a href="#建模思路" class="headerlink" title="建模思路"></a>建模思路</h4><ul>
-<li>每个数只能用一次 → <strong>0-1 背包</strong></li>
-<li>每个数选或不选 → 枚举符号</li>
-<li>本质是：<strong>恰好凑出 target 的方案数</strong></li>
-</ul>
-<h4 id="回溯语义"><a href="#回溯语义" class="headerlink" title="回溯语义"></a>回溯语义</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dfs(i, t)：使用前 i 个数，凑出和为 t 的方案数</span><br></pre></td></tr></table></figure>
-
-<h4 id="转移关系"><a href="#转移关系" class="headerlink" title="转移关系"></a>转移关系</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dfs(i, t) = dfs(i - 1, t)           // 不选 nums[i]</span><br><span class="line">          + dfs(i - 1, t - nums[i]) // 选 nums[i]</span><br></pre></td></tr></table></figure>
-
-<p>在实现时，我采用了：</p>
-<ol>
-<li>回溯 + 记忆化搜索</li>
-<li>翻译为二维 DP</li>
-<li>再做空间优化</li>
-</ol>
-<blockquote>
-<p>这道题让我深刻体会到：<br> <strong><code>dp[i][j]</code> 的含义，必须和 dfs(i, j) 的返回值一一对应。</strong></p>
-</blockquote>
-<hr>
-<h3 id="322-零钱兑换-——-完全背包（恰好装满，求最小价值）"><a href="#322-零钱兑换-——-完全背包（恰好装满，求最小价值）" class="headerlink" title="322. 零钱兑换 —— 完全背包（恰好装满，求最小价值）"></a>322. 零钱兑换 —— 完全背包（恰好装满，求最小价值）</h3><h4 id="模型映射"><a href="#模型映射" class="headerlink" title="模型映射"></a>模型映射</h4><table>
-<thead>
-<tr>
-<th>零钱兑换</th>
-<th>背包模型</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>amount</td>
-<td>capacity</td>
-</tr>
-<tr>
-<td>coin 面值</td>
-<td>物品体积</td>
-</tr>
-<tr>
-<td>使用枚数</td>
-<td>价值（每次 +1）</td>
-</tr>
-</tbody></table>
-<h4 id="为什么是完全背包？"><a href="#为什么是完全背包？" class="headerlink" title="为什么是完全背包？"></a>为什么是完全背包？</h4><p>因为：<strong>同一种硬币，在同一轮决策中可以被重复使用</strong></p>
-<h4 id="转移方程（核心）——-经过回溯、空间优化的结果"><a href="#转移方程（核心）——-经过回溯、空间优化的结果" class="headerlink" title="转移方程（核心）—— 经过回溯、空间优化的结果"></a>转移方程（核心）—— 经过回溯、空间优化的结果</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dp[j] = min(</span><br><span class="line">    dp[j],              // 不使用当前硬币</span><br><span class="line">    dp[j - coin] + 1    // 使用一次当前硬币</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h3 id="2915-和为目标值的最长子序列-——-0-1-背包（恰好装满，求最大价值）"><a href="#2915-和为目标值的最长子序列-——-0-1-背包（恰好装满，求最大价值）" class="headerlink" title="2915. 和为目标值的最长子序列 —— 0-1 背包（恰好装满，求最大价值）"></a>2915. 和为目标值的最长子序列 —— 0-1 背包（恰好装满，求最大价值）</h3><h4 id="抽象方式"><a href="#抽象方式" class="headerlink" title="抽象方式"></a>抽象方式</h4><ul>
-<li>每个元素只能选一次 → <strong>0-1 背包</strong></li>
-<li>nums[i] 作为“体积”</li>
-<li>每选一个元素，价值 +1</li>
-</ul>
-<h4 id="语义定义"><a href="#语义定义" class="headerlink" title="语义定义"></a>语义定义</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[j]：和为 j 时，能得到的最大长度</span><br></pre></td></tr></table></figure>
-
-<p>这道题让我意识到：</p>
-<blockquote>
-<p><strong>“价值”不一定是题目直接给的，而可以从题目中转化。</strong></p>
-</blockquote>
-<hr>
-<h2 id="五、空间优化：理解即可，不必强求"><a href="#五、空间优化：理解即可，不必强求" class="headerlink" title="五、空间优化：理解即可，不必强求"></a>五、空间优化：理解即可，不必强求</h2><p>在这三道题中，状态转移均只依赖于：</p>
-<ul>
-<li>上一层 <code>i - 1</code></li>
-<li>或当前层更小的 <code>j</code></li>
-</ul>
-<p>因此可以：</p>
-<ol>
-<li><code>dp[n][target] → dp[2][target]</code></li>
-<li>再进一步压缩为一维数组</li>
-</ol>
-<p>但我目前的态度是：</p>
-<blockquote>
-<p><strong>空间优化属于锦上添花，优先保证语义正确。</strong></p>
-</blockquote>
-<p>如果一维 DP 的依赖方向一时想不清楚，我会选择保留二维。</p>
-<hr>
-<h2 id="六、总结与反思"><a href="#六、总结与反思" class="headerlink" title="六、总结与反思"></a>六、总结与反思</h2><p>通过这几道题，我对动态规划的理解有了一个明显转变：</p>
-<ul>
-<li>DP 的核心不在公式</li>
-<li>而在 <strong>状态含义 + 转移语义</strong></li>
-</ul>
-<p>我目前仍然习惯：<strong>先写 dfs(i, j)，再翻译成 dp</strong></p>
-<p>但我也希望，随着练习的增多，能够逐渐做到：</p>
-<ul>
-<li>直接从问题 → 状态定义 → 转移方程</li>
-<li>减少对回溯的依赖</li>
-</ul>
-<p>这是我接下来刻意训练的方向。</p>
-<h2 id="相关代码"><a href="#相关代码" class="headerlink" title="相关代码"></a>相关代码</h2><p>本文涉及的所有代码与笔记，均已同步至我的 GitHub 算法仓库，作为 Java 后端校招过程中的学习记录。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/13/algorithms/dynamicprogramming/2026-1-13-dynamicprogramming-01%E8%83%8C%E5%8C%85%E4%B8%8E%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85%E6%A8%A1%E5%9E%8B/" data-id="cmn07ogxp00187s8tfambg5v9" data-title="DP 模型：从回溯语义到 0-1 背包与完全背包（2026-01-13）" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/01%E8%83%8C%E5%8C%85/" rel="tag">01背包</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" rel="tag">完全背包</a></li></ul>
 
     </footer>
   </div>
@@ -2419,7 +2670,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/ssm/">ssm</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/SpringBoot/">SpringBoot</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/">MyBatis</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MyBatis/ssm/">ssm</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/SpringBoot/">SpringBoot</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%AE%B0/">杂记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/%E9%80%92%E5%BD%92/">递归</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">动态规划</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E5%9B%9E%E6%BA%AF/">回溯</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E6%8C%87%E9%92%88/">指针</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">链表</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a></li></ul>
     </div>
   </div>
 
@@ -2429,7 +2680,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/01%E8%83%8C%E5%8C%85/" rel="tag">01背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LIS/" rel="tag">LIS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring-MVC/" rel="tag">Spring MVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis-plus/" rel="tag">mybatis-plus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8C%BA%E9%97%B4-DP/" rel="tag">区间 DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="tag">字符串</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" rel="tag">学习计划</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" rel="tag">完全背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8E%92%E5%88%97/" rel="tag">排列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8B%E8%AF%95/" rel="tag">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" rel="tag">热部署</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BADP/" rel="tag">状态机DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BA%BF%E6%80%A7DP/" rel="tag">线性DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E5%90%88/" rel="tag">组合</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%82%A1%E7%A5%A8%E9%97%AE%E9%A2%98/" rel="tag">股票问题</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" rel="tag">记忆化搜索</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E6%8E%A8/" rel="tag">递推</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%85%8D%E7%BD%AE/" rel="tag">配置</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A4%90%E9%A5%AE%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" rel="tag">餐饮管理系统</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/01%E8%83%8C%E5%8C%85/" rel="tag">01背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LIS/" rel="tag">LIS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LinkedList/" rel="tag">LinkedList</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring-MVC/" rel="tag">Spring MVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdbc/" rel="tag">jdbc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/" rel="tag">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/" rel="tag">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis-plus/" rel="tag">mybatis-plus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml%E6%98%A0%E5%B0%84/" rel="tag">xml映射</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" rel="tag">事务原理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" rel="tag">先序、中序、后序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" rel="tag">删除链表节点</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81mysql/" rel="tag">动态mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8C%BA%E9%97%B4-DP/" rel="tag">区间 DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" rel="tag">反转链表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF/" rel="tag">回溯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%90%E9%9B%86/" rel="tag">子集</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="tag">字符串</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" rel="tag">学习计划</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" rel="tag">完全背包</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">层序遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" rel="tag">快慢指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8C%87%E9%92%88/" rel="tag">指针</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8E%92%E5%88%97/" rel="tag">排列</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" rel="tag">时间复杂度优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" rel="tag">最近公共祖先</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8B%E8%AF%95/" rel="tag">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" rel="tag">深度优先遍历</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" rel="tag">热部署</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BADP/" rel="tag">状态机DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">由遍历序列生成二叉树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BA%BF%E6%80%A7DP/" rel="tag">线性DP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%84%E5%90%88/" rel="tag">组合</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%82%A1%E7%A5%A8%E9%97%AE%E9%A2%98/" rel="tag">股票问题</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%86%E5%9B%BE/" rel="tag">视图</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" rel="tag">触发器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BD%95/" rel="tag">记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" rel="tag">记忆化搜索</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E6%8E%A8/" rel="tag">递推</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%85%8D%E7%BD%AE/" rel="tag">配置</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A4%90%E9%A5%AE%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" rel="tag">餐饮管理系统</a></li></ul>
     </div>
   </div>
 
@@ -2439,7 +2690,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/01%E8%83%8C%E5%8C%85/" style="font-size: 10px;">01背包</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LIS/" style="font-size: 12px;">LIS</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/Spring/" style="font-size: 10px;">Spring</a> <a href="/tags/Spring-MVC/" style="font-size: 10px;">Spring MVC</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/jdbc/" style="font-size: 12px;">jdbc</a> <a href="/tags/maven/" style="font-size: 12px;">maven</a> <a href="/tags/mybatis/" style="font-size: 16px;">mybatis</a> <a href="/tags/mybatis-plus/" style="font-size: 10px;">mybatis-plus</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8C%BA%E9%97%B4-DP/" style="font-size: 10px;">区间 DP</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 18px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 12px;">子集</a> <a href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" style="font-size: 10px;">字符串</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" style="font-size: 10px;">完全背包</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 12px;">总结</a> <a href="/tags/%E6%8E%92%E5%88%97/" style="font-size: 10px;">排列</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B5%8B%E8%AF%95/" style="font-size: 10px;">测试</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12px;">深度优先遍历</a> <a href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" style="font-size: 10px;">热部署</a> <a href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BADP/" style="font-size: 10px;">状态机DP</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E7%BA%BF%E6%80%A7DP/" style="font-size: 14px;">线性DP</a> <a href="/tags/%E7%BB%84%E5%90%88/" style="font-size: 10px;">组合</a> <a href="/tags/%E8%82%A1%E7%A5%A8%E9%97%AE%E9%A2%98/" style="font-size: 10px;">股票问题</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12px;">记录</a> <a href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" style="font-size: 12px;">记忆化搜索</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 18px;">递归</a> <a href="/tags/%E9%80%92%E6%8E%A8/" style="font-size: 12px;">递推</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a> <a href="/tags/%E9%A4%90%E9%A5%AE%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" style="font-size: 14px;">餐饮管理系统</a>
+      <a href="/tags/01%E8%83%8C%E5%8C%85/" style="font-size: 10px;">01背包</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/LIS/" style="font-size: 12px;">LIS</a> <a href="/tags/LinkedList/" style="font-size: 10px;">LinkedList</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/SQL%E4%BC%98%E5%8C%96/" style="font-size: 10px;">SQL优化</a> <a href="/tags/Spring/" style="font-size: 10px;">Spring</a> <a href="/tags/Spring-MVC/" style="font-size: 10px;">Spring MVC</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/jdbc/" style="font-size: 12px;">jdbc</a> <a href="/tags/maven/" style="font-size: 12px;">maven</a> <a href="/tags/mybatis/" style="font-size: 16px;">mybatis</a> <a href="/tags/mybatis-plus/" style="font-size: 10px;">mybatis-plus</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/xml%E6%98%A0%E5%B0%84/" style="font-size: 10px;">xml映射</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a> <a href="/tags/%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86/" style="font-size: 10px;">事务原理</a> <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 20px;">二叉树</a> <a href="/tags/%E5%85%88%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E3%80%81%E5%90%8E%E5%BA%8F/" style="font-size: 12px;">先序、中序、后序</a> <a href="/tags/%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E8%8A%82%E7%82%B9/" style="font-size: 10px;">删除链表节点</a> <a href="/tags/%E5%8A%A8%E6%80%81mysql/" style="font-size: 10px;">动态mysql</a> <a href="/tags/%E5%8C%BA%E9%97%B4-DP/" style="font-size: 10px;">区间 DP</a> <a href="/tags/%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/" style="font-size: 10px;">反转链表</a> <a href="/tags/%E5%9B%9E%E6%BA%AF/" style="font-size: 18px;">回溯</a> <a href="/tags/%E5%AD%90%E9%9B%86/" style="font-size: 12px;">子集</a> <a href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" style="font-size: 10px;">字符串</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/" style="font-size: 10px;">学习计划</a> <a href="/tags/%E5%AE%8C%E5%85%A8%E8%83%8C%E5%8C%85/" style="font-size: 10px;">完全背包</a> <a href="/tags/%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/" style="font-size: 10px;">层序遍历</a> <a href="/tags/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88/" style="font-size: 10px;">快慢指针</a> <a href="/tags/%E6%80%BB%E7%BB%93/" style="font-size: 12px;">总结</a> <a href="/tags/%E6%8C%87%E9%92%88/" style="font-size: 12px;">指针</a> <a href="/tags/%E6%8E%92%E5%88%97/" style="font-size: 10px;">排列</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" style="font-size: 10px;">数据库锁</a> <a href="/tags/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E4%BC%98%E5%8C%96/" style="font-size: 10px;">时间复杂度优化</a> <a href="/tags/%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88/" style="font-size: 10px;">最近公共祖先</a> <a href="/tags/%E6%B5%8B%E8%AF%95/" style="font-size: 10px;">测试</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86/" style="font-size: 12px;">深度优先遍历</a> <a href="/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/" style="font-size: 10px;">热部署</a> <a href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BADP/" style="font-size: 10px;">状态机DP</a> <a href="/tags/%E7%94%B1%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E7%94%9F%E6%88%90%E4%BA%8C%E5%8F%89%E6%A0%91/" style="font-size: 10px;">由遍历序列生成二叉树</a> <a href="/tags/%E7%B4%A2%E5%BC%95/" style="font-size: 10px;">索引</a> <a href="/tags/%E7%BA%BF%E6%80%A7DP/" style="font-size: 14px;">线性DP</a> <a href="/tags/%E7%BB%84%E5%90%88/" style="font-size: 10px;">组合</a> <a href="/tags/%E8%82%A1%E7%A5%A8%E9%97%AE%E9%A2%98/" style="font-size: 10px;">股票问题</a> <a href="/tags/%E8%A7%86%E5%9B%BE/" style="font-size: 10px;">视图</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 10px;">触发器</a> <a href="/tags/%E8%AE%B0%E5%BD%95/" style="font-size: 12px;">记录</a> <a href="/tags/%E8%AE%B0%E5%BF%86%E5%8C%96%E6%90%9C%E7%B4%A2/" style="font-size: 12px;">记忆化搜索</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 18px;">递归</a> <a href="/tags/%E9%80%92%E6%8E%A8/" style="font-size: 12px;">递推</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a> <a href="/tags/%E9%A4%90%E9%A5%AE%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" style="font-size: 14px;">餐饮管理系统</a>
     </div>
   </div>
 
@@ -2448,7 +2699,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">三月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">一月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/12/">十二月 2025</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/05/">五月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">三月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">一月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/12/">十二月 2025</a></li></ul>
     </div>
   </div>
 
@@ -2461,6 +2712,14 @@
       <ul>
         
           <li>
+            <a href="/2026/05/18/algorithms/pointer/2026%205-18%20Two%20pointers%20in%20the%20same%20direction/">同向双指针</a>
+          </li>
+        
+          <li>
+            <a href="/2026/05/11/algorithms/pointer/2026%205-11%20Opposite%20two%20pointers/">相向双指针</a>
+          </li>
+        
+          <li>
             <a href="/2026/03/21/backend/project/2026-3-21-project-day04/">项目Redis、小程序相关总结</a>
           </li>
         
@@ -2470,14 +2729,6 @@
         
           <li>
             <a href="/2026/01/20/algorithms/dynamicprogramming/2026-1-20-dynamicprogramming-05%E7%8A%B6%E6%80%81%E6%9C%BADP/">状态机 DP：从股票问题理解「有限状态 + 决策转移」</a>
-          </li>
-        
-          <li>
-            <a href="/2026/01/19/backend/project/2026-1-19-project-day02/">后端环境搭建与核心模块实战复盘</a>
-          </li>
-        
-          <li>
-            <a href="/2026/01/19/backend/project/2026-1-27-project-day03/">后端工程实践总结公共字段自动填充、文件上传与多表业务设计</a>
           </li>
         
       </ul>
